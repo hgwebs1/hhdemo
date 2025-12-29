@@ -562,10 +562,17 @@
         
         
         <br>
-        <button id="btn-dl-jpg" disabled onclick="downloadJPG()"style = "font-size:18px;background-color: #28a451
-        ;color:white;">Download JPG</button>
+        
         <button id="btn-dl-pdf" disabled onclick="downloadPDF()"style = "font-size:18px;
-        background-color:#28a451 ;color:white;">Download PDF</button>
+        background-color:#28a451 ;color:white; border-radius:12px;
+        border: 2px solid black ;
+        ">Download PDF</button>
+        
+        <button id="btn-dl-jpg" disabled onclick="downloadJPG()"style = "font-size:18px;background-color: #28a451
+        ;color:white; border-radius:12px;
+        border: 2px solid green;
+        ">Download JPG</button>
+        
       </div>
  </div>
    
@@ -1008,13 +1015,33 @@
     document.getElementById('btn-dl-pdf').disabled = false;
   }
 
-  window.downloadJPG = function() {
-    const name = document.getElementById('filename').value || 'photosheet';
-    const link = document.createElement('a');
-    link.download = name + '.jpg';
-    link.href = sheetCanvas.toDataURL('image/jpeg', 0.95);
-    link.click();
+    window.downloadJPG = function() {
+    // 1. Sahi ID se value lena
+    const nameInput = document.getElementById('filename').value;
+    // Agar naam khali hai to default 'photosheet' use karega
+    const fileName = nameInput ? nameInput.trim() : 'photosheet';
+
+    // 2. Canvas ko Blob (File object) mein convert karna (ye zaroori hai filename ke liye)
+    sheetCanvas.toBlob(function(blob) {
+      if (!blob) return;
+
+      // 3. Temporary URL create karna
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      
+      link.download = fileName + '.jpg';
+      link.href = url;
+      
+      // 4. Link ko body me add karke click karwana (Mobile compatibility ke liye best hai)
+      document.body.appendChild(link);
+      link.click();
+      
+      // 5. Safai (Memory free karna)
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 'image/jpeg', 0.95); // 0.95 Quality
   };
+
 
   window.downloadPDF = function() {
     const name = document.getElementById('filename').value || 'photosheet';
