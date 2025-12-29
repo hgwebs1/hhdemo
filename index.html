@@ -13,7 +13,7 @@
       margin: 0;
       background: linear-gradient(120deg, #faf9f2, #dbdedb);
       color: #333745;
-      padding: 20px;
+      padding: 10px;
       user-select: none;
       box-sizing: border-box;
     }
@@ -27,7 +27,7 @@
       margin: 0 auto;
       background: rgba(255, 255, 255, 0.6);
       border-radius: 20px;
-      padding: 20px;
+      padding: 10px;
       box-shadow: 0 8px 30px rgba(0,0,0,0.1);
     }
 
@@ -35,7 +35,7 @@
       font-weight: 900;
       margin-bottom: 10px;
       color: #5066f1;
-      text-shadow: 1px 1px 4px #a8b0ff;
+      text-shadow: 1px 1px 4px #C1C5FB;
       text-align: center;
     }
 
@@ -133,6 +133,8 @@
     }
     .mode-btn {
       flex: 1;
+      font-size: 16px;
+      font-weight: 800;
       background: transparent;
       color: #555;
       box-shadow: none;
@@ -152,15 +154,15 @@
     }
     .layout-label {
       padding: 8px 20px;
-      background: linear-gradient(135deg, #3e69b1, #1f3b79);
+      background: #1f3b79);
       border: 2px solid #152f5a;
       border-radius: 8px;
-      color: white;
+      color: black;
       font-weight: 700;
       cursor: pointer;
     }
     input[type="radio"]:checked + .layout-label {
-      background: linear-gradient(135deg, #2fbf71, #125f91);
+      background: linear-gradient(135deg, #2fbf71, #51D62F);
       border-color: #0f4c72;
     }
     input[type="radio"] { display: none; }
@@ -168,7 +170,7 @@
     /* --- MARGIN CONTROLS --- */
     .margin-controls {
       background: #f1f3f5;
-      padding: 15px;
+      padding: 10px;
       border-radius: 12px;
       margin: 20px 0;
       text-align: center;
@@ -206,26 +208,26 @@
       align-items: center;
     }
     .margin-group label {
-      font-size: 9px;
+      font-size: 12px;
       font-weight: bold;
       color: #777;
       margin-bottom: 2px;
     }
     .margin-group input {
-      width: 40px;
+      width: 50px;
       padding: 4px;
       border-radius: 6px;
       border: 1px solid #ccc;
       text-align: center;
       font-weight: bold;
-      font-size: 12px;
+      font-size: 14px;
     }
 
     .checkbox-wrapper {
         display: flex;
         align-items: center;
         gap: 5px;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 700;
         color: #5066f1;
         cursor: pointer;
@@ -352,6 +354,10 @@
       padding: 6px;
       font-size: 13px;
     }
+    
+    
+    
+    
 
     /* Output Canvas */
     #sheet-canvas {
@@ -475,24 +481,14 @@
                 </label>
                 <span style="font-size:10px; color:#999;">Inside Frame</span>
             </div>
-            <div class="margin-inputs">
-                <div class="margin-group">
-                    <label>Top</label>
-                    <input type="number" id="s-top" value="0" min="0" step="0.5">
-                </div>
-                <div class="margin-group">
-                    <label>Bottom</label>
-                    <input type="number" id="s-bottom" value="0" min="0" step="0.5">
-                </div>
-                <div class="margin-group">
-                    <label>Left</label>
-                    <input type="number" id="s-left" value="0" min="0" step="0.5">
-                </div>
-                <div class="margin-group">
-                    <label>Right</label>
-                    <input type="number" id="s-right" value="0" min="0" step="0.5">
-                </div>
-            </div>
+           <div class="margin-inputs">
+    <div class="margin-group">
+        <label>Margin (mm)</label>
+        <!-- Sirf ek single input 's-uniform' ID ke sath -->
+        <input type="number" id="s-uniform" value="0" min="0" step="0.1">
+    </div>
+</div>
+
         </div>
 
         <!-- BLOCK 2: GAP -->
@@ -527,15 +523,54 @@
         <button class="apply-btn" onclick="generateSheet()">Apply Margins</button>
       </div>
 
-      <div style="width:100%; text-align:center;">
-        <input type="text" id="filename" placeholder="Sheet Name" value="MyPhotosheet">
-        <br>
-        <button id="btn-dl-jpg" disabled onclick="downloadJPG()">Download JPG</button>
-        <button id="btn-dl-pdf" disabled onclick="downloadPDF()">Download PDF</button>
-      </div>
     </div>
-
-  </div>
+   </div>
+   
+   
+   
+    <div style="padding-top: 30px;">
+      <div style="width:100%; text-align:center;">
+        <input type="text" id="filename" placeholder="Sheet Name" style = "font-size:15px;
+        max-width: 280px;
+      padding: 12px 20px;
+      background: #fffefc;
+      border-radius: 22px;
+      box-shadow: inset 0 0 9px 2px #b0b3ba;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      color: #3a4c7a;
+      font-size: 15px;
+      text-align: center;
+      border: 2px solid #9ba4cf;
+      margin-top: 5px;
+      margin-bottom:10px;
+      transition: border-color 0.3s ease;
+    }
+    placeholder {
+      color: #82889c;
+      font-style: italic;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    focus {
+      border-color: #4a56f6;
+      box-shadow: 0 0 10px 3px #485af5b3;
+      background: #f3f5ff;
+        
+        ">
+        
+        
+        
+        <br>
+        <button id="btn-dl-jpg" disabled onclick="downloadJPG()"style = "font-size:18px;background-color: #28a451
+        ;color:white;">Download JPG</button>
+        <button id="btn-dl-pdf" disabled onclick="downloadPDF()"style = "font-size:18px;
+        background-color:#28a451 ;color:white;">Download PDF</button>
+      </div>
+ </div>
+   
+   
+   
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
@@ -841,13 +876,14 @@
 
   // --- GENERATOR & MARGIN LOGIC ---
   function getShrinkValues() {
-      let t = parseFloat(document.getElementById('s-top').value) || 0;
-      let b = parseFloat(document.getElementById('s-bottom').value) || 0;
-      let l = parseFloat(document.getElementById('s-left').value) || 0;
-      let r = parseFloat(document.getElementById('s-right').value) || 0;
-      if(t<0) t=0; if(b<0) b=0; if(l<0) l=0; if(r<0) r=0;
-      return { t, b, l, r };
-  }
+    // Ek hi value uthayi 's-uniform' se
+    let val = parseFloat(document.getElementById('s-uniform').value) || 0;
+    if(val < 0) val = 0;
+    
+    // Wahi same value 'val' charo dishaon (t, b, l, r) mein bhej di
+    return { t: val, b: val, l: val, r: val };
+}
+
 
   function getGapValues() {
       let t = parseFloat(document.getElementById('g-top').value) || 0;
