@@ -176,12 +176,29 @@
       width: 100%;
       max-width: 400px;
     }
+    
+    .margin-block {
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #eee;
+    }
+    
+    .margin-block-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+    
     .margin-inputs {
       display: flex;
       justify-content: center;
-      gap: 8px;
+      gap: 5px;
       flex-wrap: wrap;
-      margin-bottom: 10px;
     }
     .margin-group {
       display: flex;
@@ -189,38 +206,30 @@
       align-items: center;
     }
     .margin-group label {
-      font-size: 10px;
+      font-size: 9px;
       font-weight: bold;
-      color: #555;
-      margin-bottom: 3px;
+      color: #777;
+      margin-bottom: 2px;
     }
     .margin-group input {
-      width: 45px;
-      padding: 5px;
-      border-radius: 8px;
+      width: 40px;
+      padding: 4px;
+      border-radius: 6px;
       border: 1px solid #ccc;
       text-align: center;
       font-weight: bold;
-      font-size: 13px;
+      font-size: 12px;
     }
-    
-    .margin-options {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        flex-wrap: wrap;
-        margin-bottom: 10px;
-    }
+
     .checkbox-wrapper {
         display: flex;
         align-items: center;
         gap: 5px;
-        font-size: 13px;
-        font-weight: 600;
-        color: #444;
+        font-size: 12px;
+        font-weight: 700;
+        color: #5066f1;
         cursor: pointer;
     }
-    .checkbox-wrapper input { cursor: pointer; }
 
     .apply-btn {
         background: #444 !important;
@@ -456,33 +465,64 @@
 
       <!-- Margin Controls -->
       <div class="margin-controls">
-        <div style="font-size:13px; font-weight:700; margin-bottom:8px; color:#5066f1;">Custom Adjustments (mm)</div>
-        <div class="margin-inputs">
-          <div class="margin-group">
-            <label>Top</label>
-            <input type="number" id="m-top" value="0" min="0" step="0.5">
-          </div>
-          <div class="margin-group">
-            <label>Bottom</label>
-            <input type="number" id="m-bottom" value="0" min="0" step="0.5">
-          </div>
-          <div class="margin-group">
-            <label>Left</label>
-            <input type="number" id="m-left" value="0" min="0" step="0.5">
-          </div>
-          <div class="margin-group">
-            <label>Right</label>
-            <input type="number" id="m-right" value="0" min="0" step="0.5">
-          </div>
+        <div style="font-size:13px; font-weight:700; margin-bottom:15px; color:#5066f1;">Advanced Adjustments (mm)</div>
+        
+        <!-- BLOCK 1: SHRINK -->
+        <div class="margin-block">
+            <div class="margin-block-header">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="check-shrink" checked> Shrink Photo
+                </label>
+                <span style="font-size:10px; color:#999;">Inside Frame</span>
+            </div>
+            <div class="margin-inputs">
+                <div class="margin-group">
+                    <label>Top</label>
+                    <input type="number" id="s-top" value="0" min="0" step="0.5">
+                </div>
+                <div class="margin-group">
+                    <label>Bottom</label>
+                    <input type="number" id="s-bottom" value="0" min="0" step="0.5">
+                </div>
+                <div class="margin-group">
+                    <label>Left</label>
+                    <input type="number" id="s-left" value="0" min="0" step="0.5">
+                </div>
+                <div class="margin-group">
+                    <label>Right</label>
+                    <input type="number" id="s-right" value="0" min="0" step="0.5">
+                </div>
+            </div>
         </div>
-        <div class="margin-options">
-            <label class="checkbox-wrapper">
-                <input type="checkbox" id="check-shrink" checked> Shrink Photo
-            </label>
-            <label class="checkbox-wrapper">
-                <input type="checkbox" id="check-gap"> Reduce Gap
-            </label>
+
+        <!-- BLOCK 2: GAP -->
+        <div class="margin-block">
+            <div class="margin-block-header">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="check-gap"> Reduce Gap
+                </label>
+                <span style="font-size:10px; color:#999;">Between Photos</span>
+            </div>
+            <div class="margin-inputs">
+                <div class="margin-group">
+                    <label>Top</label>
+                    <input type="number" id="g-top" value="0" min="0" step="0.5">
+                </div>
+                <div class="margin-group">
+                    <label>Bottom</label>
+                    <input type="number" id="g-bottom" value="0" min="0" step="0.5">
+                </div>
+                <div class="margin-group">
+                    <label>Left</label>
+                    <input type="number" id="g-left" value="0" min="0" step="0.5">
+                </div>
+                <div class="margin-group">
+                    <label>Right</label>
+                    <input type="number" id="g-right" value="0" min="0" step="0.5">
+                </div>
+            </div>
         </div>
+
         <!-- Apply Button -->
         <button class="apply-btn" onclick="generateSheet()">Apply Margins</button>
       </div>
@@ -800,11 +840,20 @@
   }
 
   // --- GENERATOR & MARGIN LOGIC ---
-  function getMargins() {
-      let t = parseFloat(document.getElementById('m-top').value) || 0;
-      let b = parseFloat(document.getElementById('m-bottom').value) || 0;
-      let l = parseFloat(document.getElementById('m-left').value) || 0;
-      let r = parseFloat(document.getElementById('m-right').value) || 0;
+  function getShrinkValues() {
+      let t = parseFloat(document.getElementById('s-top').value) || 0;
+      let b = parseFloat(document.getElementById('s-bottom').value) || 0;
+      let l = parseFloat(document.getElementById('s-left').value) || 0;
+      let r = parseFloat(document.getElementById('s-right').value) || 0;
+      if(t<0) t=0; if(b<0) b=0; if(l<0) l=0; if(r<0) r=0;
+      return { t, b, l, r };
+  }
+
+  function getGapValues() {
+      let t = parseFloat(document.getElementById('g-top').value) || 0;
+      let b = parseFloat(document.getElementById('g-bottom').value) || 0;
+      let l = parseFloat(document.getElementById('g-left').value) || 0;
+      let r = parseFloat(document.getElementById('g-right').value) || 0;
       if(t<0) t=0; if(b<0) b=0; if(l<0) l=0; if(r<0) r=0;
       return { t, b, l, r };
   }
@@ -826,7 +875,8 @@
     }
 
     // -- LOGIC FOR MARGINS AND GAPS --
-    const m = getMargins();
+    const shrink = getShrinkValues();
+    const gap = getGapValues();
     const doShrink = document.getElementById('check-shrink').checked;
     const doGap = document.getElementById('check-gap').checked;
 
@@ -841,8 +891,8 @@
     let activeFrameH = baseFrameH_mm;
 
     if(doGap) {
-        activeFrameH -= (m.t + m.b);
-        activeFrameW -= (m.l + m.r);
+        activeFrameH -= (gap.t + gap.b);
+        activeFrameW -= (gap.l + gap.r);
     }
     if(activeFrameW < 1) activeFrameW = 1;
     if(activeFrameH < 1) activeFrameH = 1;
@@ -852,8 +902,8 @@
     let activePhotoH = baseCropH_mm;
 
     if(doShrink) {
-        activePhotoW -= (m.l + m.r);
-        activePhotoH -= (m.t + m.b);
+        activePhotoW -= (shrink.l + shrink.r);
+        activePhotoH -= (shrink.t + shrink.b);
     }
     if(activePhotoW < 1) activePhotoW = 1;
     if(activePhotoH < 1) activePhotoH = 1;
@@ -873,12 +923,8 @@
     let globalOffY = 0;
 
     if(doGap) {
-        // Total grid dimensions
         const gridW = cols * drawFrameW;
-        // Total grid height based on MAX rows (to keep vertical rhythm consistent)
         const gridH = maxRows * drawFrameH;
-        
-        // Calculate offsets to center on A4 page
         globalOffX = (sheetCanvas.width - gridW) / 2;
         globalOffY = (sheetCanvas.height - gridH) / 2;
     }
@@ -909,8 +955,8 @@
                     let posY = globalOffY + yPx + inherentPadY;
                     
                     if(doShrink) {
-                        posX += calcPx(m.l);
-                        posY += calcPx(m.t);
+                        posX += calcPx(shrink.l);
+                        posY += calcPx(shrink.t);
                     }
                     
                     sheetCtx.drawImage(img, posX, posY, drawPhotoW, drawPhotoH);
@@ -946,7 +992,8 @@
     if(appMode === 'single') rows = parseInt(document.getElementById('rows-single').value);
 
     // Margins Data
-    const m = getMargins();
+    const shrink = getShrinkValues();
+    const gap = getGapValues();
     const doShrink = document.getElementById('check-shrink').checked;
     const doGap = document.getElementById('check-gap').checked;
 
@@ -959,15 +1006,15 @@
     let activeFrameW = baseFrameW;
     let activeFrameH = baseFrameH;
     if(doGap) {
-        activeFrameH -= (m.t + m.b);
-        activeFrameW -= (m.l + m.r);
+        activeFrameH -= (gap.t + gap.b);
+        activeFrameW -= (gap.l + gap.r);
     }
 
     let activePhotoW = baseCropW;
     let activePhotoH = baseCropH;
     if(doShrink) {
-        activePhotoW -= (m.l + m.r);
-        activePhotoH -= (m.t + m.b);
+        activePhotoW -= (shrink.l + shrink.r);
+        activePhotoH -= (shrink.t + shrink.b);
     }
     
     // PDF Global Margins (Start positions)
@@ -1011,8 +1058,8 @@
                 let finalY = yBase;
                 
                 if(doShrink) {
-                    finalX += m.l;
-                    finalY += m.t;
+                    finalX += shrink.l;
+                    finalY += shrink.t;
                 }
 
                 pdf.addImage(img, 'PNG', finalX, finalY, activePhotoW, activePhotoH);
