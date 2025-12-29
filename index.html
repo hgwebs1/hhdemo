@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>HG Photosheet Maker</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    /* --- BASE STYLES --- */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background: linear-gradient(120deg, #faf9f2, #dbdedb);
+      color: #333745;
+      padding: 20px;
+      user-select: none;
+    }
+    
+    .main-wrapper {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-weight: 900;
+      margin-bottom: 10px;
+      color: #5066f1;
+      text-shadow: 1px 1px 4px #a8b0ff;
+      text-align: center;
+    }
+
+    /* --- PC SPLIT LAYOUT --- */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    @media (min-width: 950px) {
+      .app-container {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+      .left-panel {
+        flex: 1;
+        min-width: 450px; /* Ensure controls have space */
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      }
+      .right-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        position: sticky;
+        top: 20px;
+        max-height: 95vh;
+        overflow-y: auto;
+      }
+      button, select, input[type="file"] {
+        width: auto !important; /* Fix buttons on PC */
+        min-width: 120px;
+      }
+      .full-width-btn { width: 100% !important; }
+    }
+    
+    @media (max-width: 949px) {
+      /* Mobile Styles */
+      .left-panel, .right-panel { width: 100%; }
+      button, select, input[type="text"] { width: 95%; margin: 10px auto; display: block; }
+    }
+
+    /* --- COMMON ELEMENTS --- */
+    button {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 12px 20px;
+      font-weight: 700;
+      border-radius: 25px;
+      border: none;
+      margin: 8px 4px;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(90, 99, 249, 0.3);
+      cursor: pointer;
+      background: linear-gradient(135deg, #5a63f9, #354cdd);
+      color: white;
+      font-size: 14px;
+    }
+    button:disabled { cursor: default; background: #adadad; box-shadow: none; color: #666; }
+    button:hover:not(:disabled) { transform: translateY(-2px); }
+
+    input[type="text"], select {
+      padding: 10px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      font-weight: 600;
+      background: #fff;
+    }
+
+    /* --- MODE & LAYOUT TOGGLES --- */
+    .mode-switcher {
+      display: flex;
+      justify-content: center;
+      margin: 0 auto 20px auto;
+      background: #e1e5ea;
+      padding: 5px;
+      border-radius: 30px;
+      max-width: 400px;
+    }
+    .mode-btn {
+      flex: 1;
+      background: transparent;
+      color: #555;
+      box-shadow: none;
+      margin: 0;
+    }
+    .mode-btn.active {
+      background: white;
+      color: #5066f1;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    #layout-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .layout-label {
+      padding: 8px 20px;
+      background: linear-gradient(135deg, #3e69b1, #1f3b79);
+      border: 2px solid #152f5a;
+      border-radius: 8px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    input[type="radio"]:checked + .layout-label {
+      background: linear-gradient(135deg, #2fbf71, #125f91);
+      border-color: #0f4c72;
+    }
+    input[type="radio"] { display: none; }
+
+    /* --- CROPPER --- */
+    .crop-container {
+      width: 100%;
+      height: 400px;
+      margin: 15px auto;
+      background: #ebefea;
+      border: 3px solid #4961f8;
+      border-radius: 15px;
+      overflow: hidden;
+      display: none;
+    }
+    .crop-container img { max-width: 100%; max-height: 100%; display: block; }
+
+    /* --- SINGLE MODE PREVIEW FIX --- */
+    #single-preview-container {
+      text-align: center;
+      margin-top: 15px;
+      display: none;
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+    }
+    #cropped-preview-single {
+      max-width: 180px; /* Small size constrained */
+      height: auto;
+      border: 2px solid #5066f1;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    /* --- MULTI MODE UI --- */
+    .multi-section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #444;
+      margin: 10px 0 5px 0;
+      display: block;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+
+    /* Thumbnails */
+    .thumbnails-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    /* Original Thumbs */
+    .thumb-card {
+      position: relative;
+      width: 70px;
+      height: 70px;
+      cursor: pointer;
+    }
+    .thumb-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 3px solid #ccc;
+      transition: all 0.2s;
+    }
+    .thumb-card.active img { border-color: #5066f1; transform: scale(1.05); }
+    
+    .delete-btn {
+      position: absolute;
+      top: -8px; right: -8px;
+      width: 22px; height: 22px;
+      background: #ff4757; color: white;
+      border-radius: 50%;
+      font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 2;
+    }
+
+    .add-btn {
+      width: 70px; height: 70px;
+      border: 2px dashed #5066f1;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #5066f1; font-size: 24px;
+      cursor: pointer; background: rgba(80, 102, 241, 0.1);
+    }
+
+    /* Cropped Thumbs */
+    .cropped-thumb {
+      width: 60px; height: 75px;
+      object-fit: cover;
+      border: 2px solid #20bf6b;
+      border-radius: 4px;
+      background: white;
+    }
+    .cropped-placeholder {
+      width: 60px; height: 75px;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px dashed #ccc; border-radius: 4px;
+      color: #aaa; font-size: 10px;
+    }
+
+    /* Row Assignment */
+    .row-assignment-box {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid #e0e0e0;
+      margin-top: 20px;
+    }
+    .row-select-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .row-select-item select {
+      width: 65%;
+      padding: 6px;
+      font-size: 13px;
+    }
+
+    /* Output Canvas */
+    #sheet-canvas {
+      width: 210mm;
+      height: 297mm;
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ccc;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+      background: white;
+    }
+    
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+  <h1>HG Photosheet Maker</h1>
+
+  <div class="mode-switcher">
+    <button id="btn-mode-single" class="mode-btn active" onclick="switchMode('single')">One Photo Mode</button>
+    <button id="btn-mode-multi" class="mode-btn" onclick="switchMode('multi')">Multiple Photos Mode</button>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- LEFT PANEL: CONTROLS -->
+    <div class="left-panel">
+      
+      <div id="layout-buttons">
+        <input type="radio" id="layout42" name="layout" value="42" checked onchange="updateLayout()">
+        <label for="layout42" class="layout-label">42 Photos (Small)</label>
+        
+        <input type="radio" id="layout30" name="layout" value="30" onchange="updateLayout()">
+        <label for="layout30" class="layout-label">30 Photos (Passport)</label>
+      </div>
+
+      <!-- === SINGLE MODE UI === -->
+      <div id="ui-single">
+        <input type="file" id="file-single" accept="image/*" onchange="handleSingleUpload(this)">
+        
+        <div class="crop-container" id="crop-wrapper-single">
+          <img id="img-single" crossorigin="anonymous">
+        </div>
+        
+        <button id="btn-crop-single" class="full-width-btn" disabled onclick="cropSingle()">Crop Photo</button>
+        
+        <!-- Small Preview -->
+        <div id="single-preview-container">
+          <p style="margin:0 0 5px 0; font-size:12px; font-weight:bold; color:#555;">Cropped Preview:</p>
+          <canvas id="cropped-preview-single"></canvas>
+        </div>
+
+        <div style="margin-top:20px; text-align:center;">
+          <label for="rows-single">Select Rows:</label>
+          <select id="rows-single" onchange="generateSheet()">
+             <!-- Options 1-7 filled by JS -->
+          </select>
+        </div>
+      </div>
+
+      <!-- === MULTI MODE UI === -->
+      <div id="ui-multi" class="hidden">
+        
+        <!-- 1. Top: Cropped List -->
+        <span class="multi-section-title">Cropped Photos (Ready):</span>
+        <div class="thumbnails-row" id="list-cropped">
+          <span style="font-size:12px; color:#999;">No cropped photos yet.</span>
+        </div>
+
+        <!-- 2. Middle: Originals -->
+        <span class="multi-section-title">Original Photos (Select to Crop):</span>
+        <div class="thumbnails-row" id="list-original">
+          <!-- JS fills this -->
+          <label class="add-btn" title="Add Photo">
+            <i class="fas fa-plus"></i>
+            <input type="file" style="display:none" multiple accept="image/*" onchange="handleAddMulti(this)">
+          </label>
+        </div>
+
+        <!-- 3. Editor -->
+        <span class="multi-section-title">Editor:</span>
+        <div class="crop-container" id="crop-wrapper-multi" style="display:flex; align-items:center; justify-content:center; background:#eee;">
+          <span id="multi-placeholder" style="color:#888; font-size:14px;">Select an original photo above</span>
+          <img id="img-multi" crossorigin="anonymous" style="display:none">
+        </div>
+        <button id="btn-crop-multi" class="full-width-btn" disabled onclick="cropMulti()">Save Crop</button>
+
+        <!-- 4. Row Assignments (The new feature) -->
+        <div class="row-assignment-box">
+          <span class="multi-section-title" style="border:none; margin-top:0;">Assign Photos to Rows:</span>
+          <div id="row-configs"></div> <!-- Dropdowns go here -->
+          <button class="full-width-btn" style="margin-top:10px; background:#444;" onclick="generateSheet()">Update Sheet</button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- RIGHT PANEL: PREVIEW -->
+    <div class="right-panel">
+      <h3 style="margin-top:0;">Sheet Preview</h3>
+      <canvas id="sheet-canvas"></canvas>
+
+      <div style="margin-top:20px; width:100%; text-align:center;">
+        <input type="text" id="filename" placeholder="Sheet Name" value="MyPhotosheet">
+        <br>
+        <button id="btn-dl-jpg" disabled onclick="downloadJPG()">Download JPG</button>
+        <button id="btn-dl-pdf" disabled onclick="downloadPDF()">Download PDF</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script>
+  const { jsPDF } = window.jspdf;
+
+  // --- EXACT ORIGINAL CALCULATIONS ---
+  const dpi = 600;
+  const mmToPx = mm => Math.round(dpi / 25.4 * mm);
+
+  const A4WidthMM = 210;
+  const A4HeightMM = 297;
+
+  // Mode 30
+  const cropWidthMM_30 = 35;
+  const cropHeightMM_30 = 45;
+  const frameWidthMM_30 = 42;
+  const frameHeightMM_30 = 49.5;
+  const pdfMarginLeftMM_30 = 3.5;
+  const pdfMarginTopMM_30 = 2;
+
+  // Mode 42
+  const cropWidthMM_42 = 31;
+  const cropHeightMM_42 = 40;
+  const frameWidthMM_42 = 35;
+  const frameHeightMM_42 = 42.43;
+  const pdfMarginLeftMM_42 = 2;
+  const pdfMarginTopMM_42 = 1.25;
+
+  // Pre-calculate Pixels
+  const calcPx = (mm) => mmToPx(mm);
+
+  // --- STATE ---
+  let appMode = 'single';
+  let layoutMode = '42'; // '42' or '30'
+  
+  // Single
+  let singleCropper = null;
+  let singleCroppedData = null; // DataURL
+
+  // Multi
+  let multiImages = []; // { id, originalSrc, croppedSrc, cropData }
+  let multiCropper = null;
+  let currentMultiId = null;
+  let rowAssignments = {}; // { 0: imgId, 1: imgId ... }
+
+  // --- DOM Elements ---
+  const uiSingle = document.getElementById('ui-single');
+  const uiMulti = document.getElementById('ui-multi');
+  const sheetCanvas = document.getElementById('sheet-canvas');
+  const sheetCtx = sheetCanvas.getContext('2d');
+  
+  // --- INIT ---
+  function init() {
+    updateLayout();
+  }
+
+  // --- MODE SWITCHING ---
+  window.switchMode = function(mode) {
+    appMode = mode;
+    document.getElementById('btn-mode-single').className = mode === 'single' ? 'mode-btn active' : 'mode-btn';
+    document.getElementById('btn-mode-multi').className = mode === 'multi' ? 'mode-btn active' : 'mode-btn';
+
+    if(mode === 'single') {
+      uiSingle.classList.remove('hidden');
+      uiMulti.classList.add('hidden');
+    } else {
+      uiSingle.classList.add('hidden');
+      uiMulti.classList.remove('hidden');
+      renderMultiUI();
+    }
+    generateSheet();
+  };
+
+  window.updateLayout = function() {
+    layoutMode = document.querySelector('input[name="layout"]:checked').value;
+    
+    // Single Mode Rows Dropdown
+    const sel = document.getElementById('rows-single');
+    sel.innerHTML = '';
+    const maxRows = layoutMode === '42' ? 7 : 6;
+    for(let i=1; i<=maxRows; i++) {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.innerText = i + " Rows";
+        if(i===maxRows) opt.selected = true;
+        sel.appendChild(opt);
+    }
+
+    // Reset Croppers (aspect ratio change)
+    if(singleCropper) { singleCropper.destroy(); singleCropper = null; document.getElementById('crop-wrapper-single').style.display='none'; document.getElementById('btn-crop-single').disabled=true; }
+    if(multiCropper) { multiCropper.destroy(); multiCropper = null; document.getElementById('img-multi').style.display='none'; document.getElementById('multi-placeholder').style.display='block'; document.getElementById('btn-crop-multi').disabled=true; currentMultiId=null;}
+
+    if(appMode === 'multi') renderMultiUI(); // Re-render row dropdowns
+    generateSheet();
+  };
+
+  // --- SINGLE MODE ---
+  window.handleSingleUpload = function(input) {
+    if(input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.getElementById('img-single');
+        img.src = e.target.result;
+        document.getElementById('crop-wrapper-single').style.display = 'block';
+        document.getElementById('single-preview-container').style.display = 'none'; // Hide old preview
+        initCropper(img, 'single');
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+    input.value = '';
+  };
+
+  window.cropSingle = function() {
+    if(!singleCropper) return;
+    const is30 = layoutMode === '30';
+    const wPx = calcPx(is30 ? cropWidthMM_30 : cropWidthMM_42);
+    const hPx = calcPx(is30 ? cropHeightMM_30 : cropHeightMM_42);
+
+    const cvs = singleCropper.getCroppedCanvas({ width: wPx, height: hPx, imageSmoothingQuality: 'high' });
+    singleCroppedData = cvs.toDataURL('image/png');
+
+    // Small Preview
+    const pCanvas = document.getElementById('cropped-preview-single');
+    pCanvas.width = wPx;
+    pCanvas.height = hPx;
+    const pCtx = pCanvas.getContext('2d');
+    pCtx.drawImage(cvs, 0, 0);
+    document.getElementById('single-preview-container').style.display = 'block';
+
+    generateSheet();
+    enableDL();
+  };
+
+  // --- MULTI MODE ---
+  window.handleAddMulti = function(input) {
+    if(input.files && input.files.length > 0) {
+      Array.from(input.files).forEach(f => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          multiImages.push({
+             id: Date.now() + Math.random(),
+             originalSrc: e.target.result,
+             croppedSrc: null,
+             cropData: null,
+             name: f.name
+          });
+          renderMultiUI();
+        };
+        reader.readAsDataURL(f);
+      });
+    }
+    input.value = '';
+  };
+
+  function renderMultiUI() {
+    const listC = document.getElementById('list-cropped');
+    const listO = document.getElementById('list-original');
+    const rowBox = document.getElementById('row-configs');
+    
+    listC.innerHTML = '';
+    listO.innerHTML = '';
+    rowBox.innerHTML = '';
+
+    // 1. Cropped List
+    const croppedImgs = multiImages.filter(i => i.croppedSrc);
+    if(croppedImgs.length === 0) {
+        listC.innerHTML = '<span style="font-size:12px; color:#999; margin:auto;">No cropped photos yet</span>';
+    } else {
+        croppedImgs.forEach(img => {
+            const el = document.createElement('img');
+            el.src = img.croppedSrc;
+            el.className = 'cropped-thumb';
+            listC.appendChild(el);
+        });
+    }
+
+    // 2. Original List
+    multiImages.forEach(img => {
+        const div = document.createElement('div');
+        div.className = `thumb-card ${currentMultiId === img.id ? 'active' : ''}`;
+        div.onclick = () => editMulti(img.id);
+        
+        const iEl = document.createElement('img');
+        iEl.src = img.originalSrc;
+        
+        const del = document.createElement('div');
+        del.className = 'delete-btn';
+        del.innerHTML = '<i class="fas fa-times"></i>';
+        del.onclick = (e) => { e.stopPropagation(); deleteMulti(img.id); };
+
+        div.appendChild(iEl);
+        div.appendChild(del);
+        listO.appendChild(div);
+    });
+    // Add Button is static in HTML, managed by loop logic? No, static needs to be appended or kept outside. 
+    // The HTML has the button inside list-original, but innerHTML clears it. Let's append it back.
+    const addBtnHTML = `<label class="add-btn" title="Add Photo"><i class="fas fa-plus"></i><input type="file" style="display:none" multiple accept="image/*" onchange="handleAddMulti(this)"></label>`;
+    listO.insertAdjacentHTML('beforeend', addBtnHTML);
+
+
+    // 3. Row Assignment Dropdowns
+    const maxRows = layoutMode === '42' ? 7 : 6;
+    for(let r=0; r < maxRows; r++) {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'row-select-item';
+        
+        const lbl = document.createElement('label');
+        lbl.innerText = `Row ${r+1}:`;
+        
+        const sel = document.createElement('select');
+        sel.onchange = (e) => { rowAssignments[r] = e.target.value; };
+        
+        // Default Option
+        const def = document.createElement('option');
+        def.value = '';
+        def.innerText = 'Select Photo...';
+        sel.appendChild(def);
+
+        multiImages.forEach((img, idx) => {
+             const opt = document.createElement('option');
+             opt.value = img.id;
+             const status = img.croppedSrc ? '(Ready)' : '(Not Cropped)';
+             opt.innerText = `Photo ${idx+1} ${status}`;
+             sel.appendChild(opt);
+        });
+
+        // Set value if exists
+        if(rowAssignments[r]) sel.value = rowAssignments[r];
+        // Auto-assign logic: if row 0 has no assignment, and photo 0 exists, assign it?
+        // User asked for option, but maybe pre-fill is nice. Let's stick to manual or persistence.
+        // Persistence logic:
+        if(!rowAssignments[r] && multiImages[r]) {
+             // Auto-fill sequentially if available and not set
+             sel.value = multiImages[r].id;
+             rowAssignments[r] = multiImages[r].id;
+        }
+
+        rowDiv.appendChild(lbl);
+        rowDiv.appendChild(sel);
+        rowBox.appendChild(rowDiv);
+    }
+  }
+
+  window.editMulti = function(id) {
+    const img = multiImages.find(i => i.id == id);
+    if(!img) return;
+    currentMultiId = id;
+    renderMultiUI();
+
+    const imgEl = document.getElementById('img-multi');
+    imgEl.src = img.originalSrc;
+    document.getElementById('img-multi').style.display='block';
+    document.getElementById('multi-placeholder').style.display='none';
+    
+    initCropper(imgEl, 'multi', img.cropData);
+  };
+
+  window.cropMulti = function() {
+    if(!multiCropper || !currentMultiId) return;
+    const is30 = layoutMode === '30';
+    const wPx = calcPx(is30 ? cropWidthMM_30 : cropWidthMM_42);
+    const hPx = calcPx(is30 ? cropHeightMM_30 : cropHeightMM_42);
+
+    const cvs = multiCropper.getCroppedCanvas({ width: wPx, height: hPx, imageSmoothingQuality: 'high' });
+    
+    const img = multiImages.find(i => i.id == currentMultiId);
+    if(img) {
+        img.croppedSrc = cvs.toDataURL('image/png');
+        img.cropData = multiCropper.getData();
+    }
+    renderMultiUI();
+    generateSheet();
+    enableDL();
+  };
+
+  window.deleteMulti = function(id) {
+    if(!confirm('Delete this photo?')) return;
+    multiImages = multiImages.filter(i => i.id != id);
+    if(currentMultiId == id) {
+        if(multiCropper) multiCropper.destroy();
+        multiCropper = null;
+        currentMultiId = null;
+        document.getElementById('img-multi').style.display='none';
+        document.getElementById('multi-placeholder').style.display='block';
+        document.getElementById('btn-crop-multi').disabled=true;
+    }
+    renderMultiUI();
+    generateSheet();
+  };
+
+  // --- HELPER ---
+  function initCropper(img, type, data=null) {
+    if(type==='single' && singleCropper) singleCropper.destroy();
+    if(type==='multi' && multiCropper) multiCropper.destroy();
+
+    const is30 = layoutMode === '30';
+    const aspect = is30 ? (cropWidthMM_30/cropHeightMM_30) : (cropWidthMM_42/cropHeightMM_42);
+
+    const c = new Cropper(img, {
+        aspectRatio: aspect,
+        viewMode: 1,
+        autoCropArea: 1,
+        minCropBoxWidth: 50,
+        ready() {
+            if(type==='single') document.getElementById('btn-crop-single').disabled=false;
+            if(type==='multi') {
+                document.getElementById('btn-crop-multi').disabled=false;
+                if(data) this.cropper.setData(data);
+            }
+        }
+    });
+
+    if(type==='single') singleCropper = c;
+    if(type==='multi') multiCropper = c;
+  }
+
+  // --- GENERATOR (Original Logic) ---
+  function generateSheet() {
+    // Reset Canvas
+    sheetCanvas.width = calcPx(A4WidthMM);
+    sheetCanvas.height = calcPx(A4HeightMM);
+    sheetCtx.fillStyle = '#fff';
+    sheetCtx.fillRect(0, 0, sheetCanvas.width, sheetCanvas.height);
+
+    const is30 = layoutMode === '30';
+    const cols = is30 ? 5 : 6;
+    const maxRows = is30 ? 6 : 7;
+    
+    // Determine actual rows to print
+    let rowsToPrint = maxRows;
+    if(appMode === 'single') {
+        const sel = document.getElementById('rows-single');
+        rowsToPrint = parseInt(sel.value);
+    }
+
+    const frameW = calcPx(is30 ? frameWidthMM_30 : frameWidthMM_42);
+    const frameH = calcPx(is30 ? frameHeightMM_30 : frameHeightMM_42);
+    const cropW = calcPx(is30 ? cropWidthMM_30 : cropWidthMM_42);
+    const cropH = calcPx(is30 ? cropHeightMM_30 : cropHeightMM_42);
+    // Margins logic handled inside loops or simple offset?
+    // Original hpm1.html used logic inside generateSheet for canvas:
+    // "const yPx = frameHeightPx * r;" etc. It did NOT use PDF margins for canvas drawing,
+    // it used full frame grid starting at 0,0 but centered crop in frame.
+    // However, for PDF it used margins. We must follow canvas logic for canvas, pdf for pdf.
+    
+    const loadImg = src => new Promise(r => { const i=new Image(); i.onload=()=>r(i); i.src=src; });
+
+    const draw = async () => {
+        for(let r=0; r < rowsToPrint; r++) {
+            let src = null;
+            
+            if(appMode === 'single') {
+                src = singleCroppedData;
+            } else {
+                // Multi Mode: Get assigned image ID
+                const id = rowAssignments[r];
+                if(id) {
+                    const imgObj = multiImages.find(i => i.id == id);
+                    if(imgObj) src = imgObj.croppedSrc || imgObj.originalSrc; // Fallback to original if not cropped
+                }
+            }
+
+            if(src) {
+                const img = await loadImg(src);
+                const yPx = frameH * r; // Canvas drawing starts at top edge 0
+                for(let c=0; c < cols; c++) {
+                    const xPx = frameW * c;
+                    
+                    // Center in frame
+                    const offX = xPx + (frameW - cropW)/2;
+                    const offY = yPx + (frameH - cropH)/2;
+                    
+                    sheetCtx.drawImage(img, offX, offY, cropW, cropH);
+                }
+            }
+        }
+    };
+    draw();
+  }
+
+  function enableDL() {
+    document.getElementById('btn-dl-jpg').disabled = false;
+    document.getElementById('btn-dl-pdf').disabled = false;
+  }
+
+  // --- DOWNLOADS (Original Logic) ---
+  window.downloadJPG = function() {
+    const name = document.getElementById('filename').value || 'photosheet';
+    const link = document.createElement('a');
+    link.download = name + '.jpg';
+    link.href = sheetCanvas.toDataURL('image/jpeg', 0.95);
+    link.click();
+  };
+
+  window.downloadPDF = function() {
+    const name = document.getElementById('filename').value || 'photosheet';
+    
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4', compress : false });
+    const is30 = layoutMode === '30';
+    
+    const cols = is30 ? 5 : 6;
+    const maxRows = is30 ? 6 : 7;
+    let rows = maxRows;
+    if(appMode === 'single') rows = parseInt(document.getElementById('rows-single').value);
+
+    const frameW = is30 ? frameWidthMM_30 : frameWidthMM_42;
+    const frameH = is30 ? frameHeightMM_30 : frameHeightMM_42;
+    const cropW = is30 ? cropWidthMM_30 : cropWidthMM_42;
+    const cropH = is30 ? cropHeightMM_30 : cropHeightMM_42;
+    const marginL = is30 ? pdfMarginLeftMM_30 : pdfMarginLeftMM_42;
+    const marginT = is30 ? pdfMarginTopMM_30 : pdfMarginTopMM_42;
+
+    // Need to handle async image loading for PDF logic loop
+    // We'll collect all needed images first
+    const tasks = [];
+    for(let r=0; r<rows; r++) {
+        let src = null;
+        if(appMode === 'single') src = singleCroppedData;
+        else {
+            const id = rowAssignments[r];
+            const obj = multiImages.find(i=>i.id==id);
+            if(obj) src = obj.croppedSrc || obj.originalSrc;
+        }
+        if(src) tasks.push({ r, src });
+    }
+
+    if(tasks.length === 0) { alert("No photos to print"); return; }
+
+    let loaded = 0;
+    tasks.forEach(task => {
+        const img = new Image();
+        img.onload = () => {
+            const y = marginT + task.r * frameH;
+            for(let c=0; c < cols; c++) {
+                const x = marginL + c * frameW;
+                pdf.addImage(img, 'PNG', x, y, cropW, cropH);
+            }
+            loaded++;
+            if(loaded === tasks.length) pdf.save(name + '.pdf');
+        };
+        img.src = task.src;
+    });
+  };
+
+  init();
+</script>
+</body>
+</html>
+
