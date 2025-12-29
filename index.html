@@ -358,6 +358,28 @@
     
     
     
+       /* DOWNLOAD BUTTONS */
+     
+    #btn-dl-jpg, #btn-dl-pdf {
+        background: #28a451;
+       font-size: 18px;
+        color:white; border-radius:12px;
+        border: 2px solid black 
+    }
+    
+    /* 2. Disabled State (Jab photo upload na ho) */
+    #btn-dl-jpg:disabled, #btn-dl-pdf:disabled {
+        background: ;
+        opacity: 0.5; 
+        color: white !important;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    
+    
+    
+    
 
     /* Output Canvas */
     #sheet-canvas {
@@ -563,13 +585,9 @@
         
         <br>
         
-        <button id="btn-dl-pdf" disabled onclick="downloadPDF()"style = "font-size:18px;
-        background-color:#28a451 ;color:white; border-radius:12px;
-        border: 2px solid black ;
-        ">Download PDF</button>
+        <button id="btn-dl-pdf" disabled onclick="downloadPDF()">Download PDF</button>
         
-        <button id="btn-dl-jpg" disabled onclick="downloadJPG()"style = "font-size:18px;background-color: #28a451
-        ;color:white; border-radius:12px;
+        <button id="btn-dl-jpg" disabled onclick="downloadJPG()"style = "
         border: 2px solid green;
         ">Download JPG</button>
         
