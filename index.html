@@ -364,7 +364,7 @@
         background: #28a451;
        font-size: 18px;
         color:white; border-radius:12px;
-        border: 2px solid black 
+        border: 2px solid #0A5940
     }
     
     /* 2. Disabled State (Jab photo upload na ho) */
@@ -1036,8 +1036,8 @@
     window.downloadJPG = function() {
     // 1. Sahi ID se value lena
     const nameInput = document.getElementById('filename').value;
-    // Agar naam khali hai to default 'photosheet' use karega
-    const fileName = nameInput ? nameInput.trim() : 'photosheet';
+    // Agar naam khali hai to default 'Hg photosheet' use karega
+    const fileName = nameInput ? nameInput.trim() : 'Hg photosheet';
 
     // 2. Canvas ko Blob (File object) mein convert karna (ye zaroori hai filename ke liye)
     sheetCanvas.toBlob(function(blob) {
@@ -1062,7 +1062,7 @@
 
 
   window.downloadPDF = function() {
-    const name = document.getElementById('filename').value || 'photosheet';
+    const name = document.getElementById('filename').value || 'Hg photosheet';
     
     const pdf = new jsPDF({ unit: 'mm', format: 'a4', compress : false });
     const is30 = layoutMode === '30';
