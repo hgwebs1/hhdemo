@@ -15,6 +15,11 @@
       color: #333745;
       padding: 20px;
       user-select: none;
+      box-sizing: border-box;
+    }
+    
+    *, *:before, *:after {
+      box-sizing: inherit;
     }
     
     .main-wrapper {
@@ -48,7 +53,7 @@
       }
       .left-panel {
         flex: 1;
-        min-width: 450px; /* Ensure controls have space */
+        min-width: 450px;
         background: white;
         padding: 25px;
         border-radius: 16px;
@@ -68,21 +73,23 @@
         max-height: 95vh;
         overflow-y: auto;
       }
-      button, select, input[type="file"] {
-        width: auto !important; /* Fix buttons on PC */
+      button, select, .custom-file-upload {
+        width: auto !important;
         min-width: 120px;
       }
-      .full-width-btn { width: 100% !important; }
+      .full-width-btn { 
+        width: 100% !important; 
+      }
     }
     
     @media (max-width: 949px) {
-      /* Mobile Styles */
       .left-panel, .right-panel { width: 100%; }
-      button, select, input[type="text"] { width: 95%; margin: 10px auto; display: block; }
+      button, select, input[type="text"], .custom-file-upload { width: 95%; margin: 10px auto; display: block; }
+      .full-width-btn { width: 95% !important; margin: 10px auto; }
     }
 
     /* --- COMMON ELEMENTS --- */
-    button {
+    button, .custom-file-upload {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       padding: 12px 20px;
       font-weight: 700;
@@ -95,9 +102,16 @@
       background: linear-gradient(135deg, #5a63f9, #354cdd);
       color: white;
       font-size: 14px;
+      display: inline-block;
+      text-align: center;
     }
     button:disabled { cursor: default; background: #adadad; box-shadow: none; color: #666; }
-    button:hover:not(:disabled) { transform: translateY(-2px); }
+    button:hover:not(:disabled), .custom-file-upload:hover { transform: translateY(-2px); }
+
+    .full-width-btn {
+        display: block;
+        margin-top: 15px;
+    }
 
     input[type="text"], select {
       padding: 10px;
@@ -151,6 +165,69 @@
     }
     input[type="radio"] { display: none; }
 
+    /* --- MARGIN CONTROLS --- */
+    .margin-controls {
+      background: #f1f3f5;
+      padding: 15px;
+      border-radius: 12px;
+      margin: 20px 0;
+      text-align: center;
+      border: 1px solid #ddd;
+      width: 100%;
+      max-width: 400px;
+    }
+    .margin-inputs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .margin-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .margin-group label {
+      font-size: 10px;
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 3px;
+    }
+    .margin-group input {
+      width: 45px;
+      padding: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      text-align: center;
+      font-weight: bold;
+      font-size: 13px;
+    }
+    
+    .margin-options {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #444;
+        cursor: pointer;
+    }
+    .checkbox-wrapper input { cursor: pointer; }
+
+    .apply-btn {
+        background: #444 !important;
+        width: 100%;
+        margin-top: 5px;
+    }
+
     /* --- CROPPER --- */
     .crop-container {
       width: 100%;
@@ -164,7 +241,7 @@
     }
     .crop-container img { max-width: 100%; max-height: 100%; display: block; }
 
-    /* --- SINGLE MODE PREVIEW FIX --- */
+    /* --- SINGLE MODE STYLES --- */
     #single-preview-container {
       text-align: center;
       margin-top: 15px;
@@ -175,12 +252,13 @@
       border: 1px solid #ddd;
     }
     #cropped-preview-single {
-      max-width: 180px; /* Small size constrained */
+      max-width: 180px; 
       height: auto;
       border: 2px solid #5066f1;
       border-radius: 8px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
+    #file-single { display: none; }
 
     /* --- MULTI MODE UI --- */
     .multi-section-title {
@@ -193,7 +271,6 @@
       padding-bottom: 5px;
     }
 
-    /* Thumbnails */
     .thumbnails-row {
       display: flex;
       flex-wrap: wrap;
@@ -201,7 +278,6 @@
       margin-bottom: 15px;
     }
     
-    /* Original Thumbs */
     .thumb-card {
       position: relative;
       width: 70px;
@@ -240,7 +316,6 @@
       cursor: pointer; background: rgba(80, 102, 241, 0.1);
     }
 
-    /* Cropped Thumbs */
     .cropped-thumb {
       width: 60px; height: 75px;
       object-fit: cover;
@@ -248,14 +323,7 @@
       border-radius: 4px;
       background: white;
     }
-    .cropped-placeholder {
-      width: 60px; height: 75px;
-      display: flex; align-items: center; justify-content: center;
-      border: 2px dashed #ccc; border-radius: 4px;
-      color: #aaa; font-size: 10px;
-    }
 
-    /* Row Assignment */
     .row-assignment-box {
       background: #f8f9fa;
       padding: 15px;
@@ -305,6 +373,7 @@
     <!-- LEFT PANEL: CONTROLS -->
     <div class="left-panel">
       
+      <!-- Layout Selection -->
       <div id="layout-buttons">
         <input type="radio" id="layout42" name="layout" value="42" checked onchange="updateLayout()">
         <label for="layout42" class="layout-label">42 Photos (Small)</label>
@@ -315,7 +384,12 @@
 
       <!-- === SINGLE MODE UI === -->
       <div id="ui-single">
-        <input type="file" id="file-single" accept="image/*" onchange="handleSingleUpload(this)">
+        <div style="text-align:center;">
+          <label for="file-single" class="custom-file-upload">
+            <i class="fas fa-upload"></i> Upload Photo
+          </label>
+          <input type="file" id="file-single" accept="image/*" onchange="handleSingleUpload(this)">
+        </div>
         
         <div class="crop-container" id="crop-wrapper-single">
           <img id="img-single" crossorigin="anonymous">
@@ -364,10 +438,10 @@
         </div>
         <button id="btn-crop-multi" class="full-width-btn" disabled onclick="cropMulti()">Save Crop</button>
 
-        <!-- 4. Row Assignments (The new feature) -->
+        <!-- 4. Row Assignments -->
         <div class="row-assignment-box">
           <span class="multi-section-title" style="border:none; margin-top:0;">Assign Photos to Rows:</span>
-          <div id="row-configs"></div> <!-- Dropdowns go here -->
+          <div id="row-configs"></div>
           <button class="full-width-btn" style="margin-top:10px; background:#444;" onclick="generateSheet()">Update Sheet</button>
         </div>
 
@@ -380,7 +454,40 @@
       <h3 style="margin-top:0;">Sheet Preview</h3>
       <canvas id="sheet-canvas"></canvas>
 
-      <div style="margin-top:20px; width:100%; text-align:center;">
+      <!-- Margin Controls -->
+      <div class="margin-controls">
+        <div style="font-size:13px; font-weight:700; margin-bottom:8px; color:#5066f1;">Custom Adjustments (mm)</div>
+        <div class="margin-inputs">
+          <div class="margin-group">
+            <label>Top</label>
+            <input type="number" id="m-top" value="0" min="0" step="0.5">
+          </div>
+          <div class="margin-group">
+            <label>Bottom</label>
+            <input type="number" id="m-bottom" value="0" min="0" step="0.5">
+          </div>
+          <div class="margin-group">
+            <label>Left</label>
+            <input type="number" id="m-left" value="0" min="0" step="0.5">
+          </div>
+          <div class="margin-group">
+            <label>Right</label>
+            <input type="number" id="m-right" value="0" min="0" step="0.5">
+          </div>
+        </div>
+        <div class="margin-options">
+            <label class="checkbox-wrapper">
+                <input type="checkbox" id="check-shrink" checked> Shrink Photo
+            </label>
+            <label class="checkbox-wrapper">
+                <input type="checkbox" id="check-gap"> Reduce Gap
+            </label>
+        </div>
+        <!-- Apply Button -->
+        <button class="apply-btn" onclick="generateSheet()">Apply Margins</button>
+      </div>
+
+      <div style="width:100%; text-align:center;">
         <input type="text" id="filename" placeholder="Sheet Name" value="MyPhotosheet">
         <br>
         <button id="btn-dl-jpg" disabled onclick="downloadJPG()">Download JPG</button>
@@ -419,7 +526,6 @@
   const pdfMarginLeftMM_42 = 2;
   const pdfMarginTopMM_42 = 1.25;
 
-  // Pre-calculate Pixels
   const calcPx = (mm) => mmToPx(mm);
 
   // --- STATE ---
@@ -434,7 +540,7 @@
   let multiImages = []; // { id, originalSrc, croppedSrc, cropData }
   let multiCropper = null;
   let currentMultiId = null;
-  let rowAssignments = {}; // { 0: imgId, 1: imgId ... }
+  let rowAssignments = {};
 
   // --- DOM Elements ---
   const uiSingle = document.getElementById('ui-single');
@@ -479,11 +585,11 @@
         sel.appendChild(opt);
     }
 
-    // Reset Croppers (aspect ratio change)
+    // Reset Croppers
     if(singleCropper) { singleCropper.destroy(); singleCropper = null; document.getElementById('crop-wrapper-single').style.display='none'; document.getElementById('btn-crop-single').disabled=true; }
     if(multiCropper) { multiCropper.destroy(); multiCropper = null; document.getElementById('img-multi').style.display='none'; document.getElementById('multi-placeholder').style.display='block'; document.getElementById('btn-crop-multi').disabled=true; currentMultiId=null;}
 
-    if(appMode === 'multi') renderMultiUI(); // Re-render row dropdowns
+    if(appMode === 'multi') renderMultiUI();
     generateSheet();
   };
 
@@ -495,7 +601,7 @@
         const img = document.getElementById('img-single');
         img.src = e.target.result;
         document.getElementById('crop-wrapper-single').style.display = 'block';
-        document.getElementById('single-preview-container').style.display = 'none'; // Hide old preview
+        document.getElementById('single-preview-container').style.display = 'none';
         initCropper(img, 'single');
       };
       reader.readAsDataURL(input.files[0]);
@@ -512,7 +618,6 @@
     const cvs = singleCropper.getCroppedCanvas({ width: wPx, height: hPx, imageSmoothingQuality: 'high' });
     singleCroppedData = cvs.toDataURL('image/png');
 
-    // Small Preview
     const pCanvas = document.getElementById('cropped-preview-single');
     pCanvas.width = wPx;
     pCanvas.height = hPx;
@@ -554,7 +659,6 @@
     listO.innerHTML = '';
     rowBox.innerHTML = '';
 
-    // 1. Cropped List
     const croppedImgs = multiImages.filter(i => i.croppedSrc);
     if(croppedImgs.length === 0) {
         listC.innerHTML = '<span style="font-size:12px; color:#999; margin:auto;">No cropped photos yet</span>';
@@ -567,7 +671,6 @@
         });
     }
 
-    // 2. Original List
     multiImages.forEach(img => {
         const div = document.createElement('div');
         div.className = `thumb-card ${currentMultiId === img.id ? 'active' : ''}`;
@@ -585,13 +688,9 @@
         div.appendChild(del);
         listO.appendChild(div);
     });
-    // Add Button is static in HTML, managed by loop logic? No, static needs to be appended or kept outside. 
-    // The HTML has the button inside list-original, but innerHTML clears it. Let's append it back.
     const addBtnHTML = `<label class="add-btn" title="Add Photo"><i class="fas fa-plus"></i><input type="file" style="display:none" multiple accept="image/*" onchange="handleAddMulti(this)"></label>`;
     listO.insertAdjacentHTML('beforeend', addBtnHTML);
 
-
-    // 3. Row Assignment Dropdowns
     const maxRows = layoutMode === '42' ? 7 : 6;
     for(let r=0; r < maxRows; r++) {
         const rowDiv = document.createElement('div');
@@ -603,7 +702,6 @@
         const sel = document.createElement('select');
         sel.onchange = (e) => { rowAssignments[r] = e.target.value; };
         
-        // Default Option
         const def = document.createElement('option');
         def.value = '';
         def.innerText = 'Select Photo...';
@@ -617,13 +715,8 @@
              sel.appendChild(opt);
         });
 
-        // Set value if exists
         if(rowAssignments[r]) sel.value = rowAssignments[r];
-        // Auto-assign logic: if row 0 has no assignment, and photo 0 exists, assign it?
-        // User asked for option, but maybe pre-fill is nice. Let's stick to manual or persistence.
-        // Persistence logic:
         if(!rowAssignments[r] && multiImages[r]) {
-             // Auto-fill sequentially if available and not set
              sel.value = multiImages[r].id;
              rowAssignments[r] = multiImages[r].id;
         }
@@ -681,7 +774,6 @@
     generateSheet();
   };
 
-  // --- HELPER ---
   function initCropper(img, type, data=null) {
     if(type==='single' && singleCropper) singleCropper.destroy();
     if(type==='multi' && multiCropper) multiCropper.destroy();
@@ -707,9 +799,17 @@
     if(type==='multi') multiCropper = c;
   }
 
-  // --- GENERATOR (Original Logic) ---
+  // --- GENERATOR & MARGIN LOGIC ---
+  function getMargins() {
+      let t = parseFloat(document.getElementById('m-top').value) || 0;
+      let b = parseFloat(document.getElementById('m-bottom').value) || 0;
+      let l = parseFloat(document.getElementById('m-left').value) || 0;
+      let r = parseFloat(document.getElementById('m-right').value) || 0;
+      if(t<0) t=0; if(b<0) b=0; if(l<0) l=0; if(r<0) r=0;
+      return { t, b, l, r };
+  }
+
   function generateSheet() {
-    // Reset Canvas
     sheetCanvas.width = calcPx(A4WidthMM);
     sheetCanvas.height = calcPx(A4HeightMM);
     sheetCtx.fillStyle = '#fff';
@@ -719,51 +819,101 @@
     const cols = is30 ? 5 : 6;
     const maxRows = is30 ? 6 : 7;
     
-    // Determine actual rows to print
     let rowsToPrint = maxRows;
     if(appMode === 'single') {
         const sel = document.getElementById('rows-single');
         rowsToPrint = parseInt(sel.value);
     }
 
-    const frameW = calcPx(is30 ? frameWidthMM_30 : frameWidthMM_42);
-    const frameH = calcPx(is30 ? frameHeightMM_30 : frameHeightMM_42);
-    const cropW = calcPx(is30 ? cropWidthMM_30 : cropWidthMM_42);
-    const cropH = calcPx(is30 ? cropHeightMM_30 : cropHeightMM_42);
-    // Margins logic handled inside loops or simple offset?
-    // Original hpm1.html used logic inside generateSheet for canvas:
-    // "const yPx = frameHeightPx * r;" etc. It did NOT use PDF margins for canvas drawing,
-    // it used full frame grid starting at 0,0 but centered crop in frame.
-    // However, for PDF it used margins. We must follow canvas logic for canvas, pdf for pdf.
+    // -- LOGIC FOR MARGINS AND GAPS --
+    const m = getMargins();
+    const doShrink = document.getElementById('check-shrink').checked;
+    const doGap = document.getElementById('check-gap').checked;
+
+    // Base Dimensions
+    const baseCropW_mm = is30 ? cropWidthMM_30 : cropWidthMM_42;
+    const baseCropH_mm = is30 ? cropHeightMM_30 : cropHeightMM_42;
+    const baseFrameW_mm = is30 ? frameWidthMM_30 : frameWidthMM_42;
+    const baseFrameH_mm = is30 ? frameHeightMM_30 : frameHeightMM_42;
+
+    // 1. Active Frame Size
+    let activeFrameW = baseFrameW_mm;
+    let activeFrameH = baseFrameH_mm;
+
+    if(doGap) {
+        activeFrameH -= (m.t + m.b);
+        activeFrameW -= (m.l + m.r);
+    }
+    if(activeFrameW < 1) activeFrameW = 1;
+    if(activeFrameH < 1) activeFrameH = 1;
+
+    // 2. Active Photo Size
+    let activePhotoW = baseCropW_mm;
+    let activePhotoH = baseCropH_mm;
+
+    if(doShrink) {
+        activePhotoW -= (m.l + m.r);
+        activePhotoH -= (m.t + m.b);
+    }
+    if(activePhotoW < 1) activePhotoW = 1;
+    if(activePhotoH < 1) activePhotoH = 1;
+
+    // 3. Convert to PX
+    const drawFrameW = calcPx(activeFrameW);
+    const drawFrameH = calcPx(activeFrameH);
+    const drawPhotoW = calcPx(activePhotoW);
+    const drawPhotoH = calcPx(activePhotoH);
     
+    // Inherent Padding for Centering inside cell
+    const inherentPadX = (calcPx(baseFrameW_mm) - calcPx(baseCropW_mm)) / 2;
+    const inherentPadY = (calcPx(baseFrameH_mm) - calcPx(baseCropH_mm)) / 2;
+
+    // --- CENTERING LOGIC FOR "REDUCE GAP" ---
+    let globalOffX = 0;
+    let globalOffY = 0;
+
+    if(doGap) {
+        // Total grid dimensions
+        const gridW = cols * drawFrameW;
+        // Total grid height based on MAX rows (to keep vertical rhythm consistent)
+        const gridH = maxRows * drawFrameH;
+        
+        // Calculate offsets to center on A4 page
+        globalOffX = (sheetCanvas.width - gridW) / 2;
+        globalOffY = (sheetCanvas.height - gridH) / 2;
+    }
+
     const loadImg = src => new Promise(r => { const i=new Image(); i.onload=()=>r(i); i.src=src; });
 
     const draw = async () => {
         for(let r=0; r < rowsToPrint; r++) {
             let src = null;
-            
             if(appMode === 'single') {
                 src = singleCroppedData;
             } else {
-                // Multi Mode: Get assigned image ID
                 const id = rowAssignments[r];
                 if(id) {
                     const imgObj = multiImages.find(i => i.id == id);
-                    if(imgObj) src = imgObj.croppedSrc || imgObj.originalSrc; // Fallback to original if not cropped
+                    if(imgObj) src = imgObj.croppedSrc || imgObj.originalSrc;
                 }
             }
 
             if(src) {
                 const img = await loadImg(src);
-                const yPx = frameH * r; // Canvas drawing starts at top edge 0
+                const yPx = drawFrameH * r; 
                 for(let c=0; c < cols; c++) {
-                    const xPx = frameW * c;
+                    const xPx = drawFrameW * c;
                     
-                    // Center in frame
-                    const offX = xPx + (frameW - cropW)/2;
-                    const offY = yPx + (frameH - cropH)/2;
+                    // Basic Position in grid
+                    let posX = globalOffX + xPx + inherentPadX;
+                    let posY = globalOffY + yPx + inherentPadY;
                     
-                    sheetCtx.drawImage(img, offX, offY, cropW, cropH);
+                    if(doShrink) {
+                        posX += calcPx(m.l);
+                        posY += calcPx(m.t);
+                    }
+                    
+                    sheetCtx.drawImage(img, posX, posY, drawPhotoW, drawPhotoH);
                 }
             }
         }
@@ -776,7 +926,6 @@
     document.getElementById('btn-dl-pdf').disabled = false;
   }
 
-  // --- DOWNLOADS (Original Logic) ---
   window.downloadJPG = function() {
     const name = document.getElementById('filename').value || 'photosheet';
     const link = document.createElement('a');
@@ -796,15 +945,45 @@
     let rows = maxRows;
     if(appMode === 'single') rows = parseInt(document.getElementById('rows-single').value);
 
-    const frameW = is30 ? frameWidthMM_30 : frameWidthMM_42;
-    const frameH = is30 ? frameHeightMM_30 : frameHeightMM_42;
-    const cropW = is30 ? cropWidthMM_30 : cropWidthMM_42;
-    const cropH = is30 ? cropHeightMM_30 : cropHeightMM_42;
-    const marginL = is30 ? pdfMarginLeftMM_30 : pdfMarginLeftMM_42;
-    const marginT = is30 ? pdfMarginTopMM_30 : pdfMarginTopMM_42;
+    // Margins Data
+    const m = getMargins();
+    const doShrink = document.getElementById('check-shrink').checked;
+    const doGap = document.getElementById('check-gap').checked;
 
-    // Need to handle async image loading for PDF logic loop
-    // We'll collect all needed images first
+    const baseCropW = is30 ? cropWidthMM_30 : cropWidthMM_42;
+    const baseCropH = is30 ? cropHeightMM_30 : cropHeightMM_42;
+    const baseFrameW = is30 ? frameWidthMM_30 : frameWidthMM_42;
+    const baseFrameH = is30 ? frameHeightMM_30 : frameHeightMM_42;
+
+    // Active Sizes
+    let activeFrameW = baseFrameW;
+    let activeFrameH = baseFrameH;
+    if(doGap) {
+        activeFrameH -= (m.t + m.b);
+        activeFrameW -= (m.l + m.r);
+    }
+
+    let activePhotoW = baseCropW;
+    let activePhotoH = baseCropH;
+    if(doShrink) {
+        activePhotoW -= (m.l + m.r);
+        activePhotoH -= (m.t + m.b);
+    }
+    
+    // PDF Global Margins (Start positions)
+    let pdfStartLeft = is30 ? pdfMarginLeftMM_30 : pdfMarginLeftMM_42;
+    let pdfStartTop = is30 ? pdfMarginTopMM_30 : pdfMarginTopMM_42;
+
+    // --- CENTERING LOGIC FOR PDF ---
+    if(doGap) {
+         const gridW = cols * activeFrameW;
+         const gridH = maxRows * activeFrameH;
+         
+         // A4 size is 210 x 297 mm
+         pdfStartLeft = (210 - gridW) / 2;
+         pdfStartTop = (297 - gridH) / 2;
+    }
+
     const tasks = [];
     for(let r=0; r<rows; r++) {
         let src = null;
@@ -823,10 +1002,20 @@
     tasks.forEach(task => {
         const img = new Image();
         img.onload = () => {
-            const y = marginT + task.r * frameH;
+            const yBase = pdfStartTop + task.r * activeFrameH;
+            
             for(let c=0; c < cols; c++) {
-                const x = marginL + c * frameW;
-                pdf.addImage(img, 'PNG', x, y, cropW, cropH);
+                const xBase = pdfStartLeft + c * activeFrameW;
+                
+                let finalX = xBase;
+                let finalY = yBase;
+                
+                if(doShrink) {
+                    finalX += m.l;
+                    finalY += m.t;
+                }
+
+                pdf.addImage(img, 'PNG', finalX, finalY, activePhotoW, activePhotoH);
             }
             loaded++;
             if(loaded === tasks.length) pdf.save(name + '.pdf');
@@ -839,4 +1028,3 @@
 </script>
 </body>
 </html>
-
