@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DelightPhysics – Physics that feels real</title>
+
+<style>
+/* ---------- Base (Daylight Theme) ---------- */
+:root{
+  --bg:#f9fafb;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --text:#0f172a;
+  --muted:#475569;
+  --primary:#2563eb;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.5;
+}
+
+/* ---------- Header ---------- */
+header{
+  background:#ffffff;
+  border-bottom:1px solid var(--border);
+  padding:12px 14px;
+  text-align:center;
+}
+
+header h1{
+  margin:0;
+  font-size:20px;
+}
+
+header p{
+  margin:4px 0 0;
+  font-size:14px;
+  color:var(--muted);
+}
+
+/* ---------- Layout ---------- */
+.container{
+  padding:14px;
+  max-width:720px;
+  margin:auto;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px;
+  margin-bottom:14px;
+}
+
+/* ---------- Section titles ---------- */
+.card h2{
+  margin-top:0;
+  font-size:18px;
+}
+
+/* ---------- Topic list ---------- */
+.topic{
+  padding:10px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  margin-bottom:10px;
+  cursor:pointer;
+}
+
+.topic:hover{
+  background:#f1f5f9;
+}
+
+.topic-title{
+  font-weight:600;
+}
+
+.topic-sub{
+  font-size:13px;
+  color:var(--muted);
+}
+
+/* ---------- Explanation blocks ---------- */
+.explain{
+  margin-top:10px;
+}
+
+.explain h3{
+  margin-bottom:4px;
+  font-size:16px;
+}
+
+.explain p{
+  margin-top:0;
+  font-size:14px;
+}
+
+/* ---------- Buttons ---------- */
+button{
+  appearance:none;
+  border:none;
+  border-radius:10px;
+  padding:10px 14px;
+  background:var(--primary);
+  color:white;
+  font-size:15px;
+  cursor:pointer;
+}
+
+button.secondary{
+  background:#e2e8f0;
+  color:#0f172a;
+}
+
+/* ---------- Footer ---------- */
+footer{
+  text-align:center;
+  font-size:13px;
+  color:var(--muted);
+  padding:20px 10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>DelightPhysics</h1>
+  <p>Physics jo samajh aaye, achchi lage</p>
+</header>
+
+<div class="container">
+
+  <!-- Intro -->
+  <div class="card">
+    <h2>📘 DelightPhysics kya hai?</h2>
+    <p>
+      Ye website physics ko formula se pehle <b>dekhna aur mehsoos karna</b>
+      sikhati hai.  
+      Yahan har topic pehle daily life se aata hai, phir uska physics reason
+      bataya jata hai.
+    </p>
+  </div>
+
+  <!-- Topics -->
+  <div class="card">
+    <h2>🔍 Aaj ke Concepts</h2>
+
+    <div class="topic" onclick="loadTopic('inertia')">
+      <div class="topic-title">Bus rukte hi log aage kyon jhuk jaate hain?</div>
+      <div class="topic-sub">Inertia (Newton ka pehla niyam)</div>
+    </div>
+
+    <div class="topic" onclick="loadTopic('pressure')">
+      <div class="topic-title">Patli heel zyada dhans kyon jaati hai?</div>
+      <div class="topic-sub">Pressure</div>
+    </div>
+
+    <div class="topic" onclick="loadTopic('friction')">
+      <div class="topic-title">Geeli sadak par gaadi kyon phisalne lagti hai?</div>
+      <div class="topic-sub">Friction</div>
+    </div>
+  </div>
+
+  <!-- Explanation -->
+  <div class="card" id="content">
+    <h2>👆 Upar se koi topic chuniye</h2>
+    <p>
+      Topic select karne par yahan simple bhasha me explanation dikhegi.
+    </p>
+  </div>
+
+  <!-- API demo -->
+  <div class="card">
+    <h2>🌐 Real Physics Source</h2>
+    <p>
+      Neeche diya button Wikipedia se real physics summary lata hai
+      (free & trusted source).
+    </p>
+    <button class="secondary" onclick="loadWiki()">Wikipedia se dekhein</button>
+    <p id="wiki" style="margin-top:10px;font-size:14px;"></p>
+  </div>
+
+</div>
+
+<footer>
+  DelightPhysics • Real Physics, Simple Language
+</footer>
+
+<script>
+/* ---------- Local content (Phase-1) ---------- */
+const topics = {
+  inertia: {
+    title: "Inertia",
+    why: "Cheez apni chalti ya ruki hui halat ko badalna pasand nahi karti.",
+    how: "Bus jab achanak rukti hai, to sharir ka upar ka hissa chalti halat me rehna chahta hai.",
+    formula: "F = m × a (jab force lage tabhi halat badlegi)"
+  },
+  pressure: {
+    title: "Pressure",
+    why: "Kam area par zyada bal lagane se pressure badhta hai.",
+    how: "High heel ka area chhota hota hai, isliye zameen par zyada pressure padta hai.",
+    formula: "Pressure = Force / Area"
+  },
+  friction: {
+    title: "Friction",
+    why: "Do satahon ke beech ki roughness gati ko rokne ki koshish karti hai.",
+    how: "Geeli sadak par tyre ka grip kam ho jata hai, isliye gaadi phisalti hai.",
+    formula: "Friction ∝ Normal Force"
+  }
+};
+
+function loadTopic(key){
+  const t = topics[key];
+  document.getElementById("content").innerHTML = `
+    <h2>${t.title}</h2>
+
+    <div class="explain">
+      <h3>👀 Kya dekhte hain?</h3>
+      <p>${t.how}</p>
+    </div>
+
+    <div class="explain">
+      <h3>🧠 Physics kyon aisa karti hai?</h3>
+      <p>${t.why}</p>
+    </div>
+
+    <div class="explain">
+      <h3>📐 Formula (optional)</h3>
+      <p>${t.formula}</p>
+    </div>
+  `;
+}
+
+/* ---------- Free API demo (Wikipedia) ---------- */
+function loadWiki(){
+  const url = "https://en.wikipedia.org/api/rest_v1/page/summary/Inertia";
+  fetch(url)
+    .then(r => r.json())
+    .then(d => {
+      document.getElementById("wiki").innerText =
+        d.extract ? d.extract.substring(0,300)+"…" : "Data nahi mila";
+    })
+    .catch(()=>{
+      document.getElementById("wiki").innerText = "Network error";
+    });
+}
+
+/* ---------- Future: Render Django API ---------- */
+/*
+Example:
+fetch("https://your-backend.onrender.com/api/topics/")
+  .then(res => res.json())
+  .then(data => console.log(data));
+*/
+</script>
+
+</body>
+</html>
