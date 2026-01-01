@@ -255,12 +255,15 @@ function loadWiki(){
 }
 
 /* ---------- Future: Render Django API ---------- */
-/*
 Example:
-fetch("https://hhdemo2b.onrender.com/api/topics/")
+const BACKEND_URL = "https://hhdemo2b.onrender.com";
+
+fetch(`${BACKEND_URL}/api/topics/`)
   .then(res => res.json())
-  .then(data => console.log(data));
-*/
+  .then(data => {
+    console.log(data); // confirm data aa raha hai
+  })
+  .catch(err => console.error(err));
 </script>
 
 </body>
