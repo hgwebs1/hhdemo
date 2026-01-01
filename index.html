@@ -188,6 +188,7 @@ footer{
     <button class="secondary" onclick="loadWiki()">Wikipedia se dekhein</button>
     <p id="wiki" style="margin-top:10px;font-size:14px;"></p>
   </div>
+<div id="topics"></div>
 
 </div>
 
@@ -254,10 +255,23 @@ function loadWiki(){
     });
 }
 
-/* ---------- Future: Render Django API ---------- */
+/*  Render Django API ---------- */
+
 fetch("https://hhdemo2b.onrender.com/api/topics/")
   .then(r => r.json())
-  .then(d => console.log("DATA:", d))
+  .then(data => {
+    const box = document.getElementById("topics");
+    box.innerHTML = "";
+    data.forEach(t => {
+      box.innerHTML += `
+        <div>
+          <b>${t.title}</b><br>
+          ${t.question}
+          <hr>
+        </div>
+      `;
+    });
+  });
 
 
 </script>
