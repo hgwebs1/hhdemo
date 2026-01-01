@@ -4,3 +4,10 @@ from .views import topics
 urlpatterns = [
     path('topics/', topics),
 ]
+
+from .views import create_admin
+
+urlpatterns = [
+    path("topics/", topics),
+    path("create-admin/", create_admin),
+]
