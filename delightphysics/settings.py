@@ -67,3 +67,18 @@ TIME_ZONE = 'Asia/Kolkata'
 
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+JAZZMIN_SETTINGS = {
+    "site_title": "DelightPhysics Admin",
+    "site_header": "DelightPhysics",
+    "site_brand": "DelightPhysics",
+    "welcome_sign": "Welcome to DelightPhysics Admin Panel",
+    "site_logo_classes": "img-circle",
+    "search_model": ["auth.User"],
+    "topmenu_links": [
+        {"name": "Home", "url": "/admin/", "permissions": ["auth.view_user"]},
+    ],
+    "show_sidebar": True,
+    "navigation_expanded": True,
+}
