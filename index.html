@@ -320,7 +320,7 @@
                                 ${item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}
                             </span>
                         </div>
-                        <p class="text-sm font-mono break-all line-clamp-4 leading-relaxed">${miniModeIcon}${escapeHtml(item.text)}</p>
+                        <p class="text-sm font-mono break-all line-clamp-1 leading-relaxed">${miniModeIcon}${escapeHtml(item.text)}</p>
                     `;
                     card.onclick = () => {
                         navigator.clipboard.writeText(item.text);
