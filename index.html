@@ -305,8 +305,7 @@
                     if (item.isRapid) {
                         rapidTag = `<span class="ml-1 text-[7px] bg-yellow-100 text-yellow-700 px-1 py-0.5 rounded border border-yellow-200"><i class="fa-solid fa-bolt"></i> RAPID</span>`;
                     }
-                    const miniModeIcon = isMine ? `<span class="mini-icon"><i class="fa-solid fa-solidLarge fa-circle-arrow-up"></i></span>` : ``;
-
+                   
                     card.innerHTML = `
                         <div class="mini-copied-overlay">COPIED</div>
                         <div class="clip-meta flex justify-between items-center mb-1.5">
@@ -320,7 +319,7 @@
                                 ${item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}
                             </span>
                         </div>
-                        <p class="text-sm font-mono break-all line-clamp-4 leading-relaxed">${miniModeIcon}${escapeHtml(item.text)}</p>
+                        <p class="text-sm font-mono break-all line-clamp-4 leading-relaxed">${escapeHtml(item.text)}</p>
                     `;
                     card.onclick = () => {
                         navigator.clipboard.writeText(item.text);
