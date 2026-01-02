@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fastclip</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .clip-card {
+            transition: all 0.2s ease;
+        }
+        .clip-card:active {
+            transform: scale(0.98);
+        }
+        /* Hide scrollbar for clean UI but keep functionality */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col items-center">
+
+    <!-- Navbar / Header -->
+    <div class="w-full bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="bg-indigo-600 text-white p-2 rounded-lg shadow-md">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <h1 class="text-xl font-bold text-gray-800 tracking-tight">Fastclip</h1>
+            </div>
+            
+            <!-- Connection Status -->
+            <div id="statusIndicator" class="flex items-center gap-1 text-xs font-medium text-orange-500 bg-orange-50 px-2 py-1 rounded-full border border-orange-100">
+                <div class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></div>
+                Connecting...
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="w-full max-w-md px-4 py-4 space-y-6 pb-20">
+
+        <!-- Room/Secret Code Input -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Secret Channel Code</label>
+            <div class="flex gap-2">
+                <input type="text" id="roomCodeInput" placeholder="e.g. my-phone-1" 
+                    class="flex-1 bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-2.5 outline-none font-mono tracking-wide">
+                <button id="saveRoomBtn" class="bg-gray-900 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-gray-800 transition shadow-lg">
+                    Join
+                </button>
+            </div>
+            <p class="text-[10px] text-gray-400 mt-2">Enter the same code on both devices to sync.</p>
+        </div>
+
+        <!-- Input Area (Send) -->
+        <div class="glass-panel p-1 rounded-3xl shadow-lg border border-white/60 relative group">
+            <textarea id="clipInput" rows="3" 
+                class="block w-full p-4 text-gray-900 bg-white rounded-2xl border-0 focus:ring-0 resize-none text-lg placeholder-gray-400 outline-none" 
+                placeholder="Type or paste here..."></textarea>
+            
+            <div class="flex justify-between items-center px-2 py-2 bg-gray-50 rounded-b-2xl mt-[-10px] pt-4">
+                <button id="pasteBtn" class="text-gray-500 hover:text-indigo-600 px-3 py-1 text-sm font-medium transition">
+                    <i class="fa-regular fa-paste mr-1"></i> Paste
+                </button>
+                <button id="sendBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-6 py-2.5 text-sm font-bold shadow-md shadow-indigo-200 transition-all transform active:scale-95 flex items-center gap-2">
+                    Send <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Received History -->
+        <div>
+            <div class="flex justify-between items-end mb-3">
+                <h2 class="text-sm font-bold text-gray-400 uppercase tracking-wider">Recently Received</h2>
+                <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-medium" id="receivedCount">0</span>
+            </div>
+            
+            <div id="receivedList" class="space-y-3">
+                <!-- Received items will be injected here -->
+                <div class="text-center py-8 text-gray-400 text-sm italic">Waiting for clips...</div>
+            </div>
+        </div>
+
+        <!-- Sent History -->
+        <div class="pt-4 border-t border-gray-200">
+            <div class="flex justify-between items-end mb-3">
+                <h2 class="text-sm font-bold text-gray-400 uppercase tracking-wider">Sent History</h2>
+                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium" id="sentCount">0</span>
+            </div>
+            
+            <div id="sentList" class="space-y-3 opacity-80">
+                <!-- Sent items will be injected here -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Notifications / Toast -->
+    <div id="toast" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 translate-y-24 z-50 w-[90%] max-w-sm">
+        <div class="bg-green-500 rounded-full p-1 w-6 h-6 flex items-center justify-center flex-shrink-0">
+            <i class="fa-solid fa-check text-xs"></i>
+        </div>
+        <p id="toastMsg" class="text-sm font-medium flex-1">Notification</p>
+    </div>
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Config ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyrTcKxUfdfeh65GKnX6cJuCLHLBV8O7k",
+            authDomain: "fastclip100.firebaseapp.com",
+            projectId: "fastclip100",
+            storageBucket: "fastclip100.firebasestorage.app",
+            messagingSenderId: "227352438674",
+            appId: "1:227352438674:web:e468d6f049b5e3823a034b"
+        };
+
+        const appId = "fastclip_v1"; // Custom App ID for Firestore path
+
+        // --- Init ---
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- State ---
+        let currentUser = null;
+        let deviceId = localStorage.getItem('fastclip_device_id');
+        if (!deviceId) {
+            deviceId = crypto.randomUUID();
+            localStorage.setItem('fastclip_device_id', deviceId);
+        }
+        
+        // Load Room Code from LocalStorage or Default
+        let currentRoom = localStorage.getItem('fastclip_room') || 'general';
+        const roomInput = document.getElementById('roomCodeInput');
+        roomInput.value = currentRoom;
+
+        // --- DOM Elements ---
+        const statusIndicator = document.getElementById('statusIndicator');
+        const clipInput = document.getElementById('clipInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const receivedList = document.getElementById('receivedList');
+        const sentList = document.getElementById('sentList');
+        const saveRoomBtn = document.getElementById('saveRoomBtn');
+        const pasteBtn = document.getElementById('pasteBtn');
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toastMsg');
+
+        // --- Authentication ---
+        // Crucial: Must sign in before accessing Firestore
+        signInAnonymously(auth).catch((error) => {
+            console.error("Auth Error:", error);
+            showToast("Auth failed. Check console.");
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                updateStatus(true);
+                initListener();
+            } else {
+                updateStatus(false);
+            }
+        });
+
+        function updateStatus(isOnline) {
+            if (isOnline) {
+                statusIndicator.className = "flex items-center gap-1 text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full border border-green-100";
+                statusIndicator.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500"></div> Connected`;
+            } else {
+                statusIndicator.className = "flex items-center gap-1 text-xs font-medium text-red-500 bg-red-50 px-2 py-1 rounded-full border border-red-100";
+                statusIndicator.innerHTML = `<div class="w-2 h-2 rounded-full bg-red-500"></div> Offline`;
+            }
+        }
+
+        // --- Firestore Logic ---
+
+        let unsubscribe = null;
+        let lastReceivedContent = "";
+
+        function initListener() {
+            if (unsubscribe) unsubscribe();
+
+            const collectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'clips');
+
+            // Listen to ALL clips (Rule #2: No complex queries), then filter in JS
+            unsubscribe = onSnapshot(collectionPath, (snapshot) => {
+                const allClips = [];
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.room === currentRoom && data.createdAt) {
+                        allClips.push({ id: doc.id, ...data });
+                    }
+                });
+
+                // Sort by time descending (newest first)
+                allClips.sort((a, b) => {
+                    const timeA = a.createdAt?.seconds || 0;
+                    const timeB = b.createdAt?.seconds || 0;
+                    return timeB - timeA;
+                });
+
+                processClips(allClips);
+
+            }, (error) => {
+                console.error("Firestore Error:", error);
+            });
+        }
+
+        function processClips(clips) {
+            const received = [];
+            const sent = [];
+
+            clips.forEach(clip => {
+                if (clip.senderId === deviceId) {
+                    if (sent.length < 5) sent.push(clip);
+                } else {
+                    if (received.length < 10) received.push(clip);
+                }
+            });
+
+            renderSent(sent);
+            renderReceived(received);
+
+            // Auto Copy Logic check
+            if (received.length > 0) {
+                const newestReceived = received[0];
+                if (newestReceived.content !== lastReceivedContent) {
+                    // It's a new clip!
+                    lastReceivedContent = newestReceived.content;
+                    
+                    // Don't auto-copy on initial load, only if timestamp is very recent (last 10 seconds)
+                    const now = new Date().getTime() / 1000;
+                    const clipTime = newestReceived.createdAt.seconds;
+                    
+                    if (now - clipTime < 30) { 
+                        tryAutoCopy(newestReceived.content);
+                    }
+                }
+            }
+        }
+
+        async function tryAutoCopy(text) {
+            // Browsers block clipboard write without user gesture usually.
+            // If document is focused, it might work.
+            if (document.hasFocus()) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    showToast("New clip auto-copied!", "success");
+                } catch (err) {
+                    showToast("New clip received! Click to copy.");
+                }
+            } else {
+                showToast("New clip received!");
+            }
+        }
+
+        // --- Sending Logic ---
+        sendBtn.addEventListener('click', async () => {
+            const text = clipInput.value.trim();
+            if (!text) return;
+            if (!currentUser) {
+                showToast("Not connected yet.");
+                return;
+            }
+
+            // UI Feedback
+            const originalBtnContent = sendBtn.innerHTML;
+            sendBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+            sendBtn.disabled = true;
+
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'clips'), {
+                    content: text,
+                    room: currentRoom,
+                    senderId: deviceId,
+                    createdAt: serverTimestamp(),
+                    deviceType: getDeviceType()
+                });
+                
+                clipInput.value = ""; // Clear input
+                showToast("Sent successfully!", "success");
+            } catch (e) {
+                console.error("Send error", e);
+                showToast("Failed to send.");
+            } finally {
+                sendBtn.innerHTML = originalBtnContent;
+                sendBtn.disabled = false;
+            }
+        });
+
+        // --- Rendering ---
+        
+        function renderReceived(clips) {
+            document.getElementById('receivedCount').innerText = clips.length;
+            receivedList.innerHTML = '';
+
+            if (clips.length === 0) {
+                receivedList.innerHTML = `<div class="text-center py-8 text-gray-400 text-sm italic">No clips received in "${currentRoom}"</div>`;
+                return;
+            }
+
+            clips.forEach(clip => {
+                const el = document.createElement('div');
+                el.className = "bg-white p-4 rounded-xl border-l-4 border-indigo-500 shadow-sm clip-card flex justify-between items-start gap-3 group";
+                el.innerHTML = `
+                    <div class="flex-1 overflow-hidden">
+                        <p class="text-gray-800 text-sm break-all font-mono line-clamp-3">${escapeHtml(clip.content)}</p>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">${timeSince(clip.createdAt)}</span>
+                            <span class="text-[10px] text-gray-300 uppercase">${clip.deviceType || 'Unknown'}</span>
+                        </div>
+                    </div>
+                    <button class="copy-btn text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 p-2 rounded-lg transition" data-content="${escapeHtml(clip.content)}">
+                        <i class="fa-regular fa-copy text-lg"></i>
+                    </button>
+                `;
+                receivedList.appendChild(el);
+            });
+
+            // Add event listeners to new buttons
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const text = btn.getAttribute('data-content');
+                    navigator.clipboard.writeText(text).then(() => {
+                        showToast("Copied to clipboard!", "success");
+                        // Visual feedback on icon
+                        const icon = btn.querySelector('i');
+                        icon.className = "fa-solid fa-check";
+                        setTimeout(() => icon.className = "fa-regular fa-copy", 1500);
+                    });
+                });
+            });
+        }
+
+        function renderSent(clips) {
+            document.getElementById('sentCount').innerText = clips.length;
+            sentList.innerHTML = '';
+
+            clips.forEach(clip => {
+                const el = document.createElement('div');
+                el.className = "bg-gray-50 p-3 rounded-lg border border-gray-100 flex justify-between items-center gap-2";
+                el.innerHTML = `
+                    <p class="text-gray-500 text-xs truncate flex-1 font-mono">${escapeHtml(clip.content)}</p>
+                    <span class="text-[10px] text-gray-400 whitespace-nowrap">${timeSince(clip.createdAt)}</span>
+                `;
+                sentList.appendChild(el);
+            });
+        }
+
+
+        // --- Utilities & Events ---
+
+        // Room Changing
+        saveRoomBtn.addEventListener('click', () => {
+            const newCode = roomInput.value.trim();
+            if(newCode && newCode !== currentRoom) {
+                currentRoom = newCode;
+                localStorage.setItem('fastclip_room', currentRoom);
+                // Reset local history view until new data loads
+                receivedList.innerHTML = '<div class="text-center py-4 text-gray-400 text-sm"><i class="fa-solid fa-spinner fa-spin"></i> Switching room...</div>';
+                sentList.innerHTML = '';
+                // Re-init listener for new filter
+                initListener();
+                showToast(`Joined room: ${currentRoom}`, "success");
+            }
+        });
+
+        // Paste Button
+        pasteBtn.addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                clipInput.value = text;
+                clipInput.focus();
+            } catch (err) {
+                showToast("Clipboard permission denied");
+            }
+        });
+
+        function showToast(msg, type = 'info') {
+            toastMsg.innerText = msg;
+            toast.classList.remove('translate-y-24');
+            
+            const iconContainer = toast.querySelector('div');
+            if(type === 'success') {
+                iconContainer.className = "bg-green-500 rounded-full p-1 w-6 h-6 flex items-center justify-center flex-shrink-0";
+                iconContainer.innerHTML = '<i class="fa-solid fa-check text-xs"></i>';
+            } else {
+                iconContainer.className = "bg-blue-500 rounded-full p-1 w-6 h-6 flex items-center justify-center flex-shrink-0";
+                iconContainer.innerHTML = '<i class="fa-solid fa-info text-xs"></i>';
+            }
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-24');
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function getDeviceType() {
+            const ua = navigator.userAgent;
+            if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
+                return "tablet";
+            }
+            else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
+                return "mobile";
+            }
+            return "desktop";
+        }
+
+        function timeSince(dateObj) {
+            if (!dateObj) return "just now";
+            const seconds = Math.floor((new Date() - dateObj.toDate()) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + "y";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + "mo";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + "d";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + "h";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + "m";
+            return Math.floor(seconds) + "s";
+        }
+
+    </script>
+</body>
+</html>
