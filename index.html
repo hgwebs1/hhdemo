@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fastclip RTDB</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,295 +18,126 @@
         body:not(.mini-mode) .mini-copied-overlay { display: none !important; }
         body:not(.mini-mode) #miniInputSection { display: none !important; }
 
-        /* Normal: Recieved Label */
-        body:not(.mini-mode) .clip-card.is-received .label-text {
-            color: #4338ca; 
-        }
-        
-        /* Normal: Sent Label */
-        body:not(.mini-mode) .clip-card.is-sent .label-text {
-            color: #2563eb; 
-        }
-        
-        /* Normal: Content Text */
-        body:not(.mini-mode) .clip-card p {
-            color: #1f2937; 
-        }
+        /* Normal Colors */
+        body:not(.mini-mode) .clip-card.is-received .label-text { color: #4338ca; }
+        body:not(.mini-mode) .clip-card.is-sent .label-text { color: #2563eb; }
+        body:not(.mini-mode) .clip-card p { color: #1f2937; }
+        body:not(.mini-mode) .time-text { color: #9ca3af !important; }
 
-        /* Normal: Time Color */
-        body:not(.mini-mode) .time-text {
-            color: #9ca3af !important; 
-        }
-
-        /* Modal Positioning for Normal Mode */
+        /* Modal Center */
         body:not(.mini-mode) #confirmModal {
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.4);
+            align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.4);
         }
         body:not(.mini-mode) #modalBox {
-            width: 300px;
-            padding: 24px;
-            border-radius: 20px;
-            text-align: center;
-            margin: auto;
-            position: relative;
+            width: 300px; padding: 24px; border-radius: 20px; text-align: center; margin: auto; position: relative;
         }
-        
-        /* Hide Mini Settings in Normal Mode */
         body:not(.mini-mode) #miniSettingsModal { display: none !important; }
+        body:not(.mini-mode) #statusContainer { margin-left: auto; }
 
         /* =========================================
            MINI MODE STYLES
            ========================================= */
         body.mini-mode { 
-            background: #f8fafc; 
-            height: 100vh;
-            overflow: hidden; 
-            display: flex;       
-            flex-direction: column;
+            background: #f8fafc; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
-        
         body.mini-mode .normal-only { display: none !important; }
         
-        /* Mini Header */
         body.mini-mode #mainHeader {
-            padding: 2px 6px;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start; 
-            /* Gap handled by margin on logo now */
-            height: 32px; 
-            background: #fff;
-            flex-shrink: 0; 
-            z-index: 50;
+            padding: 2px 6px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: flex-start; 
+            height: 32px; background: #fff; flex-shrink: 0; z-index: 50;
         }
 
         body.mini-mode h1 { font-size: 0.65rem; }
-        body.mini-mode #statusContainer { margin-left: 0 !important; padding: 0; background: transparent; border: none; }
+        body.mini-mode #statusContainer { margin-left: 10px !important; padding: 0; background: transparent; border: none; }
         body.mini-mode #statusLabel { display: none; }
-        
-        /* Added Margin for Mini Mode Logo as requested */
-        body.mini-mode #modeToggleBtn {
-            margin-right: 10px;
-        }
+        body.mini-mode #modeToggleBtn { margin-right: 10px; }
 
         /* MINI INPUT SECTION */
         #miniInputSection {
-            background: #fff;
-            padding: 4px;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.2s;
-            width: 100%; /* Full width */
+            background: #fff; padding: 4px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 4px;
+            transition: all 0.2s; width: 100%;
         }
-        #miniInputSection.hidden-bar {
-            display: none;
-        }
+        #miniInputSection.hidden-bar { display: none; }
+        #miniInput { min-width: 0; flex: 1; }
+        #miniSendBtn { flex-shrink: 0; width: 24px; height: 24px; }
         
-        /* Mini Input Field - Flexible */
-        #miniInput {
-            min-width: 0; /* Allows shrinking */
-            flex: 1; /* Takes all available space */
-        }
-        
-        /* Mini Send Button - Fixed Width */
-        #miniSendBtn {
-            flex-shrink: 0; /* Prevents shrinking */
-            width: 24px;
-            height: 24px;
-        }
-        
-        /* Mini List Container */
+        /* Mini List */
         body.mini-mode #historyList { 
-            padding: 2px; 
-            background: #f8fafc; 
-            overflow-y: auto !important;
-            -webkit-overflow-scrolling: touch;
-            flex-grow: 1; 
-            
-            display: flex;
-            flex-direction: column;
-            gap: 3px; 
+            padding: 2px; background: #f8fafc; overflow-y: auto !important; -webkit-overflow-scrolling: touch;
+            flex-grow: 1; display: flex; flex-direction: column; gap: 3px; 
         }
         
-        /* MINI BOX STYLE ITEMS */
         body.mini-mode .clip-card {
-            position: relative; 
-            padding: 6px 8px;
-            border-radius: 4px; 
-            margin: 0 !important; 
-            border: 1px solid #e2e8f0; 
-            box-shadow: 0 1px 1px rgba(0,0,0,0.02);
-            cursor: pointer;
-            transition: transform 0.1s;
+            position: relative; padding: 6px 8px; border-radius: 4px; margin: 0 !important; 
+            border: 1px solid #e2e8f0; box-shadow: 0 1px 1px rgba(0,0,0,0.02); cursor: pointer; transition: transform 0.1s;
         }
-
-        /* Colors in Mini Mode */
-        body.mini-mode .clip-card.bg-indigo-50 {
-            background-color: #eef2ff !important; 
-            border-color: #e0e7ff;
-        }
-        body.mini-mode .clip-card.bg-white {
-            background-color: #ffffff !important;
-            border-color: #e2e8f0;
-        }
-        
-        body.mini-mode .clip-card:active {
-            transform: scale(0.98);
-        }
-
-        /* Hide labels in Mini Mode */
+        body.mini-mode .clip-card.bg-indigo-50 { background-color: #eef2ff !important; border-color: #e0e7ff; }
+        body.mini-mode .clip-card.bg-white { background-color: #ffffff !important; border-color: #e2e8f0; }
+        body.mini-mode .clip-card:active { transform: scale(0.98); }
         body.mini-mode .clip-meta { display: none !important; }
 
-        /* Mini Mode Text Styling */
         body.mini-mode .clip-card p {
-            color: #0f172a; 
-            font-size: 10px;
-            font-weight: 500;
-            line-height: 1.25;
-            -webkit-line-clamp: 2;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
+            color: #0f172a; font-size: 10px; font-weight: 500; line-height: 1.25; -webkit-line-clamp: 2;
+            overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical;
         }
-        
-        /* Show Bolt Icon */
-        body.mini-mode .mini-icon {
-            display: inline-block !important;
-            margin-right: 3px;
-            color: #eab308;
-            font-size: 8px;
-        }
+        body.mini-mode .mini-icon { display: inline-block !important; margin-right: 3px; color: #eab308; font-size: 8px; }
 
-        /* --- MINI MODE COPY EFFECT --- */
         .mini-copied-overlay {
-            position: absolute;
-            inset: 0;
-            background: #3b82f6; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: 700;
-            color: white; 
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.1s;
-            z-index: 10;
-            border-radius: 4px;
+            position: absolute; inset: 0; background: #3b82f6; display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 700; color: white; opacity: 0; pointer-events: none; transition: opacity 0.1s; z-index: 10; border-radius: 4px;
         }
-        body.mini-mode .clip-card.active-copy .mini-copied-overlay {
-            opacity: 1;
-        }
+        body.mini-mode .clip-card.active-copy .mini-copied-overlay { opacity: 1; }
 
-
-        /* MINI MODE CONFIRM MODAL (200px) */
-        body.mini-mode #confirmModal {
-            align-items: flex-start; 
-            justify-content: flex-start;
-            padding: 0;
-            background: transparent;
-            pointer-events: none; 
-        }
-        
+        body.mini-mode #confirmModal { align-items: flex-start; justify-content: flex-start; padding: 0; background: transparent; pointer-events: none; }
         body.mini-mode #modalBox {
-            pointer-events: auto;
-            width: 200px; 
-            height: auto;
-            margin: 8px; 
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid #cbd5e1;
-            background: white;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            pointer-events: auto; width: 200px; height: auto; margin: 8px; padding: 12px; border-radius: 12px;
+            border: 1px solid #cbd5e1; background: white; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            display: flex; flex-direction: column; align-items: center;
         }
-        
         body.mini-mode #modalIconContainer { display: none; }
         body.mini-mode #modalTitle { font-size: 12px; margin-bottom: 8px; text-align: center; font-weight: 700; color: #1e293b; }
         body.mini-mode #modalDesc { display: none; }
         body.mini-mode .modal-btn { padding: 0; font-size: 10px; height: 28px; flex: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
         body.mini-mode #modalBtnGap { gap: 8px; justify-content: center; width: 100%; margin-top: 4px !important; display: flex; }
 
-        /* MINI SETTINGS MODAL (Long Press) */
         #miniSettingsModal {
-            position: fixed;
-            top: 40px;
-            left: 10px;
-            width: 140px;
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            padding: 10px;
-            z-index: 100;
-            flex-direction: column;
-            align-items: center;
+            position: fixed; top: 40px; left: 10px; width: 140px; background: white; border: 1px solid #e2e8f0;
+            border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); padding: 10px; z-index: 100;
+            flex-direction: column; align-items: center;
         }
-        
         .mode-option {
-            width: 100%;
-            padding: 6px;
-            margin-bottom: 4px;
-            border-radius: 6px;
-            font-size: 10px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
+            width: 100%; padding: 6px; margin-bottom: 4px; border-radius: 6px; font-size: 10px; font-weight: 600;
+            display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s;
         }
-        
-        .mode-option.active {
-            background: #eff6ff;
-            color: #2563eb;
-            border: 1px solid #bfdbfe;
-        }
-        
-        .mode-option:not(.active) {
-            background: #f8fafc;
-            color: #64748b;
-            border: 1px solid transparent;
-        }
+        .mode-option.active { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+        .mode-option:not(.active) { background: #f8fafc; color: #64748b; border: 1px solid transparent; }
 
     </style>
 </head>
 <body class="bg-slate-50 max-w-md mx-auto min-h-screen flex flex-col border-x border-gray-100 relative transition-all duration-300">
 
     <!-- HEADER -->
-    <div id="mainHeader" class="bg-white p-4 border-b z-40 flex justify-between items-center transition-all">
-        <div class="flex items-center">
-            <!-- Logo & Toggle -->
-            <button id="modeToggleBtn" class="text-xl font-bold text-indigo-600 flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer z-50 outline-none">
-                <i class="fa-solid fa-bolt-lightning"></i> 
-                <span class="tracking-tight">FASTCLIP</span>
-            </button>
+    <div id="mainHeader" class="bg-white p-4 border-b z-40 flex items-center transition-all">
+        <button id="modeToggleBtn" class="text-xl font-bold text-indigo-600 flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer z-50 outline-none">
+            <i class="fa-solid fa-bolt-lightning"></i> 
+            <span class="tracking-tight">FASTCLIP</span>
+        </button>
 
-            <!-- Mini Mode: Action Button (Long Press enabled) -->
-            <button id="headerRapidBtn" class="mini-only bg-indigo-100 hover:bg-indigo-600 hover:text-white text-indigo-700 w-6 h-6 rounded flex items-center justify-center transition-all z-50 select-none relative">
-                <i class="fa-solid fa-paper-plane text-[10px]" id="miniActionIcon"></i>
-            </button>
+        <button id="headerRapidBtn" class="mini-only bg-indigo-100 hover:bg-indigo-600 hover:text-white text-indigo-700 w-6 h-6 rounded flex items-center justify-center transition-all z-50 select-none relative">
+            <i class="fa-solid fa-paper-plane text-[10px]" id="miniActionIcon"></i>
+        </button>
 
-            <!-- Status -->
-            <div class="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100 transition-all ml-auto" id="statusContainer">
-                <span id="statusLabel" class="text-[10px] font-bold text-gray-400 normal-only">CONNECTING</span>
-                <div id="statusDot" class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
-            </div>
+        <div class="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100 transition-all" id="statusContainer">
+            <span id="statusLabel" class="text-[10px] font-bold text-gray-400 normal-only">CONNECTING</span>
+            <div id="statusDot" class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
         </div>
     </div>
 
-    <!-- MINI INPUT SECTION (Hidden by default) -->
+    <!-- MINI INPUT SECTION -->
     <div id="miniInputSection" class="hidden-bar mini-only">
         <input type="text" id="miniInput" class="h-6 text-[10px] px-2 rounded border border-gray-300 outline-none focus:border-indigo-500" placeholder="Type message...">
         <button id="miniSendBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white rounded flex items-center justify-center">
-            <i class="fa-solid fa-arrow-up text-[9px]"></i>
+            <i class="fa-solid fa-paper-plane text-[9px]"></i>
         </button>
     </div>
 
@@ -317,7 +148,6 @@
             placeholder="Paste content here..."></textarea>
         
         <div class="flex justify-between mt-3 items-center">
-            <!-- Paste Button -->
             <button id="pasteBtn" class="text-indigo-600 hover:text-indigo-800 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 px-2 transition-colors">
                 <i class="fa-regular fa-clipboard"></i> Paste
             </button>
@@ -339,22 +169,19 @@
         <span id="count" class="text-[10px] font-mono bg-indigo-50 text-indigo-500 px-2 py-0.5 rounded-md border border-indigo-100">0</span>
     </div>
 
-    <!-- LIST CONTAINER -->
     <div id="historyList" class="flex-1 overflow-y-auto px-4 pb-10 space-y-3 no-scrollbar transition-all">
-        <!-- Clips injected here -->
+        <!-- Clips -->
     </div>
 
-    <!-- MINI SETTINGS MODAL (For Long Press) -->
+    <!-- MINI SETTINGS MODAL -->
     <div id="miniSettingsModal" class="hidden">
         <div class="text-[9px] font-bold text-gray-400 uppercase mb-2 tracking-wider">Button Action</div>
-        
         <div class="mode-option" id="optInput">
             <div class="w-3 h-3 rounded-full border border-gray-300 flex items-center justify-center bg-white" id="radioInput">
                 <div class="w-1.5 h-1.5 rounded-full bg-indigo-500 hidden" id="dotInput"></div>
             </div>
-            <span>Manual Input</span>
+            <span>Manual Input (Dbl Click)</span>
         </div>
-        
         <div class="mode-option" id="optRapid">
             <div class="w-3 h-3 rounded-full border border-gray-300 flex items-center justify-center bg-white" id="radioRapid">
                 <div class="w-1.5 h-1.5 rounded-full bg-indigo-500 hidden" id="dotRapid"></div>
@@ -366,16 +193,11 @@
     <!-- CONFIRMATION MODAL -->
     <div id="confirmModal" class="fixed inset-0 z-[100] hidden opacity-0 transition-opacity duration-200">
         <div class="bg-white transform scale-95 transition-transform duration-200 flex flex-col shadow-2xl" id="modalBox">
-            
             <div id="modalIconContainer" class="bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 mb-4 mx-auto w-12 h-12">
                 <i class="fa-solid fa-expand text-xl" id="modalIcon"></i>
             </div>
-            
             <h3 class="font-bold text-gray-800" id="modalTitle">Switch View?</h3>
-            <p class="text-xs text-gray-500 mb-6 leading-relaxed px-2" id="modalDesc">
-                Switching modes changes layout.
-            </p>
-            
+            <p class="text-xs text-gray-500 mb-6 leading-relaxed px-2" id="modalDesc">Switching modes changes layout.</p>
             <div class="flex gap-3 w-full mt-auto" id="modalBtnGap">
                 <button id="modalCancel" class="modal-btn flex-1 py-2.5 text-xs font-bold text-gray-500 hover:bg-gray-50 bg-gray-50 rounded-xl transition-colors">Cancel</button>
                 <button id="modalConfirm" class="modal-btn flex-1 py-2.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-200 transition-all">Confirm</button>
@@ -383,10 +205,8 @@
         </div>
     </div>
 
-    <!-- TOAST (Normal Mode Only) -->
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-2.5 rounded-full text-xs font-bold shadow-2xl opacity-0 transition-all pointer-events-none translate-y-2 z-[60] normal-only">
-        Action Complete!
-    </div>
+    <!-- TOAST -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-2.5 rounded-full text-xs font-bold shadow-2xl opacity-0 transition-all pointer-events-none translate-y-2 z-[60] normal-only">Action Complete!</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
@@ -407,23 +227,26 @@
         const auth = getAuth(app);
         const rtdb = getDatabase(app);
 
-        // Elements
+        // --- GLOBAL STATE ---
+        let isMiniMode = false;
+        let miniBtnMode = localStorage.getItem('fc_mini_mode') || 'input';
+
+        // --- PERSISTENCE: CHECK VIEW MODE ON LOAD ---
+        const savedViewMode = localStorage.getItem('fc_view_mode');
+        if (savedViewMode === 'mini') {
+            isMiniMode = true;
+            document.body.classList.add('mini-mode');
+        }
+
         const statusDot = document.getElementById('statusDot');
         const statusLabel = document.getElementById('statusLabel');
         const historyList = document.getElementById('historyList');
         const clipInput = document.getElementById('clipInput');
         const miniInputSection = document.getElementById('miniInputSection');
         const miniInput = document.getElementById('miniInput');
-        
-        // Mini Mode Logic Variables
         let myUid = localStorage.getItem('fc_uid') || 'u_' + Math.random().toString(36).substr(2, 5);
         localStorage.setItem('fc_uid', myUid);
-        let isMiniMode = false;
-        
-        // Button Mode: 'input' (Default) or 'rapid'
-        let miniBtnMode = localStorage.getItem('fc_mini_mode') || 'input';
 
-        // Update UI based on saved mode
         function updateMiniBtnUI() {
             const icon = document.getElementById('miniActionIcon');
             const optInput = document.getElementById('optInput');
@@ -431,316 +254,18 @@
             const dotInput = document.getElementById('dotInput');
             const dotRapid = document.getElementById('dotRapid');
 
-            // Reset UI
             optInput.classList.remove('active');
             optRapid.classList.remove('active');
             dotInput.classList.add('hidden');
             dotRapid.classList.add('hidden');
 
             if (miniBtnMode === 'input') {
-                icon.className = "fa-solid fa-pen-to-square text-[10px]";
+                icon.className = "fa-solid fa-keyboard text-[10px]";
                 optInput.classList.add('active');
                 dotInput.classList.remove('hidden');
             } else {
                 icon.className = "fa-solid fa-bolt text-[10px] text-yellow-600";
                 optRapid.classList.add('active');
                 dotRapid.classList.remove('hidden');
-            }
-        }
-        updateMiniBtnUI();
-
-        signInAnonymously(auth).then(() => {
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    statusDot.className = "w-2 h-2 rounded-full bg-green-500 animate-none shadow-[0_0_8px_rgba(34,197,94,0.5)]";
-                    statusLabel.innerText = "ONLINE";
-                    startSync();
-                }
-            });
-        });
-
-        // SYNC LOGIC (LIMIT 30)
-        function startSync() {
-            const clipsRef = query(ref(rtdb, 'personal_clips'), limitToLast(30));
-            
-            onValue(clipsRef, (snapshot) => {
-                const data = snapshot.val();
-                historyList.innerHTML = "";
-                
-                if (!data) return;
-
-                const list = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
-                document.getElementById('count').innerText = list.length;
-
-                list.forEach(item => {
-                    const isMine = item.uid === myUid;
-                    const card = document.createElement('div');
-                    
-                    const bgClass = isMine ? 'bg-white' : 'bg-indigo-50';
-                    const borderClass = isMine ? 'border-gray-100' : 'border-indigo-100';
-                    const ownershipClass = isMine ? 'is-sent' : 'is-received';
-                    
-                    card.className = `clip-card ${ownershipClass} ${bgClass} ${borderClass} p-4 rounded-2xl border transition-all cursor-pointer mb-3`;
-                    
-                    let rapidTag = "";
-                    if (item.isRapid) {
-                        rapidTag = `<span class="ml-1 text-[7px] bg-yellow-100 text-yellow-700 px-1 py-0.5 rounded border border-yellow-200"><i class="fa-solid fa-bolt"></i> RAPID</span>`;
-                    }
-                    
-                    const miniModeIcon = isMine ? `<span class="mini-icon"><i class="fa-solid fa-bolt"></i></span>` : ``;
-
-                    card.innerHTML = `
-                        <div class="mini-copied-overlay">COPIED</div>
-                        <div class="clip-meta flex justify-between items-center mb-1.5">
-                            <div class="flex items-center">
-                                <span class="label-text text-[8px] font-black uppercase tracking-tighter ${isMine ? 'text-gray-300' : 'text-indigo-400'}">
-                                    ${isMine ? 'Sent' : 'Received'}
-                                </span>
-                                ${rapidTag}
-                            </div>
-                            <span class="time-text text-[8px] font-medium">
-                                ${item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}
-                            </span>
-                        </div>
-                        <p class="text-sm font-mono break-all line-clamp-4 leading-relaxed">${miniModeIcon}${escapeHtml(item.text)}</p>
-                    `;
-
-                    card.onclick = () => {
-                        navigator.clipboard.writeText(item.text);
-                        if (isMiniMode) {
-                            card.classList.add('active-copy');
-                            setTimeout(() => { card.classList.remove('active-copy'); }, 600); 
-                        } else {
-                            showToast("Copied!");
-                        }
-                    };
-                    historyList.appendChild(card);
-                });
-
-                const newest = list[0];
-                if (newest && newest.uid !== myUid) {
-                    const now = Date.now();
-                    const clipAge = now - (newest.timestamp || now);
-                    if (clipAge < 5000 && document.hasFocus()) {
-                        navigator.clipboard.writeText(newest.text);
-                        showToast("Auto-copied!");
-                    }
-                }
-            });
-        }
-
-        // --- SEND LOGIC ---
-        async function sendToDB(text, isRapid = false) {
-             try {
-                const newRef = push(ref(rtdb, 'personal_clips'));
-                await set(newRef, {
-                    text: text,
-                    uid: myUid,
-                    isRapid: isRapid,
-                    timestamp: serverTimestamp()
-                });
-                return true;
-             } catch(e) { console.error(e); return false; }
-        }
-
-        // --- MINI BUTTON LOGIC (REFINED IMMEDIATE CLICK) ---
-        const miniBtn = document.getElementById('headerRapidBtn');
-        const settingsModal = document.getElementById('miniSettingsModal');
-        let pressTimer;
-        let isLongPress = false;
-
-        // Mouse Down / Touch Start
-        const startPress = (e) => {
-            if(!isMiniMode) return;
-            isLongPress = false;
-            // Only start timer, don't prevent defaults yet
-            pressTimer = setTimeout(() => {
-                isLongPress = true;
-                settingsModal.classList.remove('hidden');
-                settingsModal.classList.add('flex');
-            }, 800);
-        };
-
-        // Mouse Up / Touch End
-        const endPress = (e) => {
-            if(!isMiniMode) return;
-            clearTimeout(pressTimer);
-            // If long press occurred, stop click
-            if (isLongPress) {
-                e.preventDefault(); 
-                e.stopPropagation();
-            }
-        };
-
-        // Click Event (Fires after mouseup if not cancelled)
-        const handleClick = async (e) => {
-            if(!isMiniMode || isLongPress) return;
-            
-            // Immediate Action Logic
-            if (miniBtnMode === 'input') {
-                if (miniInputSection.classList.contains('hidden-bar')) {
-                    miniInputSection.classList.remove('hidden-bar');
-                    // Small delay to ensure display:flex is applied before focus
-                    setTimeout(() => miniInput.focus(), 10);
-                } else {
-                    miniInputSection.classList.add('hidden-bar');
-                }
-            } else {
-                try {
-                    const text = await navigator.clipboard.readText();
-                    if(text) {
-                        const originalIcon = miniBtn.innerHTML;
-                        miniBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[10px]"></i>';
-                        await sendToDB(text, true);
-                        if(!isMiniMode) showToast("Sent!");
-                        setTimeout(() => miniBtn.innerHTML = originalIcon, 500);
-                    }
-                } catch(err) {}
-            }
-        };
-
-        // Event Bindings
-        miniBtn.addEventListener('mousedown', startPress);
-        miniBtn.addEventListener('touchstart', startPress);
-        miniBtn.addEventListener('mouseup', endPress);
-        miniBtn.addEventListener('touchend', endPress);
-        miniBtn.addEventListener('click', handleClick);
-        
-        miniBtn.addEventListener('contextmenu', e => { if(isMiniMode) e.preventDefault(); });
-
-        // --- SETTINGS MODAL LOGIC ---
-        document.getElementById('optInput').onclick = () => {
-            miniBtnMode = 'input';
-            localStorage.setItem('fc_mini_mode', 'input');
-            updateMiniBtnUI();
-            settingsModal.classList.add('hidden');
-        };
-        document.getElementById('optRapid').onclick = () => {
-            miniBtnMode = 'rapid';
-            localStorage.setItem('fc_mini_mode', 'rapid');
-            updateMiniBtnUI();
-            settingsModal.classList.add('hidden');
-        };
-        document.addEventListener('click', (e) => {
-            if (!miniBtn.contains(e.target) && !settingsModal.contains(e.target)) {
-                settingsModal.classList.add('hidden');
-            }
-        });
-
-
-        // --- MINI INPUT SEND ---
-        document.getElementById('miniSendBtn').onclick = async () => {
-            const val = miniInput.value.trim();
-            if(!val) return;
-            await sendToDB(val, false);
-            miniInput.value = "";
-            miniInputSection.classList.add('hidden-bar'); 
-        };
-        
-        miniInput.addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') document.getElementById('miniSendBtn').click();
-        });
-
-
-        // --- NORMAL MODE SEND ---
-        document.getElementById('headerRapidBtn').onclick = function(e) { 
-            // Normal mode click logic is separate
-            if(!isMiniMode) handleRapidSend(this); 
-            else handleClick(e); // Route to shared handler if needed, though listeners above handle it
-        };
-        
-        async function handleRapidSend(btnElement) {
-             try {
-                const text = await navigator.clipboard.readText();
-                if (!text) { showToast("Empty Clipboard"); return; }
-                const originalContent = btnElement.innerHTML;
-                btnElement.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-                await sendToDB(text, true);
-                showToast("Rapid Sent!");
-                setTimeout(() => { btnElement.innerHTML = originalContent; }, 500);
-            } catch (e) { showToast("Clipboard Error"); }
-        }
-
-        document.getElementById('normalRapidBtn').onclick = function() { handleRapidSend(this); };
-
-        document.getElementById('sendBtn').onclick = async () => {
-            const val = clipInput.value.trim();
-            if (!val) return;
-            const btn = document.getElementById('sendBtn');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-            await sendToDB(val, false);
-            clipInput.value = "";
-            btn.innerText = "Send";
-        };
-
-        document.getElementById('pasteBtn').onclick = async () => {
-            try { clipInput.value = await navigator.clipboard.readText(); } catch(e) {}
-        };
-
-        // --- VIEW SWITCH LOGIC ---
-        const modeBtn = document.getElementById('modeToggleBtn');
-        const modal = document.getElementById('confirmModal');
-        const modalBox = document.getElementById('modalBox');
-
-        modeBtn.onclick = () => {
-            const isToMini = !isMiniMode;
-            if (isMiniMode) {
-                document.getElementById('modalTitle').innerText = "Maximize?";
-            } else {
-                document.getElementById('modalTitle').innerText = "Switch to Mini Mode?";
-                document.getElementById('modalDesc').innerText = "Compact list view. Optimized for small floating windows.";
-                document.getElementById('modalIcon').className = "fa-solid fa-compress text-xl";
-            }
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modalBox.classList.remove('scale-95');
-                modalBox.classList.add('scale-100');
-            }, 10);
-        };
-
-        const closeModal = () => {
-            modal.classList.add('opacity-0');
-            modalBox.classList.remove('scale-100');
-            modalBox.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.remove('flex');
-                modal.classList.add('hidden');
-            }, 200);
-        };
-
-        document.getElementById('modalCancel').onclick = closeModal;
-        
-        document.getElementById('modalConfirm').onclick = () => {
-            isMiniMode = !isMiniMode;
-            if (isMiniMode) {
-                document.body.classList.add('mini-mode');
-            } else {
-                document.body.classList.remove('mini-mode');
-                miniInputSection.classList.add('hidden-bar');
-            }
-            closeModal();
-        };
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.classList.remove('opacity-0', 'translate-y-2');
-            t.classList.add('opacity-100', 'translate-y-0');
-            setTimeout(() => {
-                t.classList.remove('opacity-100', 'translate-y-0');
-                t.classList.add('opacity-0', 'translate-y-2');
-            }, 2000);
-        }
-
-        function escapeHtml(text) {
-            const p = document.createElement('p');
-            p.textContent = text;
-            return p.innerHTML;
-        }
-    </script>
-</body>
-</html>
 
 
