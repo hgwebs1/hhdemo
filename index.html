@@ -63,7 +63,7 @@
             background: #f8fafc; 
             height: 100vh;
             overflow: hidden; 
-            display: flex;       /* Use Flex Column for layout */
+            display: flex;       
             flex-direction: column;
         }
         
@@ -76,7 +76,7 @@
             display: flex;
             align-items: center;
             justify-content: flex-start; 
-            gap: 4px; 
+            /* Gap handled by margin on logo now */
             height: 32px; 
             background: #fff;
             flex-shrink: 0; 
@@ -87,6 +87,11 @@
         body.mini-mode #statusContainer { margin-left: 0 !important; padding: 0; background: transparent; border: none; }
         body.mini-mode #statusLabel { display: none; }
         
+        /* Added Margin for Mini Mode Logo as requested */
+        body.mini-mode #modeToggleBtn {
+            margin-right: 10px;
+        }
+
         /* MINI INPUT SECTION */
         #miniInputSection {
             background: #fff;
@@ -96,9 +101,23 @@
             align-items: center;
             gap: 4px;
             transition: all 0.2s;
+            width: 100%; /* Full width */
         }
         #miniInputSection.hidden-bar {
             display: none;
+        }
+        
+        /* Mini Input Field - Flexible */
+        #miniInput {
+            min-width: 0; /* Allows shrinking */
+            flex: 1; /* Takes all available space */
+        }
+        
+        /* Mini Send Button - Fixed Width */
+        #miniSendBtn {
+            flex-shrink: 0; /* Prevents shrinking */
+            width: 24px;
+            height: 24px;
         }
         
         /* Mini List Container */
@@ -107,7 +126,7 @@
             background: #f8fafc; 
             overflow-y: auto !important;
             -webkit-overflow-scrolling: touch;
-            flex-grow: 1; /* Occupy remaining space */
+            flex-grow: 1; 
             
             display: flex;
             flex-direction: column;
@@ -263,7 +282,7 @@
 
     <!-- HEADER -->
     <div id="mainHeader" class="bg-white p-4 border-b z-40 flex justify-between items-center transition-all">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center">
             <!-- Logo & Toggle -->
             <button id="modeToggleBtn" class="text-xl font-bold text-indigo-600 flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer z-50 outline-none">
                 <i class="fa-solid fa-bolt-lightning"></i> 
@@ -285,8 +304,8 @@
 
     <!-- MINI INPUT SECTION (Hidden by default) -->
     <div id="miniInputSection" class="hidden-bar mini-only">
-        <input type="text" id="miniInput" class="flex-1 h-6 text-[10px] px-2 rounded border border-gray-300 outline-none focus:border-indigo-500" placeholder="Type message...">
-        <button id="miniSendBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white w-6 h-6 rounded flex items-center justify-center">
+        <input type="text" id="miniInput" class="h-6 text-[10px] px-2 rounded border border-gray-300 outline-none focus:border-indigo-500" placeholder="Type message...">
+        <button id="miniSendBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white rounded flex items-center justify-center">
             <i class="fa-solid fa-arrow-up text-[9px]"></i>
         </button>
     </div>
@@ -524,66 +543,70 @@
              } catch(e) { console.error(e); return false; }
         }
 
-        // --- MINI BUTTON LOGIC (CLICK vs LONG PRESS) ---
+        // --- MINI BUTTON LOGIC (REFINED IMMEDIATE CLICK) ---
         const miniBtn = document.getElementById('headerRapidBtn');
         const settingsModal = document.getElementById('miniSettingsModal');
         let pressTimer;
         let isLongPress = false;
 
-        // Touch/Mouse Down
+        // Mouse Down / Touch Start
         const startPress = (e) => {
-            if(!isMiniMode) return; // Only active in mini mode
+            if(!isMiniMode) return;
             isLongPress = false;
+            // Only start timer, don't prevent defaults yet
             pressTimer = setTimeout(() => {
                 isLongPress = true;
-                // Show Settings
                 settingsModal.classList.remove('hidden');
                 settingsModal.classList.add('flex');
-            }, 800); // 800ms for long press
+            }, 800);
         };
 
-        // Touch/Mouse Up
-        const endPress = async (e) => {
+        // Mouse Up / Touch End
+        const endPress = (e) => {
             if(!isMiniMode) return;
             clearTimeout(pressTimer);
-            
+            // If long press occurred, stop click
             if (isLongPress) {
-                e.preventDefault();
+                e.preventDefault(); 
                 e.stopPropagation();
-                return; // Handled by long press
             }
+        };
+
+        // Click Event (Fires after mouseup if not cancelled)
+        const handleClick = async (e) => {
+            if(!isMiniMode || isLongPress) return;
             
-            // Normal Click Action
+            // Immediate Action Logic
             if (miniBtnMode === 'input') {
-                // Toggle Input Bar
                 if (miniInputSection.classList.contains('hidden-bar')) {
                     miniInputSection.classList.remove('hidden-bar');
-                    miniInput.focus();
+                    // Small delay to ensure display:flex is applied before focus
+                    setTimeout(() => miniInput.focus(), 10);
                 } else {
                     miniInputSection.classList.add('hidden-bar');
                 }
             } else {
-                // Rapid Send Action
                 try {
                     const text = await navigator.clipboard.readText();
                     if(text) {
+                        const originalIcon = miniBtn.innerHTML;
                         miniBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[10px]"></i>';
                         await sendToDB(text, true);
                         if(!isMiniMode) showToast("Sent!");
-                        setTimeout(() => updateMiniBtnUI(), 500);
+                        setTimeout(() => miniBtn.innerHTML = originalIcon, 500);
                     }
                 } catch(err) {}
             }
         };
 
-        // Bind Events for Mini Button
+        // Event Bindings
         miniBtn.addEventListener('mousedown', startPress);
         miniBtn.addEventListener('touchstart', startPress);
         miniBtn.addEventListener('mouseup', endPress);
         miniBtn.addEventListener('touchend', endPress);
-        // Prevent context menu on long press
+        miniBtn.addEventListener('click', handleClick);
+        
         miniBtn.addEventListener('contextmenu', e => { if(isMiniMode) e.preventDefault(); });
-
 
         // --- SETTINGS MODAL LOGIC ---
         document.getElementById('optInput').onclick = () => {
@@ -598,7 +621,6 @@
             updateMiniBtnUI();
             settingsModal.classList.add('hidden');
         };
-        // Close modal if clicked outside
         document.addEventListener('click', (e) => {
             if (!miniBtn.contains(e.target) && !settingsModal.contains(e.target)) {
                 settingsModal.classList.add('hidden');
@@ -612,10 +634,9 @@
             if(!val) return;
             await sendToDB(val, false);
             miniInput.value = "";
-            miniInputSection.classList.add('hidden-bar'); // Auto hide after send
+            miniInputSection.classList.add('hidden-bar'); 
         };
         
-        // Allow Enter key in mini input
         miniInput.addEventListener('keypress', (e) => {
             if(e.key === 'Enter') document.getElementById('miniSendBtn').click();
         });
@@ -623,8 +644,9 @@
 
         // --- NORMAL MODE SEND ---
         document.getElementById('headerRapidBtn').onclick = function(e) { 
-            // Only trigger here if NOT mini mode (handled by listeners above for mini)
+            // Normal mode click logic is separate
             if(!isMiniMode) handleRapidSend(this); 
+            else handleClick(e); // Route to shared handler if needed, though listeners above handle it
         };
         
         async function handleRapidSend(btnElement) {
@@ -696,7 +718,6 @@
                 document.body.classList.add('mini-mode');
             } else {
                 document.body.classList.remove('mini-mode');
-                // Ensure mini input is hidden when going back to normal
                 miniInputSection.classList.add('hidden-bar');
             }
             closeModal();
