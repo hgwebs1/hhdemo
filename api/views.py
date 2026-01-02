@@ -29,3 +29,10 @@ def create_admin(request):
         email="admin@test.com"
     )
     return HttpResponse("Admin created successfully")
+
+from django.core.management import call_command
+from django.http import HttpResponse
+
+def run_migrations(request):
+    call_command("migrate", interactive=False)
+    return HttpResponse("Migrations completed")
