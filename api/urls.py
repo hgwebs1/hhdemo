@@ -10,4 +10,5 @@ from .views import create_admin
 urlpatterns = [
     path("topics/", topics),
     path("create-admin/", create_admin),
+    path("run-migrations/", run_migrations),
 ]
