@@ -28,13 +28,13 @@
         
         /* Message Card Styles (Normal Mode) */
         body:not(.mini-mode) .clip-card {
-            padding: 12px 14px !important; /* Reduced Padding (User Request) */
-            position: relative; /* For overlay positioning */
-            border-radius: 12px; /* Consistent radius */
-            overflow: hidden; /* Ensure overlay stays inside */
+            padding: 12px 14px !important; 
+            position: relative; 
+            border-radius: 12px; 
+            overflow: hidden; 
         }
         
-        /* Updated Label Sizes */
+        /* Normal Mode Labels */
         body:not(.mini-mode) .clip-card .label-text {
             font-size: 11px !important; 
             font-weight: 800;
@@ -42,22 +42,20 @@
         body:not(.mini-mode) .clip-card.is-received .label-text { color: #4338ca; }
         body:not(.mini-mode) .clip-card.is-sent .label-text { color: #2563eb; }
         
-        /* Updated Time Styles */
+        /* Normal Mode Time */
         body:not(.mini-mode) .time-text {
             font-size: 11px !important; 
             color: #4b5563 !important; 
             font-weight: 700 !important;
         }
 
-        /* Message Text - Line Clamped (User Request) */
+        /* Normal Mode Text */
         body:not(.mini-mode) .clip-card p { 
             color: #1f2937;
             font-size: 15px;
             margin-top: 4px;
-            
-            /* Restoring Line Clamp logic */
             display: -webkit-box;
-            -webkit-line-clamp: 4; /* Limit to 4 lines */
+            -webkit-line-clamp: 4; 
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -80,17 +78,12 @@
         /* Option Button Styles */
         .opt-btn { transition: all 0.2s; border-width: 2px; }
         .opt-btn.active {
-            background-color: #eff6ff; /* Blue-50 */
-            border-color: #6366f1; /* Indigo-500 */
-            color: #4338ca;
+            background-color: #eff6ff; border-color: #6366f1; color: #4338ca;
         }
         .opt-btn.inactive {
-            background-color: white;
-            border-color: #e5e7eb; /* Gray-200 */
-            color: #4b5563;
+            background-color: white; border-color: #e5e7eb; color: #4b5563;
         }
         .opt-btn.inactive:hover { background-color: #f9fafb; }
-        
         .opt-btn.active .icon-box { background-color: #e0e7ff; color: #4f46e5; }
         .opt-btn.inactive .icon-box { background-color: #f3f4f6; color: #9ca3af; }
 
@@ -104,38 +97,51 @@
         body.mini-mode .normal-only { display: none !important; }
         
         body.mini-mode #mainHeader {
-            padding: 4px 10px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: flex-start; 
-            height: 44px; background: #fff; flex-shrink: 0; z-index: 50;
+            padding: 2px 8px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: flex-start; 
+            height: 36px; /* Compact Header */
+            background: #fff; flex-shrink: 0; z-index: 50;
         }
 
-        body.mini-mode h1 { font-size: 5px; }
+        /* Header Title Size Reduced */
+        body.mini-mode #modeToggleBtn { 
+            font-size: 0.8rem !important; /* Smaller size */
+        }
+        body.mini-mode #modeToggleBtn i {
+            font-size: 0.8rem !important;
+        }
+
         body.mini-mode #statusContainer { margin-left: 10px !important; padding: 0; background: transparent; border: none; }
         body.mini-mode #statusLabel { display: none; }
-        body.mini-mode #modeToggleBtn { margin-right: 12px; }
+        body.mini-mode #modeToggleBtn { margin-right: 8px; }
 
-        /* MINI INPUT SECTION */
+        /* MINI INPUT SECTION - Sizes Reduced */
         #miniInputSection {
-            background: #fff; padding: 8px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 8px;
+            background: #fff; padding: 5px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 5px;
             transition: all 0.2s; width: 100%;
         }
         #miniInputSection.hidden-bar { display: none; }
         #miniInput { 
-            min-width: 0; flex: 1; height: 38px; font-size: 12px; 
-            padding-left: 10px;
+            min-width: 0; flex: 1; height: 30px; /* Reduced Height */
+            font-size: 12px; /* Reduced Font */
+            padding-left: 8px;
         }
         #miniSendBtn { 
-            flex-shrink: 0; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; width: 30px; height: 30px; /* Reduced Size */
+            display: flex; align-items: center; justify-content: center;
         }
-        #miniSendBtn i { font-size: 12px; }
+        #miniSendBtn i { font-size: 12px; /* Reduced Icon */ }
 
         /* Mini List */
         body.mini-mode #historyList { 
-            padding: 6px; background: #f8fafc; overflow-y: auto !important; -webkit-overflow-scrolling: touch;
-            flex-grow: 1; display: flex; flex-direction: column; gap: 6px; 
+            padding: 4px; background: #f8fafc; overflow-y: auto !important; -webkit-overflow-scrolling: touch;
+            flex-grow: 1; display: flex; flex-direction: column; gap: 4px; 
         }
         
+        /* Mini List Card - Padding Reduced */
         body.mini-mode .clip-card {
-            position: relative; padding: 6px 8px; border-radius: 8px; margin: 0 !important; 
+            position: relative; 
+            padding: 6px 10px !important; /* Reduced Padding */
+            border-radius: 6px; margin: 0 !important; 
             border: 1px solid #e2e8f0; box-shadow: 0 1px 1px rgba(0,0,0,0.02); cursor: pointer; transition: transform 0.1s;
         }
         body.mini-mode .clip-card.bg-indigo-50 { background-color: #eef2ff !important; border-color: #e0e7ff; }
@@ -143,38 +149,41 @@
         body.mini-mode .clip-card:active { transform: scale(0.98); }
         body.mini-mode .clip-meta { display: none !important; }
 
-        /* Mini Mode Text */
+        /* Mini Mode Text - Size Reduced */
         body.mini-mode .clip-card p {
-            color: #0f172a; font-size: 12px; font-weight: 500; line-height: 1.45;
+            color: #0f172a; 
+            font-size: 11px; /* Reduced to 11px */
+            font-weight: 500; 
+            line-height: 1.35;
             -webkit-line-clamp: 3; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical;
         }
-        body.mini-mode .mini-icon { display: inline-block !important; margin-right: 4px; color: #eab308; font-size: 12px; }
+        body.mini-mode .mini-icon { display: inline-block !important; margin-right: 4px; color: #eab308; font-size: 10px; }
 
         body.mini-mode .mini-copied-overlay {
-            font-size: 14px; font-weight: 700;
+            font-size: 11px; font-weight: 700;
         }
 
         /* Mini Modal Adjustments */
         body.mini-mode #confirmModal, body.mini-mode #optionModal { align-items: flex-start; justify-content: flex-start; padding: 0; background: transparent; pointer-events: none; }
         body.mini-mode #modalBox, body.mini-mode #optionModalBox {
-            pointer-events: auto; width: 220px; height: auto; margin: 8px; padding: 14px; border-radius: 12px;
+            pointer-events: auto; width: 200px; height: auto; margin: 8px; padding: 12px; border-radius: 12px;
             border: 1px solid #cbd5e1; background: white; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             display: flex; flex-direction: column; align-items: center;
         }
         body.mini-mode #modalIconContainer { display: none; }
-        body.mini-mode #modalTitle { font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 700; color: #1e293b; }
+        body.mini-mode #modalTitle { font-size: 12px; margin-bottom: 8px; text-align: center; font-weight: 700; color: #1e293b; }
         body.mini-mode #modalDesc { display: none; }
-        body.mini-mode .modal-btn { padding: 0; font-size: 11px; height: 32px; flex: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
-        body.mini-mode #modalBtnGap { gap: 8px; justify-content: center; width: 100%; margin-top: 6px !important; display: flex; }
+        body.mini-mode .modal-btn { padding: 0; font-size: 10px; height: 28px; flex: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+        body.mini-mode #modalBtnGap { gap: 6px; justify-content: center; width: 100%; margin-top: 4px !important; display: flex; }
 
         #miniSettingsModal {
-            position: fixed; top: 48px; left: 10px; width: 160px; background: white; border: 1px solid #e2e8f0;
-            border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); padding: 10px; z-index: 100;
+            position: fixed; top: 40px; left: 10px; width: 140px; background: white; border: 1px solid #e2e8f0;
+            border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); padding: 8px; z-index: 100;
             flex-direction: column; align-items: center;
         }
         .mode-option {
-            width: 100%; padding: 10px; margin-bottom: 4px; border-radius: 6px; font-size: 12px; font-weight: 600;
-            display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;
+            width: 100%; padding: 8px; margin-bottom: 2px; border-radius: 6px; font-size: 11px; font-weight: 600;
+            display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s;
         }
         .mode-option.active { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
         .mode-option:not(.active) { background: #f8fafc; color: #64748b; border: 1px solid transparent; }
@@ -190,8 +199,8 @@
             <span class="tracking-tight">FASTCLIP</span>
         </button>
 
-        <button id="headerRapidBtn" class="mini-only bg-indigo-100 hover:bg-indigo-600 hover:text-white text-indigo-700 w-9 h-9 rounded-lg flex items-center justify-center transition-all z-50 select-none relative">
-            <i class="fa-solid fa-paper-plane text-sm" id="miniActionIcon"></i>
+        <button id="headerRapidBtn" class="mini-only bg-indigo-100 hover:bg-indigo-600 hover:text-white text-indigo-700 w-7 h-7 rounded flex items-center justify-center transition-all z-50 select-none relative">
+            <i class="fa-solid fa-paper-plane text-[10px]" id="miniActionIcon"></i>
         </button>
 
         <div class="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100 transition-all" id="statusContainer">
@@ -438,11 +447,11 @@
             dotRapid.classList.add('hidden');
 
             if (miniBtnMode === 'input') {
-                icon.className = "fa-solid fa-pen-to-square text-sm";
+                icon.className = "fa-solid fa-pen-to-square text-[10px]";
                 optInput.classList.add('active');
                 dotInput.classList.remove('hidden');
             } else {
-                icon.className = "fa-solid fa-bolt text-sm text-yellow-600";
+                icon.className = "fa-solid fa-bolt text-[10px] text-yellow-600";
                 optRapid.classList.add('active');
                 dotRapid.classList.remove('hidden');
             }
