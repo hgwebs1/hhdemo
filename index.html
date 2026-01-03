@@ -34,55 +34,47 @@
             overflow: hidden; 
         }
         
-        /* Normal Mode Labels */
         body:not(.mini-mode) .clip-card .label-text {
-            font-size: 11px !important; 
-            font-weight: 800;
+            font-size: 11px !important; font-weight: 800;
         }
         body:not(.mini-mode) .clip-card.is-received .label-text { color: #4338ca; }
         body:not(.mini-mode) .clip-card.is-sent .label-text { color: #2563eb; }
         
-        /* Normal Mode Time */
         body:not(.mini-mode) .time-text {
-            font-size: 11px !important; 
-            color: #4b5563 !important; 
-            font-weight: 700 !important;
+            font-size: 11px !important; color: #4b5563 !important; font-weight: 700 !important;
         }
 
-        /* Normal Mode Text */
         body:not(.mini-mode) .clip-card p { 
-            color: #1f2937;
-            font-size: 15px;
-            margin-top: 4px;
-            display: -webkit-box;
-            -webkit-line-clamp: 4; 
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            color: #1f2937; font-size: 15px; margin-top: 4px;
+            display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
         }
 
-        /* Overlay Text Size for Normal Mode */
         body:not(.mini-mode) .mini-copied-overlay {
             font-size: 14px; font-weight: 800; letter-spacing: 1px;
         }
 
-        /* Modals */
+        /* MODALS (Normal Mode) - Changed to Absolute to scroll with page */
         #confirmModal, #optionModal {
-            align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.4);
+            align-items: flex-start; /* Start from top to avoid hiding on long scroll */
+            padding-top: 100px; /* Offset from top */
+            justify-content: center; 
+            background: rgba(0, 0, 0, 0.4);
+            position: absolute !important; /* Move with scroll */
+            inset: 0;
+            height: 100%;
+            z-index: 100;
         }
         body:not(.mini-mode) #modalBox, body:not(.mini-mode) #optionModalBox {
-            width: 320px; padding: 24px; border-radius: 20px; text-align: center; margin: auto; position: relative;
+            width: 320px; padding: 24px; border-radius: 20px; text-align: center; margin: 0 auto; position: relative;
+            background: white; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         body:not(.mini-mode) #miniSettingsModal { display: none !important; }
         body:not(.mini-mode) #statusContainer { margin-left: auto; }
 
         /* Option Button Styles */
         .opt-btn { transition: all 0.2s; border-width: 2px; }
-        .opt-btn.active {
-            background-color: #eff6ff; border-color: #6366f1; color: #4338ca;
-        }
-        .opt-btn.inactive {
-            background-color: white; border-color: #e5e7eb; color: #4b5563;
-        }
+        .opt-btn.active { background-color: #eff6ff; border-color: #6366f1; color: #4338ca; }
+        .opt-btn.inactive { background-color: white; border-color: #e5e7eb; color: #4b5563; }
         .opt-btn.inactive:hover { background-color: #f9fafb; }
         .opt-btn.active .icon-box { background-color: #e0e7ff; color: #4f46e5; }
         .opt-btn.inactive .icon-box { background-color: #f3f4f6; color: #9ca3af; }
@@ -97,39 +89,39 @@
         body.mini-mode .normal-only { display: none !important; }
         
         body.mini-mode #mainHeader {
-            padding: 2px 8px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: flex-start; 
-            height: 36px; /* Compact Header */
+            padding: 3px 10px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: flex-start; 
+            height: 40px; 
             background: #fff; flex-shrink: 0; z-index: 50;
         }
 
-        /* Header Title Size Reduced */
+        /* Header Title Size: Slightly smaller than original, but bigger than previous step */
         body.mini-mode #modeToggleBtn { 
-            font-size: 0.8rem !important; /* Smaller size */
+            font-size: 0.95rem !important; 
         }
         body.mini-mode #modeToggleBtn i {
-            font-size: 0.8rem !important;
+            font-size: 0.95rem !important;
         }
 
         body.mini-mode #statusContainer { margin-left: 10px !important; padding: 0; background: transparent; border: none; }
         body.mini-mode #statusLabel { display: none; }
         body.mini-mode #modeToggleBtn { margin-right: 8px; }
 
-        /* MINI INPUT SECTION - Sizes Reduced */
+        /* MINI INPUT SECTION - Kept Compact */
         #miniInputSection {
             background: #fff; padding: 5px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 5px;
             transition: all 0.2s; width: 100%;
         }
         #miniInputSection.hidden-bar { display: none; }
         #miniInput { 
-            min-width: 0; flex: 1; height: 30px; /* Reduced Height */
-            font-size: 12px; /* Reduced Font */
+            min-width: 0; flex: 1; height: 32px; 
+            font-size: 13px; /* Slightly adjusted */
             padding-left: 8px;
         }
         #miniSendBtn { 
-            flex-shrink: 0; width: 30px; height: 30px; /* Reduced Size */
+            flex-shrink: 0; width: 32px; height: 32px; 
             display: flex; align-items: center; justify-content: center;
         }
-        #miniSendBtn i { font-size: 12px; /* Reduced Icon */ }
+        #miniSendBtn i { font-size: 13px; }
 
         /* Mini List */
         body.mini-mode #historyList { 
@@ -137,10 +129,10 @@
             flex-grow: 1; display: flex; flex-direction: column; gap: 4px; 
         }
         
-        /* Mini List Card - Padding Reduced */
+        /* Mini List Card - Padding Small */
         body.mini-mode .clip-card {
             position: relative; 
-            padding: 6px 10px !important; /* Reduced Padding */
+            padding: 6px 10px !important; 
             border-radius: 6px; margin: 0 !important; 
             border: 1px solid #e2e8f0; box-shadow: 0 1px 1px rgba(0,0,0,0.02); cursor: pointer; transition: transform 0.1s;
         }
@@ -149,22 +141,23 @@
         body.mini-mode .clip-card:active { transform: scale(0.98); }
         body.mini-mode .clip-meta { display: none !important; }
 
-        /* Mini Mode Text - Size Reduced */
+        /* Mini Mode Text - Restored Font Size (14px), Max Lines 2 */
         body.mini-mode .clip-card p {
             color: #0f172a; 
-            font-size: 11px; /* Reduced to 11px */
+            font-size: 14px; /* Restored to Big */
             font-weight: 500; 
             line-height: 1.35;
-            -webkit-line-clamp: 3; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2; /* Limit to 2 lines */
+            overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical;
         }
-        body.mini-mode .mini-icon { display: inline-block !important; margin-right: 4px; color: #eab308; font-size: 10px; }
+        body.mini-mode .mini-icon { display: inline-block !important; margin-right: 4px; color: #eab308; font-size: 12px; }
 
         body.mini-mode .mini-copied-overlay {
-            font-size: 11px; font-weight: 700;
+            font-size: 13px; font-weight: 700;
         }
 
-        /* Mini Modal Adjustments */
-        body.mini-mode #confirmModal, body.mini-mode #optionModal { align-items: flex-start; justify-content: flex-start; padding: 0; background: transparent; pointer-events: none; }
+        /* Mini Modal */
+        body.mini-mode #confirmModal, body.mini-mode #optionModal { align-items: flex-start; justify-content: flex-start; padding: 0; background: transparent; pointer-events: none; height: auto; position: fixed !important; inset: 0; }
         body.mini-mode #modalBox, body.mini-mode #optionModalBox {
             pointer-events: auto; width: 200px; height: auto; margin: 8px; padding: 12px; border-radius: 12px;
             border: 1px solid #cbd5e1; background: white; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -199,8 +192,8 @@
             <span class="tracking-tight">FASTCLIP</span>
         </button>
 
-        <button id="headerRapidBtn" class="mini-only bg-indigo-100 hover:bg-indigo-600 hover:text-white text-indigo-700 w-7 h-7 rounded flex items-center justify-center transition-all z-50 select-none relative">
-            <i class="fa-solid fa-paper-plane text-[10px]" id="miniActionIcon"></i>
+        <button id="headerRapidBtn" class="mini-only bg-indigo-100 hover:bg-indigo-600 hover:text-white text-indigo-700 w-8 h-8 rounded flex items-center justify-center transition-all z-50 select-none relative">
+            <i class="fa-solid fa-paper-plane text-[11px]" id="miniActionIcon"></i>
         </button>
 
         <div class="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100 transition-all" id="statusContainer">
@@ -305,8 +298,8 @@
     </div>
 
     <!-- VIEW SWITCH MODAL -->
-    <div id="confirmModal" class="fixed inset-0 z-[100] hidden opacity-0 transition-opacity duration-200">
-        <div class="bg-white transform scale-95 transition-transform duration-200 flex flex-col shadow-2xl" id="modalBox">
+    <div id="confirmModal" class="hidden opacity-0 transition-opacity duration-200">
+        <div class="transform scale-95 transition-transform duration-200 flex flex-col" id="modalBox">
             <div id="modalIconContainer" class="bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 mb-4 mx-auto w-12 h-12">
                 <i class="fa-solid fa-expand text-xl" id="modalIcon"></i>
             </div>
@@ -320,8 +313,8 @@
     </div>
 
     <!-- OPTION SELECTION MODAL (For Normal Mode Rapid Button) -->
-    <div id="optionModal" class="fixed inset-0 z-[110] hidden opacity-0 transition-opacity duration-200">
-        <div class="bg-white transform scale-95 transition-transform duration-200 flex flex-col shadow-2xl" id="optionModalBox">
+    <div id="optionModal" class="hidden opacity-0 transition-opacity duration-200">
+        <div class="transform scale-95 transition-transform duration-200 flex flex-col" id="optionModalBox">
             <h3 class="font-bold text-gray-800 text-lg mb-2">Rapid Button Style</h3>
             <p class="text-xs text-gray-500 mb-6 leading-relaxed">Choose which style you prefer for the main interface.</p>
             
@@ -636,9 +629,9 @@
         function showOptionModal() {
             updateOptionModalUI();
             optModal.classList.remove('hidden');
+            optModal.classList.remove('opacity-0');
             optModal.classList.add('flex');
             setTimeout(() => {
-                optModal.classList.remove('opacity-0');
                 optModalBox.classList.remove('scale-95');
                 optModalBox.classList.add('scale-100');
             }, 10);
@@ -775,9 +768,9 @@
                 document.getElementById('modalIcon').className = "fa-solid fa-compress text-xl";
             }
             modal.classList.remove('hidden');
+            modal.classList.remove('opacity-0');
             modal.classList.add('flex');
             setTimeout(() => {
-                modal.classList.remove('opacity-0');
                 modalBox.classList.remove('scale-95');
                 modalBox.classList.add('scale-100');
             }, 10);
@@ -827,5 +820,3 @@
     </script>
 </body>
 </html>
-
-
