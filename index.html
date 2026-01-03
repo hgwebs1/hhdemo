@@ -1,65 +1,822 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>FastPaste</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body{
-  font-family: system-ui;
-  background:#f5f7fa;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-}
-.box{
-  width:95%;
-  max-width:500px;
-  background:#fff;
-  padding:15px;
-  border-radius:12px;
-}
-textarea{
-  width:100%;
-  height:200px;
-  font-size:15px;
-}
-button{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  background:#4f46e5;
-  color:#fff;
-  border:none;
-  border-radius:10px;
-}
-.note{
-  font-size:12px;
-  color:#666;
-  text-align:center;
-  margin-top:6px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fastclip</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .no-select { user-select: none; -webkit-user-select: none; }
+
+        /* =========================================
+           SHARED STYLES (Overlay)
+           ========================================= */
+        .mini-copied-overlay {
+            position: absolute; inset: 0; background: #3b82f6; display: flex; align-items: center; justify-content: center;
+            color: white; opacity: 0; pointer-events: none; transition: opacity 0.1s; z-index: 10; border-radius: inherit;
+        }
+        .clip-card.active-copy .mini-copied-overlay { opacity: 1; }
+
+        /* =========================================
+           NORMAL MODE STYLES
+           ========================================= */
+        body:not(.mini-mode) .mini-only { display: none !important; }
+        
+        /* Message Card Styles (Normal Mode) */
+        body:not(.mini-mode) .clip-card {
+            padding: 12px 14px !important; /* Reduced Padding (User Request) */
+            position: relative; /* For overlay positioning */
+            border-radius: 12px; /* Consistent radius */
+            overflow: hidden; /* Ensure overlay stays inside */
+        }
+        
+        /* Updated Label Sizes */
+        body:not(.mini-mode) .clip-card .label-text {
+            font-size: 11px !important; 
+            font-weight: 800;
+        }
+        body:not(.mini-mode) .clip-card.is-received .label-text { color: #4338ca; }
+        body:not(.mini-mode) .clip-card.is-sent .label-text { color: #2563eb; }
+        
+        /* Updated Time Styles */
+        body:not(.mini-mode) .time-text {
+            font-size: 11px !important; 
+            color: #4b5563 !important; 
+            font-weight: 700 !important;
+        }
+
+        /* Message Text - Line Clamped (User Request) */
+        body:not(.mini-mode) .clip-card p { 
+            color: #1f2937;
+            font-size: 15px;
+            margin-top: 4px;
+            
+            /* Restoring Line Clamp logic */
+            display: -webkit-box;
+            -webkit-line-clamp: 4; /* Limit to 4 lines */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Overlay Text Size for Normal Mode */
+        body:not(.mini-mode) .mini-copied-overlay {
+            font-size: 14px; font-weight: 800; letter-spacing: 1px;
+        }
+
+        /* Modals */
+        #confirmModal, #optionModal {
+            align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.4);
+        }
+        body:not(.mini-mode) #modalBox, body:not(.mini-mode) #optionModalBox {
+            width: 320px; padding: 24px; border-radius: 20px; text-align: center; margin: auto; position: relative;
+        }
+        body:not(.mini-mode) #miniSettingsModal { display: none !important; }
+        body:not(.mini-mode) #statusContainer { margin-left: auto; }
+
+        /* Option Button Styles */
+        .opt-btn { transition: all 0.2s; border-width: 2px; }
+        .opt-btn.active {
+            background-color: #eff6ff; /* Blue-50 */
+            border-color: #6366f1; /* Indigo-500 */
+            color: #4338ca;
+        }
+        .opt-btn.inactive {
+            background-color: white;
+            border-color: #e5e7eb; /* Gray-200 */
+            color: #4b5563;
+        }
+        .opt-btn.inactive:hover { background-color: #f9fafb; }
+        
+        .opt-btn.active .icon-box { background-color: #e0e7ff; color: #4f46e5; }
+        .opt-btn.inactive .icon-box { background-color: #f3f4f6; color: #9ca3af; }
+
+
+        /* =========================================
+           MINI MODE STYLES
+           ========================================= */
+        body.mini-mode { 
+            background: #f8fafc; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
+        }
+        body.mini-mode .normal-only { display: none !important; }
+        
+        body.mini-mode #mainHeader {
+            padding: 4px 10px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: flex-start; 
+            height: 44px; background: #fff; flex-shrink: 0; z-index: 50;
+        }
+
+        body.mini-mode h1 { font-size: 1rem; }
+        body.mini-mode #statusContainer { margin-left: 10px !important; padding: 0; background: transparent; border: none; }
+        body.mini-mode #statusLabel { display: none; }
+        body.mini-mode #modeToggleBtn { margin-right: 12px; }
+
+        /* MINI INPUT SECTION */
+        #miniInputSection {
+            background: #fff; padding: 8px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 8px;
+            transition: all 0.2s; width: 100%;
+        }
+        #miniInputSection.hidden-bar { display: none; }
+        #miniInput { 
+            min-width: 0; flex: 1; height: 38px; font-size: 16px; 
+            padding-left: 10px;
+        }
+        #miniSendBtn { 
+            flex-shrink: 0; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+        }
+        #miniSendBtn i { font-size: 16px; }
+
+        /* Mini List */
+        body.mini-mode #historyList { 
+            padding: 6px; background: #f8fafc; overflow-y: auto !important; -webkit-overflow-scrolling: touch;
+            flex-grow: 1; display: flex; flex-direction: column; gap: 6px; 
+        }
+        
+        body.mini-mode .clip-card {
+            position: relative; padding: 10px 12px; border-radius: 8px; margin: 0 !important; 
+            border: 1px solid #e2e8f0; box-shadow: 0 1px 1px rgba(0,0,0,0.02); cursor: pointer; transition: transform 0.1s;
+        }
+        body.mini-mode .clip-card.bg-indigo-50 { background-color: #eef2ff !important; border-color: #e0e7ff; }
+        body.mini-mode .clip-card.bg-white { background-color: #ffffff !important; border-color: #e2e8f0; }
+        body.mini-mode .clip-card:active { transform: scale(0.98); }
+        body.mini-mode .clip-meta { display: none !important; }
+
+        /* Mini Mode Text */
+        body.mini-mode .clip-card p {
+            color: #0f172a; font-size: 14px; font-weight: 500; line-height: 1.45;
+            -webkit-line-clamp: 3; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical;
+        }
+        body.mini-mode .mini-icon { display: inline-block !important; margin-right: 4px; color: #eab308; font-size: 12px; }
+
+        body.mini-mode .mini-copied-overlay {
+            font-size: 14px; font-weight: 700;
+        }
+
+        /* Mini Modal Adjustments */
+        body.mini-mode #confirmModal, body.mini-mode #optionModal { align-items: flex-start; justify-content: flex-start; padding: 0; background: transparent; pointer-events: none; }
+        body.mini-mode #modalBox, body.mini-mode #optionModalBox {
+            pointer-events: auto; width: 220px; height: auto; margin: 8px; padding: 14px; border-radius: 12px;
+            border: 1px solid #cbd5e1; background: white; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            display: flex; flex-direction: column; align-items: center;
+        }
+        body.mini-mode #modalIconContainer { display: none; }
+        body.mini-mode #modalTitle { font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 700; color: #1e293b; }
+        body.mini-mode #modalDesc { display: none; }
+        body.mini-mode .modal-btn { padding: 0; font-size: 11px; height: 32px; flex: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+        body.mini-mode #modalBtnGap { gap: 8px; justify-content: center; width: 100%; margin-top: 6px !important; display: flex; }
+
+        #miniSettingsModal {
+            position: fixed; top: 48px; left: 10px; width: 160px; background: white; border: 1px solid #e2e8f0;
+            border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); padding: 10px; z-index: 100;
+            flex-direction: column; align-items: center;
+        }
+        .mode-option {
+            width: 100%; padding: 10px; margin-bottom: 4px; border-radius: 6px; font-size: 12px; font-weight: 600;
+            display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;
+        }
+        .mode-option.active { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+        .mode-option:not(.active) { background: #f8fafc; color: #64748b; border: 1px solid transparent; }
+
+    </style>
 </head>
-<body>
+<body class="bg-slate-50 max-w-md mx-auto min-h-screen flex flex-col border-x border-gray-100 relative transition-all duration-300">
 
-<div class="box">
-  <textarea id="area" placeholder="Paste here..."></textarea>
-  <button onclick="manualPaste()">Tap & Paste</button>
-  <div class="note">Button tap → keyboard paste → works everywhere</div>
-</div>
+    <!-- HEADER -->
+    <div id="mainHeader" class="bg-white p-4 border-b z-40 flex items-center transition-all">
+        <button id="modeToggleBtn" class="text-xl font-bold text-indigo-600 flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer z-50 outline-none">
+            <i class="fa-solid fa-bolt-lightning"></i> 
+            <span class="tracking-tight">FASTCLIP</span>
+        </button>
 
-<script>
-function manualPaste(){
-  const ta = document.getElementById("area");
-  ta.focus();
-  ta.select();
+        <button id="headerRapidBtn" class="mini-only bg-indigo-100 hover:bg-indigo-600 hover:text-white text-indigo-700 w-9 h-9 rounded-lg flex items-center justify-center transition-all z-50 select-none relative">
+            <i class="fa-solid fa-paper-plane text-sm" id="miniActionIcon"></i>
+        </button>
 
-  // Android shows paste bar automatically
-  alert("अब Paste करें (long press → Paste)");
-}
-</script>
+        <div class="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100 transition-all" id="statusContainer">
+            <span id="statusLabel" class="text-[10px] font-bold text-gray-400 normal-only">CONNECTING</span>
+            <div id="statusDot" class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
+        </div>
+    </div>
 
+    <!-- MINI INPUT SECTION -->
+    <div id="miniInputSection" class="hidden-bar mini-only">
+        <input type="text" id="miniInput" class="rounded border border-gray-300 outline-none focus:border-indigo-500 text-gray-800" placeholder="Type message...">
+        <button id="miniSendBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white rounded flex items-center justify-center">
+            <i class="fa-solid fa-arrow-up"></i>
+        </button>
+    </div>
+
+    <!-- NORMAL INPUT AREA -->
+    <div class="normal-only p-4 bg-white border-b border-gray-100 shadow-sm z-30 relative">
+        
+        <!-- TOP ROW: Either Main Textarea OR Big Rapid Button -->
+        <div class="w-full h-32 mb-3 relative">
+            
+            <!-- Default Textarea -->
+            <textarea id="clipInput" 
+                class="w-full h-full p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none text-gray-800 placeholder-gray-400 absolute inset-0 z-10" 
+                placeholder="Paste content here..."></textarea>
+            
+            <!-- Big Rapid Button (Hidden by default) -->
+            <button id="bigRapidBtn" 
+                class="no-select hidden w-full h-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-2xl font-black text-2xl border-2 border-indigo-100 active:scale-[0.98] transition-all flex flex-col items-center justify-center gap-3 shadow-sm absolute inset-0 z-20 cursor-pointer" 
+                title="Long Press for Settings">
+                <i class="fa-solid fa-bolt text-yellow-500 text-4xl animate-pulse"></i> 
+                <span>RAPID SEND</span>
+            </button>
+        </div>
+        
+        <!-- BOTTOM ROW -->
+        <div class="flex justify-between items-center h-[44px] gap-3">
+            
+            <!-- Left Side Control (Changes based on mode) -->
+            <div id="bottomLeftControl" class="flex-1 h-full flex items-center min-w-0">
+                
+                <!-- Default Mode: Paste Btn + Normal Rapid Btn -->
+                <div id="defaultBottomControls" class="flex items-center gap-2 w-full">
+                    <button id="pasteBtn" class="text-indigo-600 hover:text-indigo-800 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 px-2 transition-colors mr-auto">
+                        <i class="fa-regular fa-clipboard"></i> Paste
+                    </button>
+                    <button id="normalRapidBtn" class="no-select bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-4 py-2.5 rounded-xl font-bold text-xs border border-indigo-100 active:scale-95 transition-all flex items-center gap-2 whitespace-nowrap" title="Long Press for Settings">
+                        <i class="fa-solid fa-bolt text-yellow-500"></i> RAPID
+                    </button>
+                </div>
+
+                <!-- Big Button Mode: Text Input with Paste Icon -->
+                <div id="bigModeInputContainer" class="hidden w-full h-full flex items-center bg-slate-50 border border-gray-200 rounded-xl focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-200 transition-all overflow-hidden">
+                    
+                    <!-- Small Paste Icon -->
+                    <button id="smallPasteBtn" class="h-full pl-3 pr-2 text-indigo-500 hover:text-indigo-700 active:scale-90 transition-transform flex items-center justify-center" title="Paste">
+                        <i class="fa-regular fa-clipboard text-sm"></i>
+                    </button>
+
+                    <!-- Input Field -->
+                    <input type="text" id="smallClipInput" 
+                        class="flex-1 h-full bg-transparent border-none outline-none px-2 text-sm text-gray-800 placeholder-gray-400 min-w-0" 
+                        placeholder="Type message...">
+                </div>
+
+            </div>
+
+            <!-- Send Button (Always Visible) -->
+            <button id="sendBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 h-full rounded-xl font-bold text-sm shadow-lg shadow-indigo-100 active:scale-95 transition-all flex items-center justify-center flex-shrink-0">
+                Send
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Activity Header -->
+    <div class="px-5 py-4 flex justify-between items-center bg-slate-50 normal-only">
+        <h2 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Recent Activity</h2>
+        <span id="count" class="text-[10px] font-mono bg-indigo-50 text-indigo-500 px-2 py-0.5 rounded-md border border-indigo-100">0</span>
+    </div>
+
+    <div id="historyList" class="flex-1 overflow-y-auto px-4 pb-10 space-y-3 no-scrollbar transition-all">
+        <!-- Clips -->
+    </div>
+
+    <!-- MINI SETTINGS MODAL -->
+    <div id="miniSettingsModal" class="hidden">
+        <div class="text-[9px] font-bold text-gray-400 uppercase mb-2 tracking-wider">Button Action</div>
+        <div class="mode-option" id="optInput">
+            <div class="w-3 h-3 rounded-full border border-gray-300 flex items-center justify-center bg-white" id="radioInput">
+                <div class="w-1.5 h-1.5 rounded-full bg-indigo-500 hidden" id="dotInput"></div>
+            </div>
+            <span>Manual Input (Dbl Click)</span>
+        </div>
+        <div class="mode-option" id="optRapid">
+            <div class="w-3 h-3 rounded-full border border-gray-300 flex items-center justify-center bg-white" id="radioRapid">
+                <div class="w-1.5 h-1.5 rounded-full bg-indigo-500 hidden" id="dotRapid"></div>
+            </div>
+            <span>Rapid Send</span>
+        </div>
+    </div>
+
+    <!-- VIEW SWITCH MODAL -->
+    <div id="confirmModal" class="fixed inset-0 z-[100] hidden opacity-0 transition-opacity duration-200">
+        <div class="bg-white transform scale-95 transition-transform duration-200 flex flex-col shadow-2xl" id="modalBox">
+            <div id="modalIconContainer" class="bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 mb-4 mx-auto w-12 h-12">
+                <i class="fa-solid fa-expand text-xl" id="modalIcon"></i>
+            </div>
+            <h3 class="font-bold text-gray-800" id="modalTitle">Switch View?</h3>
+            <p class="text-xs text-gray-500 mb-6 leading-relaxed px-2" id="modalDesc">Switching modes changes layout.</p>
+            <div class="flex gap-3 w-full mt-auto" id="modalBtnGap">
+                <button id="modalCancel" class="modal-btn flex-1 py-2.5 text-xs font-bold text-gray-500 hover:bg-gray-50 bg-gray-50 rounded-xl transition-colors">Cancel</button>
+                <button id="modalConfirm" class="modal-btn flex-1 py-2.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-200 transition-all">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OPTION SELECTION MODAL (For Normal Mode Rapid Button) -->
+    <div id="optionModal" class="fixed inset-0 z-[110] hidden opacity-0 transition-opacity duration-200">
+        <div class="bg-white transform scale-95 transition-transform duration-200 flex flex-col shadow-2xl" id="optionModalBox">
+            <h3 class="font-bold text-gray-800 text-lg mb-2">Rapid Button Style</h3>
+            <p class="text-xs text-gray-500 mb-6 leading-relaxed">Choose which style you prefer for the main interface.</p>
+            
+            <div class="flex flex-col gap-3 w-full mt-2">
+                
+                <!-- Normal Button Option -->
+                <button id="optNormalBtn" class="opt-btn w-full py-3 px-4 rounded-xl flex items-center gap-3">
+                    <div class="icon-box w-10 h-10 rounded-lg flex items-center justify-center transition-colors">
+                        <i class="fa-solid fa-bolt text-sm"></i>
+                    </div>
+                    <div class="text-left">
+                        <div class="text-sm font-bold">Normal Button</div>
+                        <div class="text-[10px] opacity-70">Standard layout with paste area</div>
+                    </div>
+                    <div class="ml-auto check-icon hidden text-indigo-600"><i class="fa-solid fa-check"></i></div>
+                </button>
+
+                <!-- Big Button Option -->
+                <button id="optBigBtn" class="opt-btn w-full py-3 px-4 rounded-xl flex items-center gap-3">
+                    <div class="icon-box w-10 h-10 rounded-lg flex items-center justify-center transition-colors">
+                        <i class="fa-solid fa-bolt text-xl"></i>
+                    </div>
+                    <div class="text-left">
+                        <div class="text-sm font-bold">Big Button</div>
+                        <div class="text-[10px] opacity-70">Replaces textarea with huge button</div>
+                    </div>
+                    <div class="ml-auto check-icon hidden text-indigo-600"><i class="fa-solid fa-check"></i></div>
+                </button>
+
+                <button id="optCancel" class="mt-3 text-xs font-bold text-gray-400 hover:text-gray-600 p-2">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-2.5 rounded-full text-xs font-bold shadow-2xl opacity-0 transition-all pointer-events-none translate-y-2 z-[60] normal-only">Action Complete!</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getDatabase, ref, push, set, onValue, query, limitToLast, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyrTcKxUfdfeh65GKnX6cJuCLHLBV8O7k",
+            authDomain: "fastclip100.firebaseapp.com",
+            projectId: "fastclip100",
+            databaseURL: "https://fastclip100-default-rtdb.asia-southeast1.firebasedatabase.app/", 
+            storageBucket: "fastclip100.firebasestorage.app",
+            messagingSenderId: "227352438674",
+            appId: "1:227352438674:web:e468d6f049b5e3823a034b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const rtdb = getDatabase(app);
+
+        // --- GLOBAL STATE ---
+        let isMiniMode = false;
+        let miniBtnMode = localStorage.getItem('fc_mini_mode') || 'input';
+        let rapidLayoutMode = localStorage.getItem('fc_rapid_layout') || 'normal'; 
+
+        // --- PERSISTENCE: CHECK VIEW MODE ON LOAD ---
+        const savedViewMode = localStorage.getItem('fc_view_mode');
+        if (savedViewMode === 'mini') {
+            isMiniMode = true;
+            document.body.classList.add('mini-mode');
+        }
+
+        // Elements
+        const statusDot = document.getElementById('statusDot');
+        const statusLabel = document.getElementById('statusLabel');
+        const historyList = document.getElementById('historyList');
+        
+        // Input Elements
+        const clipInput = document.getElementById('clipInput'); // Main Textarea
+        const smallClipInput = document.getElementById('smallClipInput'); // Small Input for Big Mode
+        const smallPasteBtn = document.getElementById('smallPasteBtn');
+        
+        const miniInputSection = document.getElementById('miniInputSection');
+        const miniInput = document.getElementById('miniInput');
+        let myUid = localStorage.getItem('fc_uid') || 'u_' + Math.random().toString(36).substr(2, 5);
+        localStorage.setItem('fc_uid', myUid);
+
+        // --- RAPID LAYOUT UPDATE ---
+        function updateRapidLayout() {
+            const bigRapidBtn = document.getElementById('bigRapidBtn');
+            const defaultBottomControls = document.getElementById('defaultBottomControls');
+            const bigModeInputContainer = document.getElementById('bigModeInputContainer');
+            
+            if (rapidLayoutMode === 'big') {
+                // Show Big Button, Hide Textarea
+                clipInput.classList.add('hidden');
+                bigRapidBtn.classList.remove('hidden');
+                bigRapidBtn.classList.add('flex');
+
+                // Show Input Field, Hide Normal Controls
+                defaultBottomControls.classList.add('hidden');
+                bigModeInputContainer.classList.remove('hidden');
+            } else {
+                // Show Textarea, Hide Big Button
+                clipInput.classList.remove('hidden');
+                bigRapidBtn.classList.add('hidden');
+                bigRapidBtn.classList.remove('flex');
+
+                // Show Normal Controls, Hide Input Field
+                defaultBottomControls.classList.remove('hidden');
+                bigModeInputContainer.classList.add('hidden');
+            }
+        }
+        updateRapidLayout();
+
+        // UI Updates for Mini Button
+        function updateMiniBtnUI() {
+            const icon = document.getElementById('miniActionIcon');
+            const optInput = document.getElementById('optInput');
+            const optRapid = document.getElementById('optRapid');
+            const dotInput = document.getElementById('dotInput');
+            const dotRapid = document.getElementById('dotRapid');
+
+            optInput.classList.remove('active');
+            optRapid.classList.remove('active');
+            dotInput.classList.add('hidden');
+            dotRapid.classList.add('hidden');
+
+            if (miniBtnMode === 'input') {
+                icon.className = "fa-solid fa-pen-to-square text-sm";
+                optInput.classList.add('active');
+                dotInput.classList.remove('hidden');
+            } else {
+                icon.className = "fa-solid fa-bolt text-sm text-yellow-600";
+                optRapid.classList.add('active');
+                dotRapid.classList.remove('hidden');
+            }
+        }
+        updateMiniBtnUI();
+
+        // Auth
+        signInAnonymously(auth).then(() => {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    statusDot.className = "w-2 h-2 rounded-full bg-green-500 animate-none shadow-[0_0_8px_rgba(34,197,94,0.5)]";
+                    statusLabel.innerText = "ONLINE";
+                    startSync();
+                }
+            });
+        });
+
+        // Sync
+        function startSync() {
+            const clipsRef = query(ref(rtdb, 'personal_clips'), limitToLast(30));
+            onValue(clipsRef, (snapshot) => {
+                const data = snapshot.val();
+                historyList.innerHTML = "";
+                if (!data) return;
+                const list = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+                document.getElementById('count').innerText = list.length;
+                list.forEach(item => {
+                    const isMine = item.uid === myUid;
+                    const card = document.createElement('div');
+                    const bgClass = isMine ? 'bg-white' : 'bg-indigo-50';
+                    const borderClass = isMine ? 'border-gray-100' : 'border-indigo-100';
+                    const ownershipClass = isMine ? 'is-sent' : 'is-received';
+                    card.className = `clip-card ${ownershipClass} ${bgClass} ${borderClass} rounded-2xl border transition-all cursor-pointer mb-3`;
+                    
+                    let rapidTag = "";
+                    if (item.isRapid) {
+                        rapidTag = `<span class="ml-1 text-[9px] bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded border border-yellow-200"><i class="fa-solid fa-bolt"></i> RAPID</span>`;
+                    }
+                   
+                    card.innerHTML = `
+                        <div class="mini-copied-overlay">COPIED</div>
+                        <div class="clip-meta flex justify-between items-center mb-1.5">
+                            <div class="flex items-center">
+                                <span class="label-text uppercase tracking-tighter ${isMine ? 'text-gray-400' : 'text-indigo-600'}">
+                                    ${isMine ? 'Sent' : 'Received'}
+                                </span>
+                                ${rapidTag}
+                            </div>
+                            <span class="time-text">
+                                ${item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}
+                            </span>
+                        </div>
+                        <p class="font-mono break-all leading-relaxed">${escapeHtml(item.text)}</p>
+                    `;
+                    card.onclick = () => {
+                        navigator.clipboard.writeText(item.text);
+                        // Trigger visual overlay for BOTH modes now
+                        card.classList.add('active-copy');
+                        setTimeout(() => { card.classList.remove('active-copy'); }, 600); 
+                    };
+                    historyList.appendChild(card);
+                });
+            });
+        }
+
+        async function sendToDB(text, isRapid = false) {
+             try {
+                const newRef = push(ref(rtdb, 'personal_clips'));
+                await set(newRef, { text: text, uid: myUid, isRapid: isRapid, timestamp: serverTimestamp() });
+                return true;
+             } catch(e) { return false; }
+        }
+
+        // --- MINI BUTTON LOGIC ---
+        const miniBtn = document.getElementById('headerRapidBtn');
+        const settingsModal = document.getElementById('miniSettingsModal');
+        let pressTimer;
+        let isLongPress = false;
+
+        const startPress = () => {
+            if(!isMiniMode) return;
+            isLongPress = false;
+            pressTimer = setTimeout(() => {
+                isLongPress = true;
+                settingsModal.classList.remove('hidden');
+                settingsModal.classList.add('flex');
+            }, 800);
+        };
+        const endPress = (e) => {
+            if(!isMiniMode) return;
+            clearTimeout(pressTimer);
+            if (isLongPress) { e.preventDefault(); e.stopPropagation(); }
+        };
+
+        miniBtn.addEventListener('touchstart', startPress);
+        miniBtn.addEventListener('mousedown', startPress);
+        miniBtn.addEventListener('touchend', endPress);
+        miniBtn.addEventListener('mouseup', endPress);
+        miniBtn.addEventListener('contextmenu', e => { if(isMiniMode) e.preventDefault(); });
+
+        miniBtn.addEventListener('click', async (e) => {
+            if(!isMiniMode || isLongPress) return;
+            if (miniBtnMode === 'rapid') {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if(text) {
+                        const originalIcon = miniBtn.innerHTML;
+                        miniBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-sm"></i>';
+                        await sendToDB(text, true);
+                        if(!isMiniMode) showToast("Sent!");
+                        setTimeout(() => miniBtn.innerHTML = originalIcon, 500);
+                    }
+                } catch(err) {}
+            }
+        });
+
+        miniBtn.addEventListener('dblclick', (e) => {
+            if(!isMiniMode) return;
+            if (miniBtnMode === 'input') {
+                if (miniInputSection.classList.contains('hidden-bar')) {
+                    miniInputSection.classList.remove('hidden-bar');
+                    miniInput.focus();
+                } else {
+                    miniInputSection.classList.add('hidden-bar');
+                }
+            }
+        });
+
+        document.getElementById('optInput').onclick = () => {
+            miniBtnMode = 'input'; localStorage.setItem('fc_mini_mode', 'input'); updateMiniBtnUI(); settingsModal.classList.add('hidden');
+        };
+        document.getElementById('optRapid').onclick = () => {
+            miniBtnMode = 'rapid'; localStorage.setItem('fc_mini_mode', 'rapid'); updateMiniBtnUI(); settingsModal.classList.add('hidden');
+        };
+        document.addEventListener('click', (e) => {
+            if (!miniBtn.contains(e.target) && !settingsModal.contains(e.target)) settingsModal.classList.add('hidden');
+        });
+
+        // --- MINI SEND ---
+        document.getElementById('miniSendBtn').onclick = async () => {
+            const val = miniInput.value.trim();
+            if(!val) return;
+            await sendToDB(val, false);
+            miniInput.value = "";
+            miniInputSection.classList.add('hidden-bar'); 
+        };
+        miniInput.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') document.getElementById('miniSendBtn').click();
+        });
+
+        // --- NORMAL MODE: RAPID BUTTON LONG PRESS LOGIC ---
+        const optModal = document.getElementById('optionModal');
+        const optModalBox = document.getElementById('optionModalBox');
+        let rapidPressTimer;
+        let isRapidLongPress = false;
+
+        function updateOptionModalUI() {
+            const btnNormal = document.getElementById('optNormalBtn');
+            const btnBig = document.getElementById('optBigBtn');
+            
+            // Reset both to inactive
+            btnNormal.classList.remove('active');
+            btnNormal.classList.add('inactive');
+            btnBig.classList.remove('active');
+            btnBig.classList.add('inactive');
+            
+            // Hide checks
+            btnNormal.querySelector('.check-icon').classList.add('hidden');
+            btnBig.querySelector('.check-icon').classList.add('hidden');
+
+            if(rapidLayoutMode === 'normal') {
+                btnNormal.classList.add('active');
+                btnNormal.classList.remove('inactive');
+                btnNormal.querySelector('.check-icon').classList.remove('hidden');
+            } else {
+                btnBig.classList.add('active');
+                btnBig.classList.remove('inactive');
+                btnBig.querySelector('.check-icon').classList.remove('hidden');
+            }
+        }
+
+        function showOptionModal() {
+            updateOptionModalUI();
+            optModal.classList.remove('hidden');
+            optModal.classList.add('flex');
+            setTimeout(() => {
+                optModal.classList.remove('opacity-0');
+                optModalBox.classList.remove('scale-95');
+                optModalBox.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeOptionModal() {
+            optModal.classList.add('opacity-0');
+            optModalBox.classList.remove('scale-100');
+            optModalBox.classList.add('scale-95');
+            setTimeout(() => {
+                optModal.classList.remove('flex');
+                optModal.classList.add('hidden');
+            }, 200);
+        }
+
+        const handleRapidStart = () => {
+            if(isMiniMode) return;
+            isRapidLongPress = false;
+            rapidPressTimer = setTimeout(() => {
+                isRapidLongPress = true;
+                showOptionModal();
+            }, 800);
+        };
+        const handleRapidEnd = (e) => {
+            if(isMiniMode) return;
+            clearTimeout(rapidPressTimer);
+            if(isRapidLongPress) {
+                e.preventDefault(); e.stopPropagation();
+            }
+        };
+
+        // Attach to Normal Rapid Button
+        const normalRapidBtn = document.getElementById('normalRapidBtn');
+        normalRapidBtn.addEventListener('touchstart', handleRapidStart);
+        normalRapidBtn.addEventListener('mousedown', handleRapidStart);
+        normalRapidBtn.addEventListener('touchend', handleRapidEnd);
+        normalRapidBtn.addEventListener('mouseup', handleRapidEnd);
+        normalRapidBtn.addEventListener('contextmenu', e => e.preventDefault());
+        
+        // Attach to Big Rapid Button
+        const bigRapidBtn = document.getElementById('bigRapidBtn');
+        bigRapidBtn.addEventListener('touchstart', handleRapidStart);
+        bigRapidBtn.addEventListener('mousedown', handleRapidStart);
+        bigRapidBtn.addEventListener('touchend', handleRapidEnd);
+        bigRapidBtn.addEventListener('mouseup', handleRapidEnd);
+        bigRapidBtn.addEventListener('contextmenu', e => e.preventDefault());
+
+        // Modal Option Click Handlers
+        document.getElementById('optNormalBtn').onclick = () => {
+            rapidLayoutMode = 'normal';
+            localStorage.setItem('fc_rapid_layout', 'normal');
+            updateRapidLayout();
+            closeOptionModal();
+        };
+        document.getElementById('optBigBtn').onclick = () => {
+            rapidLayoutMode = 'big';
+            localStorage.setItem('fc_rapid_layout', 'big');
+            updateRapidLayout();
+            closeOptionModal();
+        };
+        document.getElementById('optCancel').onclick = closeOptionModal;
+
+
+        // --- FUNCTIONALITY: RAPID SEND ---
+        async function handleRapidSend(btnElement) {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (!text) { showToast("Empty Clipboard"); return; }
+                const originalContent = btnElement.innerHTML;
+                btnElement.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-2xl"></i>';
+                await sendToDB(text, true);
+                showToast("Rapid Sent!");
+                setTimeout(() => { btnElement.innerHTML = originalContent; }, 500);
+            } catch (e) { showToast("Clipboard Error"); }
+        }
+
+        normalRapidBtn.onclick = function(e) {
+            if(!isRapidLongPress) handleRapidSend(this);
+        };
+        bigRapidBtn.onclick = function(e) {
+             if(!isRapidLongPress) handleRapidSend(this);
+        };
+
+        // Standard Send
+        document.getElementById('sendBtn').onclick = async () => {
+            // Determine which input to use
+            let val = "";
+            let inputElem = null;
+
+            if (rapidLayoutMode === 'big') {
+                val = smallClipInput.value.trim();
+                inputElem = smallClipInput;
+            } else {
+                val = clipInput.value.trim();
+                inputElem = clipInput;
+            }
+
+            if (!val) return;
+            
+            const btn = document.getElementById('sendBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            await sendToDB(val, false);
+            inputElem.value = "";
+            btn.innerHTML = originalText;
+        };
+        
+        // Small Input Paste
+        smallPasteBtn.onclick = async () => {
+             try { smallClipInput.value = await navigator.clipboard.readText(); } catch(e) {}
+             smallClipInput.focus();
+        };
+
+        // Small Input Enter Key Support
+        smallClipInput.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') document.getElementById('sendBtn').click();
+        });
+
+        document.getElementById('pasteBtn').onclick = async () => {
+            try { clipInput.value = await navigator.clipboard.readText(); } catch(e) {}
+        };
+
+        // --- VIEW SWITCH & PERSISTENCE ---
+        const modeBtn = document.getElementById('modeToggleBtn');
+        const modal = document.getElementById('confirmModal');
+        const modalBox = document.getElementById('modalBox');
+
+        modeBtn.onclick = () => {
+            if (isMiniMode) {
+                document.getElementById('modalTitle').innerText = "Maximize?";
+            } else {
+                document.getElementById('modalTitle').innerText = "Switch to Mini Mode?";
+                document.getElementById('modalDesc').innerText = "Compact list view. Optimized for small floating windows.";
+                document.getElementById('modalIcon').className = "fa-solid fa-compress text-xl";
+            }
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalBox.classList.remove('scale-95');
+                modalBox.classList.add('scale-100');
+            }, 10);
+        };
+
+        const closeModal = () => {
+            modal.classList.add('opacity-0');
+            modalBox.classList.remove('scale-100');
+            modalBox.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }, 200);
+        };
+
+        document.getElementById('modalCancel').onclick = closeModal;
+        
+        document.getElementById('modalConfirm').onclick = () => {
+            isMiniMode = !isMiniMode;
+            if (isMiniMode) {
+                document.body.classList.add('mini-mode');
+                localStorage.setItem('fc_view_mode', 'mini');
+            } else {
+                document.body.classList.remove('mini-mode');
+                miniInputSection.classList.add('hidden-bar');
+                localStorage.setItem('fc_view_mode', 'normal');
+            }
+            closeModal();
+        };
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.remove('opacity-0', 'translate-y-2');
+            t.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                t.classList.remove('opacity-100', 'translate-y-0');
+                t.classList.add('opacity-0', 'translate-y-2');
+            }, 2000);
+        }
+
+        function escapeHtml(text) {
+            const p = document.createElement('p');
+            p.textContent = text;
+            return p.innerHTML;
+        }
+    </script>
 </body>
 </html>
+
+
