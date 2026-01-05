@@ -106,9 +106,9 @@
         body.mini-mode #statusLabel { display: none; }
         body.mini-mode #modeToggleBtn { margin-right: 20px; }
 
-body.mini-mode #headerRapidBtn {
-    margin-left: auto;
-}
+        body.mini-mode #headerRapidBtn {
+            margin-left: auto;
+        }
 
 
         /* MINI INPUT SECTION - Kept Compact */
@@ -357,6 +357,9 @@ body.mini-mode #headerRapidBtn {
     <!-- TOAST -->
     <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-2.5 rounded-full text-xs font-bold shadow-2xl opacity-0 transition-all pointer-events-none translate-y-2 z-[60] normal-only">Action Complete!</div>
 
+    <!-- KEYBOARD TRIGGER INPUT (New: Visually Hidden) -->
+    <input type="text" id="keyboardTrigger" style="position: fixed; bottom: 0; right: 0; width: 1px; height: 1px; opacity: 0.01; border: none; outline: none; padding: 0; pointer-events: none; z-index: -1;">
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -506,6 +509,13 @@ body.mini-mode #headerRapidBtn {
                     `;
                     card.onclick = () => {
                         navigator.clipboard.writeText(item.text);
+                        
+                        // NEW: Trigger keyboard logic
+                        if (isMiniMode) {
+                            const trigger = document.getElementById('keyboardTrigger');
+                            if (trigger) trigger.focus();
+                        }
+
                         // Trigger visual overlay for BOTH modes now
                         card.classList.add('active-copy');
                         setTimeout(() => { card.classList.remove('active-copy'); }, 600); 
@@ -825,3 +835,4 @@ body.mini-mode #headerRapidBtn {
     </script>
 </body>
 </html>
+
