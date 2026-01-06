@@ -1,47 +1,61 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fastclip Final Sync</title>
-    <style>
-        body { background: #000; color: #00ff00; font-family: monospace; padding: 20px; text-align: center; }
-        .terminal-btn { 
-            padding: 25px; background: #1a1a1a; border: 1px solid #00ff00; 
-            width: 100%; margin-bottom: 20px; color: #00ff00; font-size: 18px;
-        }
-        /* Hidden input with zero opacity but standard layout */
-        #finalGhostInput {
-            position: fixed; top: -500px; width: 100px; height: 50px; opacity: 0;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Number Input Keyboard Test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    font-family: sans-serif;
+    background: #0f172a;
+    color: #e5e7eb;
+    padding: 20px;
+  }
+  .box {
+    background: #111827;
+    border: 1px solid #374151;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+  }
+  button {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background: #2563eb;
+    color: white;
+    font-size: 14px;
+  }
+  input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 6px;
+    background: #020617;
+    border: 1px solid #334155;
+    color: #e5e7eb;
+  }
+</style>
 </head>
 <body>
 
-    <h3>Termux Height Sync Mode</h3>
+<h2>🔢 Number Input Test</h2>
 
-    <button class="terminal-btn" onclick="syncProcess('DATA_01')">RUN_CMD_01</button>
+<div class="box">
+  <b>Number input</b>
+  <input id="i5" type="number" placeholder="enter number">
+  <button onclick="copyAndFocus('123456','i5')">
+    Copy + Focus
+  </button>
+</div>
 
-    <input type="numeric" id="finalGhostInput" inputmode="text">
+<script>
+function copyAndFocus(text, inputId) {
+  navigator.clipboard.writeText(text).then(() => {
+    document.getElementById(inputId).focus();
+  });
+}
+</script>
 
-    <script>
-        function syncProcess(text) {
-            // 1. Copy text
-            navigator.clipboard.writeText(text);
-
-            const el = document.getElementById('finalGhostInput');
-            
-            // 2. Clear previous value to reset patti
-            el.value = "";
-
-            // 3. Sabse zaruri: Pehle input ko focus karein
-            el.focus();
-
-            // 4. Keyboard height match karne ke liye reset call
-            if (window.visualViewport) {
-                console.log("Keyboard Height: " + window.visualViewport.height);
-            }
-        }
-    </script>
 </body>
 </html>
