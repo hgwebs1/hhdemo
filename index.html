@@ -2,57 +2,66 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Number Input Keyboard Test</title>
+<title>Number & Tel Copy Keyboard Test</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body {
-    font-family: sans-serif;
-    background: #0f172a;
-    color: #e5e7eb;
-    padding: 20px;
+  body{
+    font-family: system-ui, sans-serif;
+    background:#0f172a;
+    color:#e5e7eb;
+    padding:20px;
   }
-  .box {
-    background: #111827;
-    border: 1px solid #374151;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 14px;
+  .item{
+    background:#111827;
+    border:1px solid #374151;
+    padding:14px;
+    border-radius:8px;
+    margin-bottom:12px;
+    cursor:pointer;
+    user-select:none;
   }
-  button {
-    margin-top: 8px;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 6px;
-    background: #2563eb;
-    color: white;
-    font-size: 14px;
+  .hint{
+    font-size:12px;
+    opacity:.7;
+    margin-top:4px;
   }
-  input {
-    width: 100%;
-    padding: 8px;
-    margin-top: 6px;
-    background: #020617;
-    border: 1px solid #334155;
-    color: #e5e7eb;
+  input{
+    position:absolute;
+    opacity:0;
+    pointer-events:none;
   }
 </style>
 </head>
 <body>
 
-<h2>🔢 Number Input Test</h2>
+<h2>📋 Copy + Hidden Keyboard Test</h2>
 
-<div class="box">
-  <b>Number input</b>
-  <input id="i5" type="number" placeholder="enter number">
-  <button onclick="copyAndFocus('123456','i5')">
-    Copy + Focus
-  </button>
+<!-- NUMBER -->
+<div class="item" onclick="copyNumber()">
+  🔢 Copy Number: <b>123456</b>
+  <div class="hint">type="number"</div>
 </div>
 
+<!-- TEL -->
+<div class="item" onclick="copyTel()">
+  📞 Copy Phone: <b>+91 99999 99999</b>
+  <div class="hint">type="tel"</div>
+</div>
+
+<!-- Hidden Inputs -->
+<input id="numInput" type="number">
+<input id="telInput" type="tel">
+
 <script>
-function copyAndFocus(text, inputId) {
-  navigator.clipboard.writeText(text).then(() => {
-    document.getElementById(inputId).focus();
+function copyNumber(){
+  navigator.clipboard.writeText("123456").then(()=>{
+    document.getElementById("numInput").focus();
+  });
+}
+
+function copyTel(){
+  navigator.clipboard.writeText("+919999999999").then(()=>{
+    document.getElementById("telInput").focus();
   });
 }
 </script>
