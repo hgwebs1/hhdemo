@@ -2,95 +2,74 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Number Input Keyboard Test</title>
-
-<!-- 🔒 Mobile viewport lock -->
-<meta name="viewport"
-      content="width=375, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Sequential Copy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  /* Page background (outside phone) */
   body {
-    margin: 0;
-    min-height: 100vh;
-    background: #020617;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: system-ui, sans-serif;
-  }
-
-  /* 📱 Phone frame illusion */
-  .phone {
-    width: 375px;            /* iPhone-like width */
-    min-height: 650px;
+    font-family: sans-serif;
     background: #0f172a;
     color: #e5e7eb;
     padding: 20px;
-    box-sizing: border-box;
-    border-radius: 28px;
-    box-shadow:
-      0 20px 40px rgba(0,0,0,.6),
-      inset 0 0 0 2px #1e293b;
   }
 
-  h2 {
-    text-align: center;
-    margin-top: 0;
-  }
-
-  .box {
+  .list {
     background: #111827;
     border: 1px solid #374151;
-    padding: 14px;
-    border-radius: 12px;
-    margin-top: 20px;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    cursor: pointer;
   }
 
-  input {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    background: #020617;
-    border: 1px solid #334155;
-    color: #e5e7eb;
-    border-radius: 10px;
-    font-size: 16px; /* 🔑 mobile keyboard trigger */
-  }
-
-  button {
-    margin-top: 12px;
-    padding: 12px;
-    width: 100%;
-    border: none;
-    border-radius: 10px;
-    background: #2563eb;
-    color: white;
-    font-size: 16px;
+  #number {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    opacity: 0;
+    height: 1px;
+    width: 1px;
   }
 </style>
 </head>
-
 <body>
 
-<div class="phone">
-  <h2>🔢 Number Input Test</h2>
+<h3>Tap any line</h3>
 
-  <div class="box">
-    <b>Number input</b>
-    <input id="i5" type="number" placeholder="enter number">
-    <button onclick="copyAndFocus('123456','i5')">
-      Copy + Focus
-    </button>
-  </div>
+<div class="list" data-text="This is first example text with ten words here">
+  This is first example text with ten words here
 </div>
 
+<div class="list" data-text="Second example line contains exactly ten simple words now">
+  Second example line contains exactly ten simple words now
+</div>
+
+<div class="list" data-text="Third sample sentence written only for demo purpose">
+  Third sample sentence written only for demo purpose
+</div>
+
+<!-- only for keyboard -->
+<input id="number" type="number" inputmode="numeric">
+
 <script>
-function copyAndFocus(text, inputId) {
-  navigator.clipboard.writeText(text).then(() => {
-    document.getElementById(inputId).focus();
+  const input = document.getElementById("number");
+
+  document.querySelectorAll(".list").forEach(item => {
+    item.onclick = async () => {
+
+      // 🔑 open number keyboard
+      input.focus();
+
+      // 1️⃣ copy ONLY number
+      await navigator.clipboard.writeText("1234567890");
+
+      // 2️⃣ small delay (required)
+      setTimeout(async () => {
+        await navigator.clipboard.writeText(item.dataset.text);
+      }, 80);
+
+    };
   });
-}
 </script>
 
 </body>
