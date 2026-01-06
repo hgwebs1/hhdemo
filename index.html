@@ -2,18 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>No Delay Sequential Copy</title>
+<title>Keyboard + Reliable Copy</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
   body {
-    font-family: sans-serif;
+    font-family: system-ui, sans-serif;
     background: #0f172a;
     color: #e5e7eb;
     padding: 20px;
   }
 
-  .list {
+  .item {
     background: #111827;
     border: 1px solid #374151;
     padding: 12px;
@@ -22,13 +22,14 @@
     cursor: pointer;
   }
 
+  /* keyboard trigger input */
   #number {
     position: fixed;
     bottom: 0;
     left: 0;
-    opacity: 0;
-    height: 1px;
     width: 1px;
+    height: 1px;
+    opacity: 0;
   }
 </style>
 </head>
@@ -36,18 +37,19 @@
 
 <h3>Tap any line</h3>
 
-<div class="list" data-text="This is first example text with ten words here">
+<div class="item" data-text="This is first example text with ten words here">
   This is first example text with ten words here
 </div>
 
-<div class="list" data-text="Second example line contains exactly ten simple words now">
+<div class="item" data-text="Second example line contains exactly ten simple words now">
   Second example line contains exactly ten simple words now
 </div>
 
-<div class="list" data-text="Third sample sentence written only for demo purpose">
+<div class="item" data-text="Third sample sentence written only for demo purpose">
   Third sample sentence written only for demo purpose
 </div>
 
+<!-- REQUIRED for keyboard -->
 <input id="number" type="number" inputmode="numeric">
 
 <script>
@@ -62,17 +64,17 @@
     document.body.removeChild(ta);
   }
 
-  document.querySelectorAll(".list").forEach(item => {
-    item.onclick = () => {
+  document.querySelectorAll(".item").forEach(el => {
+    el.onclick = () => {
 
-      // open number keyboard
+      // 1️⃣ open number keyboard
       input.focus();
 
-      // 1️⃣ guaranteed number copy
+      // 2️⃣ copy number (guaranteed)
       copySync("1234567890");
 
-      // 2️⃣ immediate overwrite (no delay)
-      copySync(item.dataset.text);
+      // 3️⃣ immediately overwrite with only text
+      copySync(el.dataset.text);
     };
   });
 </script>
