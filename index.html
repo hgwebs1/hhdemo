@@ -3,70 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fastclip Auto-Paste Fix</title>
+    <title>Fastclip Final Sync</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f0f0f0; text-align: center; }
-        .test-box { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .list-item { 
-            padding: 25px; background: #007bff; color: white; margin-bottom: 15px; 
-            border-radius: 12px; cursor: pointer; font-size: 18px; font-weight: bold;
-            border: none; width: 100%; transition: 0.3s;
+        body { background: #000; color: #00ff00; font-family: monospace; padding: 20px; text-align: center; }
+        .terminal-btn { 
+            padding: 25px; background: #1a1a1a; border: 1px solid #00ff00; 
+            width: 100%; margin-bottom: 20px; color: #00ff00; font-size: 18px;
         }
-        .list-item:active { transform: scale(0.95); background: #0056b3; }
-        #hiddenBox { position: fixed; top: -500px; left: -500px; width: 100px; height: 50px; opacity: 0; }
+        /* Hidden input with zero opacity but standard layout */
+        #finalGhostInput {
+            position: fixed; top: -500px; width: 100px; height: 50px; opacity: 0;
+        }
     </style>
 </head>
 <body>
 
-    <div style="max-width: 500px; margin: auto;">
-        <h2>Auto-Paste & Delay Lab</h2>
+    <h3>Termux Height Sync Mode</h3>
 
-        <div class="test-box">
-            <h3>Method: Long Delay Paste</h3>
-            <p>Pehle copy hoga, phir 500ms baad invisible box me paste hoga.</p>
-            <button class="list-item" onclick="startExtremeProcess('Fastclip Secret Text')">
-                Copy + Delayed Paste
-            </button>
-        </div>
+    <button class="terminal-btn" onclick="syncProcess('DATA_01')">RUN_CMD_01</button>
 
-        <p id="status" style="color: #666; font-size: 14px;"></p>
-    </div>
-
-    <input type="text" id="hiddenBox">
+    <input type="password" id="finalGhostInput" inputmode="text">
 
     <script>
-        async function startExtremeProcess(text) {
-            const status = document.getElementById('status');
-            const input = document.getElementById('hiddenBox');
+        function syncProcess(text) {
+            // 1. Copy text
+            navigator.clipboard.writeText(text);
+
+            const el = document.getElementById('finalGhostInput');
             
-            try {
-                // 1. Text Copy Karein
-                await navigator.clipboard.writeText(text);
-                status.innerText = "Copied! Waiting for delay...";
+            // 2. Clear previous value to reset patti
+            el.value = "";
 
-                // 2. Delay (Aapke kahe anusar thoda bada delay)
-                setTimeout(async () => {
-                    // 3. Keyboard Open Karein (Focus)
-                    input.focus();
-                    
-                    // 4. Clipboard se Read karke Paste karein (Invisible)
-                    try {
-                        const clipboardText = await navigator.clipboard.readText();
-                        input.value = clipboardText; // Manual "Paste" into hidden box
-                        
-                        status.innerText = "Pasted successfully (Hidden)!";
-                        console.log("Pasted Data:", input.value);
-                    } catch (err) {
-                        // Agar browser permission maange toh handle karein
-                        status.innerText = "Paste blocked. Permission chahiye.";
-                    }
-                }, 500); // 500ms delay
+            // 3. Sabse zaruri: Pehle input ko focus karein
+            el.focus();
 
-            } catch (err) {
-                status.innerText = "Error: " + err;
+            // 4. Keyboard height match karne ke liye reset call
+            if (window.visualViewport) {
+                console.log("Keyboard Height: " + window.visualViewport.height);
             }
         }
     </script>
-
 </body>
 </html>
