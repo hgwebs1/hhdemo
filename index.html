@@ -3,111 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fastclip Keyboard Lab</title>
+    <title>Fastclip Auto-Paste Fix</title>
     <style>
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            padding: 20px; 
-            background: #f4f7f6; 
-            color: #333;
-            text-align: center;
-        }
-        .container { max-width: 500px; margin: auto; }
-        
-        .test-box {
-            background: white;
-            padding: 25px;
-            margin-bottom: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border: 2px solid #ddd;
-        }
-        
-        h3 { color: #007bff; margin-bottom: 10px; }
-        p { font-size: 14px; color: #666; margin-bottom: 20px; }
-
+        body { font-family: sans-serif; padding: 20px; background: #f0f0f0; text-align: center; }
+        .test-box { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .list-item { 
-            padding: 25px; 
-            background: #eef2f3; 
-            margin-bottom: 15px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            font-size: 18px;
-            font-weight: bold;
-            color: #2c3e50;
-            border: 1px solid #dcdde1;
-            transition: 0.2s;
-            display: block;
-            width: 100%;
-            box-sizing: border-box;
+            padding: 25px; background: #007bff; color: white; margin-bottom: 15px; 
+            border-radius: 12px; cursor: pointer; font-size: 18px; font-weight: bold;
+            border: none; width: 100%; transition: 0.3s;
         }
-        .list-item:active { 
-            background: #d1d8e0; 
-            transform: scale(0.96); 
-        }
-
-        /* Hidden Trigger Inputs */
-        #inputTel, #inputMethod2 {
-            position: fixed;
-            top: -100px;
-            left: -100px;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-        }
+        .list-item:active { transform: scale(0.95); background: #0056b3; }
+        #hiddenBox { position: fixed; top: -500px; left: -500px; width: 100px; height: 50px; opacity: 0; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>Fastclip Mini Mode Test</h2>
+    <div style="max-width: 500px; margin: auto;">
+        <h2>Auto-Paste & Delay Lab</h2>
 
         <div class="test-box">
-            <h3>Method 1: Raw Tel Mode</h3>
-            <p>(No Delay, Direct Focus, Type=Tel)</p>
-            <div class="list-item" onclick="runTelMode('Copying from Tel Mode')">
-                List Item 1 (Tel)
-            </div>
-            <div class="list-item" onclick="runTelMode('Fastclip Item 2')">
-                List Item 2 (Tel)
-            </div>
+            <h3>Method: Long Delay Paste</h3>
+            <p>Pehle copy hoga, phir 500ms baad invisible box me paste hoga.</p>
+            <button class="list-item" onclick="startExtremeProcess('Fastclip Secret Text')">
+                Copy + Delayed Paste
+            </button>
         </div>
 
-        <div class="test-box">
-            <h3>Method 2: Hybrid Mode</h3>
-            <p>(Password type + Autocomplete Off)</p>
-            <div class="list-item" onclick="runHybridMode('Copying from Hybrid')">
-                List Item A (Hybrid)
-            </div>
-            <div class="list-item" onclick="runHybridMode('Fastclip Item B')">
-                List Item B (Hybrid)
-            </div>
-        </div>
+        <p id="status" style="color: #666; font-size: 14px;"></p>
     </div>
 
-    <input type="tel" id="inputTel">
-    <input type="password" id="inputMethod2" autocomplete="off" spellcheck="false">
+    <input type="text" id="hiddenBox">
 
     <script>
-        // METHOD 1: RAW TEL MODE (Bilkul Simple)
-        function runTelMode(text) {
-            // 1. Copy Text
-            navigator.clipboard.writeText(text);
+        async function startExtremeProcess(text) {
+            const status = document.getElementById('status');
+            const input = document.getElementById('hiddenBox');
             
-            // 2. Direct Focus
-            const el = document.getElementById('inputTel');
-            el.focus();
-        }
+            try {
+                // 1. Text Copy Karein
+                await navigator.clipboard.writeText(text);
+                status.innerText = "Copied! Waiting for delay...";
 
-        // METHOD 2: HYBRID MODE (Password Trick)
-        function runHybridMode(text) {
-            // 1. Copy Text
-            navigator.clipboard.writeText(text);
+                // 2. Delay (Aapke kahe anusar thoda bada delay)
+                setTimeout(async () => {
+                    // 3. Keyboard Open Karein (Focus)
+                    input.focus();
+                    
+                    // 4. Clipboard se Read karke Paste karein (Invisible)
+                    try {
+                        const clipboardText = await navigator.clipboard.readText();
+                        input.value = clipboardText; // Manual "Paste" into hidden box
+                        
+                        status.innerText = "Pasted successfully (Hidden)!";
+                        console.log("Pasted Data:", input.value);
+                    } catch (err) {
+                        // Agar browser permission maange toh handle karein
+                        status.innerText = "Paste blocked. Permission chahiye.";
+                    }
+                }, 500); // 500ms delay
 
-            // 2. Direct Focus on Password field
-            // Password fields me aksar keyboard toolbar (patti) security ki wajah se hide ho jati hai
-            const el = document.getElementById('inputMethod2');
-            el.focus();
+            } catch (err) {
+                status.innerText = "Error: " + err;
+            }
         }
     </script>
 
