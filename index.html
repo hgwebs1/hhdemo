@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Sequential Copy</title>
+<title>No Delay Sequential Copy</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -48,26 +48,31 @@
   Third sample sentence written only for demo purpose
 </div>
 
-<!-- only for keyboard -->
 <input id="number" type="number" inputmode="numeric">
 
 <script>
   const input = document.getElementById("number");
 
-  document.querySelectorAll(".list").forEach(item => {
-    item.onclick = async () => {
+  function copySync(text) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+  }
 
-      // 🔑 open number keyboard
+  document.querySelectorAll(".list").forEach(item => {
+    item.onclick = () => {
+
+      // open number keyboard
       input.focus();
 
-      // 1️⃣ copy ONLY number
-      await navigator.clipboard.writeText("1234567890");
+      // 1️⃣ guaranteed number copy
+      copySync("1234567890");
 
-      // 2️⃣ small delay (required)
-      setTimeout(async () => {
-        await navigator.clipboard.writeText(item.dataset.text);
-      }, 80);
-
+      // 2️⃣ immediate overwrite (no delay)
+      copySync(item.dataset.text);
     };
   });
 </script>
