@@ -1,280 +1,599 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>DelightPhysics – Physics that feels real</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HGits Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- RESET & VARIABLES --- */
+        :root {
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Menlo', 'Courier New', monospace;
+            --bg-body: #f6f8fa;
+            --bg-card: #ffffff;
+            --text-main: #24292f;
+            --text-muted: #57606a;
+            --border: #d0d7de;
+            --primary: #0969da;
+            --success-blue: #0969da;
+            --running-green: #1a7f37;
+            --danger: #cf222e;
+            --danger-dark: #a40e26;
+        }
 
-<style>
-/* ---------- Base (Daylight Theme) ---------- */
-:root{
-  --bg:#f9fafb;
-  --card:#ffffff;
-  --border:#e5e7eb;
-  --text:#0f172a;
-  --muted:#475569;
-  --primary:#2563eb;
-}
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-sans); background-color: var(--bg-body); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        button { font-family: inherit; }
 
-*{box-sizing:border-box}
+        /* --- HEADER --- */
+        header {
+            background-color: #24292f; color: white; padding: 12px 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); z-index: 20;
+        }
+        .header-left { display: flex; align-items: center; gap: 10px; }
+        .app-title { font-weight: 700; font-size: 16px; letter-spacing: -0.5px; }
+        
+        .menu-btn { 
+            background: transparent; border: none; color: white; 
+            cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+        }
+        .menu-btn:hover { background-color: rgba(255,255,255,0.15); }
 
-body{
-  margin:0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  line-height:1.5;
-}
+        /* --- MENU DROPDOWN --- */
+        .menu-dropdown {
+            position: absolute; top: 50px; right: 10px; width: 220px;
+            background: white; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            opacity: 0; pointer-events: none; transform: scale(0.95); transition: all 0.1s ease-out; z-index: 100;
+            padding: 6px; display: flex; flex-direction: column; gap: 2px;
+        }
+        .menu-dropdown.open { opacity: 1; pointer-events: auto; transform: scale(1); }
+        
+        .menu-item {
+            width: 100%; text-align: left; padding: 12px 12px; background: white; border: none;
+            cursor: pointer; display: flex; align-items: center; gap: 12px;
+            font-size: 14px; color: var(--text-main); font-weight: 500;
+            border-radius: 8px; transition: background 0.1s;
+        }
+        .menu-item:hover { background-color: #f3f4f6; }
+        .menu-item svg { width: 18px; height: 18px; color: var(--text-muted); transition: color 0.1s; }
+        .menu-item:hover svg { color: var(--text-main); }
+        .menu-item.danger-item { color: var(--danger); }
+        .menu-item.danger-item svg { color: var(--danger); }
+        
+        /* --- MAIN LAYOUT --- */
+        main { flex: 1; padding: 24px; display: flex; flex-direction: column; align-items: center; padding-top: 60px; gap: 24px; }
+        
+        .select-card {
+            width: 100%; max-width: 400px; background: var(--bg-card);
+            padding: 24px; border-radius: 8px; border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .label { display: block; font-size: 12px; font-weight: 700; color: #8c959f; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+        select {
+            width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border);
+            font-size: 15px; background-color: #f6f8fa; color: var(--text-main); outline: none; appearance: none;
+        }
+        select:disabled { opacity: 0.6; cursor: not-allowed; }
 
-/* ---------- Header ---------- */
-header{
-  background:#ffffff;
-  border-bottom:1px solid var(--border);
-  padding:12px 14px;
-  text-align:center;
-}
+        /* --- SLIDE PANEL --- */
+        .slide-panel {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: #f6f8fa; z-index: 50; transform: translateX(100%); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; flex-direction: column;
+        }
+        .slide-panel.open { transform: translateX(0); }
+        
+        .panel-header {
+            background: white; padding: 0 16px; height: 60px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        .back-btn { 
+            display: flex; align-items: center; gap: 6px; background: none; border: none; 
+            font-size: 15px; font-weight: 600; color: var(--text-muted); cursor: pointer;
+            padding: 8px; margin-left: -8px; border-radius: 6px;
+        }
+        .back-btn:active { background-color: #f3f4f6; }
 
-header h1{
-  margin:0;
-  font-size:20px;
-}
+        .panel-title { font-weight: 700; font-size: 16px; }
+        
+        .refresh-btn {
+            background: white; border: 1px solid var(--border); 
+            cursor: pointer; color: var(--text-main);
+            width: 36px; height: 36px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .refresh-btn:hover { background-color: #f6f8fa; border-color: #8c959f; }
+        .refresh-btn:active { transform: scale(0.95); }
+        .refresh-btn svg { width: 18px; height: 18px; transition: transform 0.3s ease; }
+        
+        .refresh-btn.spinning svg { animation: spin-refresh 0.8s linear infinite; }
+        @keyframes spin-refresh { 100% { transform: rotate(360deg); } }
 
-header p{
-  margin:4px 0 0;
-  font-size:14px;
-  color:var(--muted);
-}
+        .build-list { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 80px; }
 
-/* ---------- Layout ---------- */
-.container{
-  padding:14px;
-  max-width:720px;
-  margin:auto;
-}
+        .build-card {
+            background: white; border: 1px solid var(--border); border-radius: 8px;
+            margin-bottom: 12px; overflow: hidden;
+        }
+        .build-header {
+            padding: 12px 16px; display: flex; align-items: center;
+            gap: 12px; cursor: pointer;
+            user-select: none; transition: background 0.1s;
+        }
+        .build-header:active { background-color: #f6f8fa; }
+        .build-header.disabled { cursor: default; opacity: 1; }
+        .build-header.disabled:active { background-color: white; }
 
-.card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:14px;
-  margin-bottom:14px;
-}
+        .status-icon { flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; }
+        .spin-circle { transform-origin: center; animation: spin 1.5s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-/* ---------- Section titles ---------- */
-.card h2{
-  margin-top:0;
-  font-size:18px;
-}
+        .build-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+        .build-title { font-weight: 700; font-size: 15px; color: #1f2328; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .build-workflow { font-size: 13px; color: var(--text-muted); font-family: var(--font-mono); }
+        .build-meta { font-size: 12px; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+        
+        .meta-status { font-weight: 600; }
+        .meta-status.success { color: var(--success-blue); }
+        .meta-status.failure { color: var(--danger); }
+        .meta-status.running { color: var(--running-green); }
 
-/* ---------- Topic list ---------- */
-.topic{
-  padding:10px;
-  border:1px solid var(--border);
-  border-radius:10px;
-  margin-bottom:10px;
-  cursor:pointer;
-}
+        .arrow-icon { transition: transform 0.2s; color: #8c959f; transform: rotate(0deg); flex-shrink: 0; }
+        .arrow-icon.open-state { transform: rotate(90deg); }
+        .arrow-icon.hidden-arrow { visibility: hidden; }
 
-.topic:hover{
-  background:#f1f5f9;
-}
+        .steps-container {
+            border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 20px;
+            background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .step-row {
+            display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+            background: white; border-bottom: 1px solid #f0f0f0;
+            font-size: 14px; font-family: var(--font-sans);
+        }
+        .step-row:last-child { border-bottom: none; }
+        .step-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .step-name { flex: 1; font-weight: 500; color: #1f2328; }
+        .step-dur { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); background: #f6f8fa; padding: 2px 6px; border-radius: 4px; min-width: 40px; text-align: center; }
 
-.topic-title{
-  font-weight:600;
-}
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; border-top: 1px solid transparent; }
+        .accordion-content.open { max-height: 20000px; border-top-color: var(--border); }
+        .details-pad { padding: 16px; }
 
-.topic-sub{
-  font-size:13px;
-  color:var(--muted);
-}
+        /* --- LOG VIEWER --- */
+        .log-box {
+            font-family: var(--font-mono); font-size: 14px;
+            background: white; border: 1px solid var(--border); border-radius: 6px;
+            margin-top: 10px; white-space: pre-wrap; word-break: break-all; width: 100%;
+        }
+        .log-row { display: flex; align-items: flex-start; line-height: 1.5; }
+        .log-row:hover { background-color: #f6f8fa; }
+        .ln { color: #8c959f; text-align: right; width: 45px; padding-right: 12px; border-right: 1px solid #eee; flex-shrink: 0; user-select: none; background-color: inherit; align-self: stretch; }
+        .cl { flex: 1; min-width: 0; padding-left: 8px; color: var(--text-main); white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere; }
 
-/* ---------- Explanation blocks ---------- */
-.explain{
-  margin-top:10px;
-}
+        .snippet-box {
+            background: #fffcfc; border: 1px solid #ffc1c0; margin-bottom: 15px; 
+            padding: 14px 40px 14px 10px; border-radius: 6px; position: relative; 
+        }
+        .snippet-copy-btn {
+            position: absolute; top: 6px; right: 6px; background: white;
+            border: 1px solid #d0d7de; color: #57606a; border-radius: 4px;
+            width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s;
+        }
+        
+        .failed-step-text { color: var(--text-muted); font-size: 13px; font-weight: 500; margin-bottom: 8px; padding-left: 2px; }
+        .failed-step-name { color: var(--text-main); font-weight: 700; font-size: 14px; }
+        .spacer { height: 16px; width: 100%; }
+        .highlight-fail-bg { background-color: #fff8f8; border-bottom: 1px solid rgba(207, 34, 46, 0.1); }
+        .text-red { color: var(--danger-dark); font-weight: 700; }
 
-.explain h3{
-  margin-bottom:4px;
-  font-size:16px;
-}
+        details.log-group { display: block; width: 100%; }
+        details.log-group > summary {
+            list-style: none; cursor: pointer; display: flex; align-items: flex-start; 
+            outline: none; color: var(--text-main); font-weight: normal;
+        }
+        details.log-group > summary:hover { background-color: #f6f8fa; }
+        details.log-group > summary::-webkit-details-marker { display: none; }
+        details.log-group > summary .cl { white-space: nowrap !important; }
+        .group-inner { display: flex; align-items: flex-start; width: 100%; }
+        .group-caret { width: 14px; height: 20px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; color: #57606a; transition: transform 0.1s; margin-right: 8px; margin-top: 1px; }
+        details[open] > summary .group-caret { transform: rotate(90deg); }
+        .group-text { flex: 1; word-break: break-word; }
 
-.explain p{
-  margin-top:0;
-  font-size:14px;
-}
+        .btn-full {
+            width: 100%; padding: 12px; background: white; border: 1px solid var(--border);
+            border-radius: 6px; font-weight: 600; color: var(--text-main); cursor: pointer; margin-bottom: 8px; font-size: 14px;
+        }
+        .btn-full:hover { background-color: #f3f4f6; }
 
-/* ---------- Buttons ---------- */
-button{
-  appearance:none;
-  border:none;
-  border-radius:10px;
-  padding:10px 14px;
-  background:var(--primary);
-  color:white;
-  font-size:15px;
-  cursor:pointer;
-}
+        .apk-btn {
+            display: flex; align-items: center; justify-content: space-between;
+            background-color: #1f883d; color: white; padding: 14px;
+            border-radius: 6px; text-decoration: none; margin-bottom: 16px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1); cursor: pointer; border: none; width: 100%;
+        }
+        .apk-btn:active { transform: scale(0.98); }
+        .apk-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
-button.secondary{
-  background:#e2e8f0;
-  color:#0f172a;
-}
+        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #0969da; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 0 auto; }
+        .btn-spinner { border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid white; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: none; }
+        .apk-btn.loading .btn-spinner { display: block; }
+        .apk-btn.loading .dl-icon { display: none; }
 
-/* ---------- Footer ---------- */
-footer{
-  text-align:center;
-  font-size:13px;
-  color:var(--muted);
-  padding:20px 10px;
-}
-</style>
+        .hidden { display: none; }
+
+        #toast {
+            visibility: hidden; min-width: 200px; background-color: #24292f; color: #fff; text-align: center;
+            border-radius: 8px; padding: 12px; position: fixed; z-index: 1000; left: 50%; bottom: 30px;
+            transform: translateX(-50%); font-size: 14px; opacity: 0; transition: opacity 0.3s, bottom 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-weight: 500;
+        }
+        #toast.show { visibility: visible; opacity: 1; bottom: 40px; }
+
+        /* --- TOKEN MODAL --- */
+        #tokenModal {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 999;
+            display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(2px);
+        }
+        .token-card {
+            background: white; padding: 32px; border-radius: 12px;
+            width: 90%; max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            display: flex; flex-direction: column; gap: 16px;
+            animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .token-title { font-weight: 700; font-size: 20px; text-align: center; color: var(--text-main); }
+        .token-desc { font-size: 14px; color: var(--text-muted); text-align: center; line-height: 1.5; margin-bottom: 8px; }
+        .token-input {
+            width: 100%; padding: 12px; border: 1px solid var(--border);
+            border-radius: 6px; font-family: var(--font-mono); font-size: 13px;
+            outline: none; transition: border 0.2s;
+        }
+        .token-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(9, 105, 218, 0.2); }
+        .token-btn {
+            background: var(--primary); color: white; border: none;
+            padding: 12px; border-radius: 6px; font-weight: 600; cursor: pointer;
+            font-size: 14px; transition: background 0.2s;
+        }
+        .token-btn:hover { background-color: #0758b7; }
+        .token-link { font-size: 12px; text-align: center; color: var(--primary); text-decoration: none; }
+        .token-link:hover { text-decoration: underline; }
+
+    </style>
 </head>
-
 <body>
 
-<header>
-  <h1>DelightPhysics</h1>
-  <p>Physics jo samajh aaye, achchi lage</p>
-</header>
-
-<div class="container">
-
-  <!-- Intro -->
-  <div class="card">
-    <h2>📘 DelightPhysics kya hai?</h2>
-    <p>
-      Ye website physics ko formula se pehle <b>dekhna aur mehsoos karna</b>
-      sikhati hai.  
-      Yahan har topic pehle daily life se aata hai, phir uska physics reason
-      bataya jata hai.
-    </p>
-  </div>
-
-  <!-- Topics -->
-  <div class="card">
-    <h2>🔍 Aaj ke Concepts</h2>
-
-    <div class="topic" onclick="loadTopic('inertia')">
-      <div class="topic-title">Bus rukte hi log aage kyon jhuk jaate hain?</div>
-      <div class="topic-sub">Inertia (Newton ka pehla niyam)</div>
+    <!-- TOKEN MODAL -->
+    <div id="tokenModal">
+        <div class="token-card">
+            <div style="text-align:center;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="#24292f"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+            </div>
+            <div class="token-title">Enter GitHub Token</div>
+            <div class="token-desc">A Classic Personal Access Token with <b>repo</b> scope is required to access Actions.</div>
+            <input type="password" id="tokenInput" class="token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+            <button class="token-btn" onclick="saveToken()">Save & Continue</button>
+            <a href="https://github.com/settings/tokens" target="_blank" class="token-link">Get a token here</a>
+        </div>
     </div>
 
-    <div class="topic" onclick="loadTopic('pressure')">
-      <div class="topic-title">Patli heel zyada dhans kyon jaati hai?</div>
-      <div class="topic-sub">Pressure</div>
+    <header>
+        <div class="header-left">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M2.5 12a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z" fill-opacity="0.1"/><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" fill="white"/></svg>
+            <span class="app-title">HGits Pro</span>
+        </div>
+        <div style="position: relative;" id="menuContainer">
+            <button class="menu-btn" id="menuBtn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="19" r="2"></circle></svg>
+            </button>
+            <div id="mainMenu" class="menu-dropdown">
+                <button class="menu-item" onclick="openActionsPanel()">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-2-14v8l6-4-6-4z"></path></svg>
+                    <span>Actions</span>
+                </button>
+                <button class="menu-item" onclick="changeToken()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    <span>Change Token</span>
+                </button>
+                <button class="menu-item danger-item" onclick="window.location.reload()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    <span>Reload App</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="select-card">
+            <span class="label">Repository</span>
+            <select id="repoSelect"><option disabled selected>Loading...</option></select>
+        </div>
+        <div class="select-card">
+            <span class="label">Branch</span>
+            <select id="branchSelect" disabled><option disabled selected>Select Repo First</option></select>
+        </div>
+        <div style="text-align: center; color: #8c959f; font-size: 13px; margin-top: 20px;">
+            Select details above, then tap <strong>( ⋮ )</strong>
+        </div>
+    </main>
+
+    <div id="actionsPanel" class="slide-panel">
+        <div class="panel-header">
+            <div style="display:flex; align-items:center;">
+                <button class="back-btn" onclick="closeActionsPanel()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+                    Back
+                </button>
+            </div>
+            <div class="panel-title">Workflow Runs</div>
+            <button id="refreshBtn" class="refresh-btn" onclick="refreshRuns()" title="Refresh List">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+            </button>
+        </div>
+        <div id="buildList" class="build-list"></div>
     </div>
 
-    <div class="topic" onclick="loadTopic('friction')">
-      <div class="topic-title">Geeli sadak par gaadi kyon phisalne lagti hai?</div>
-      <div class="topic-sub">Friction</div>
-    </div>
-  </div>
-
-  <!-- Explanation -->
-  <div class="card" id="content">
-    <h2>👆 Upar se koi topic chuniye</h2>
-    <p>
-      Topic select karne par yahan simple bhasha me explanation dikhegi.
-    </p>
-  </div>
-
-  <!-- API demo -->
-  <div class="card">
-    <h2>🌐 Real Physics Source</h2>
-    <p>
-      Neeche diya button Wikipedia se real physics summary lata hai
-      (free & trusted source).
-    </p>
-    <button class="secondary" onclick="loadWiki()">Wikipedia se dekhein</button>
-    <p id="wiki" style="margin-top:10px;font-size:14px;"></p>
-  </div>
-<div id="topics"></div>
-
-</div>
-
-<footer>
-  DelightPhysics • Real Physics, Simple Language
-</footer>
+    <!-- Toast Notification -->
+    <div id="toast">Updated successfully</div>
 
 <script>
-/* ---------- Local content (Phase-1) ---------- */
-const topics = {
-  inertia: {
-    title: "Inertia",
-    why: "Cheez apni chalti ya ruki hui halat ko badalna pasand nahi karti.",
-    how: "Bus jab achanak rukti hai, to sharir ka upar ka hissa chalti halat me rehna chahta hai.",
-    formula: "F = m × a (jab force lage tabhi halat badlegi)"
-  },
-  pressure: {
-    title: "Pressure",
-    why: "Kam area par zyada bal lagane se pressure badhta hai.",
-    how: "High heel ka area chhota hota hai, isliye zameen par zyada pressure padta hai.",
-    formula: "Pressure = Force / Area"
-  },
-  friction: {
-    title: "Friction",
-    why: "Do satahon ke beech ki roughness gati ko rokne ki koshish karti hai.",
-    how: "Geeli sadak par tyre ka grip kam ho jata hai, isliye gaadi phisalti hai.",
-    formula: "Friction ∝ Normal Force"
-  }
+const API = "https://api.github.com";
+let TOKEN = localStorage.getItem("gh_token");
+let currentUser = "";
+let currentRepo = "";
+let tickerInterval;
+
+const els = {
+    repo: document.getElementById("repoSelect"),
+    branch: document.getElementById("branchSelect"),
+    menu: document.getElementById("mainMenu"),
+    menuBtn: document.getElementById("menuBtn"),
+    panel: document.getElementById("actionsPanel"),
+    list: document.getElementById("buildList"),
+    refreshBtn: document.getElementById("refreshBtn"),
+    toast: document.getElementById("toast"),
+    tokenModal: document.getElementById("tokenModal"),
+    tokenInput: document.getElementById("tokenInput")
 };
 
-function loadTopic(key){
-  const t = topics[key];
-  document.getElementById("content").innerHTML = `
-    <h2>${t.title}</h2>
-
-    <div class="explain">
-      <h3>👀 Kya dekhte hain?</h3>
-      <p>${t.how}</p>
-    </div>
-
-    <div class="explain">
-      <h3>🧠 Physics kyon aisa karti hai?</h3>
-      <p>${t.why}</p>
-    </div>
-
-    <div class="explain">
-      <h3>📐 Formula (optional)</h3>
-      <p>${t.formula}</p>
-    </div>
-  `;
+function saveToken() {
+    const val = els.tokenInput.value.trim();
+    if(!val) return alert("Token cannot be empty!");
+    localStorage.setItem("gh_token", val);
+    TOKEN = val;
+    els.tokenModal.style.display = "none";
+    init();
 }
 
-/* ---------- Free API demo (Wikipedia) ---------- */
-function loadWiki(){
-  const url = "https://en.wikipedia.org/api/rest_v1/page/summary/Inertia";
-  fetch(url)
-    .then(r => r.json())
-    .then(d => {
-      document.getElementById("wiki").innerText =
-        d.extract ? d.extract.substring(0,300)+"…" : "Data nahi mila";
-    })
-    .catch(()=>{
-      document.getElementById("wiki").innerText = "Network error";
+function changeToken() {
+    localStorage.removeItem("gh_token");
+    TOKEN = null;
+    els.tokenInput.value = "";
+    els.menu.classList.remove('open');
+    els.tokenModal.style.display = "flex";
+}
+
+async function gh(endpoint, isText = false, isBlob = false) {
+    if(!TOKEN) return null;
+    try {
+        const res = await fetch(`${API}${endpoint}`, { headers: { 'Authorization': `Bearer ${TOKEN}` } });
+        if(res.status === 401) {
+            // Unauthorized - likely invalid token
+            changeToken();
+            alert("Invalid Token! Please enter a valid one.");
+            return null;
+        }
+        if(!res.ok) throw new Error(`Status: ${res.status}`);
+        if(isBlob) return await res.blob();
+        return isText ? await res.text() : await res.json();
+    } catch(e) { console.error(e); return null; }
+}
+
+async function init() {
+    if(!TOKEN) {
+        els.tokenModal.style.display = "flex";
+        return;
+    }
+
+    const user = await gh("/user");
+    if(user) {
+        currentUser = user.login;
+        const repos = await gh("/user/repos?sort=updated&per_page=100");
+        els.repo.innerHTML = '<option disabled selected>Select Repository</option>';
+        if(repos) repos.forEach(r => els.repo.add(new Option(r.name, r.name)));
+
+        const lastRepo = localStorage.getItem('lastRepo');
+        if(lastRepo && repos.some(r => r.name === lastRepo)) {
+            els.repo.value = lastRepo;
+            currentRepo = lastRepo;
+            await loadBranches(lastRepo);
+        }
+    }
+}
+
+async function loadBranches(repoName) {
+    els.branch.innerHTML = '<option>Loading...</option>'; els.branch.disabled = true;
+    const branches = await gh(`/repos/${currentUser}/${repoName}/branches`);
+    els.branch.innerHTML = '<option disabled selected>Select Branch</option>';
+    if(branches) {
+        branches.forEach(b => els.branch.add(new Option(b.name, b.name)));
+        els.branch.disabled = false;
+        
+        const lastBranch = localStorage.getItem('lastBranch');
+        const defaultBranch = branches.find(b => b.name === 'main' || b.name === 'master')?.name;
+        
+        if(lastBranch && branches.some(b => b.name === lastBranch)) els.branch.value = lastBranch;
+        else if (defaultBranch) els.branch.value = defaultBranch;
+    }
+}
+
+els.menuBtn.addEventListener('click', (e) => { e.stopPropagation(); els.menu.classList.toggle('open'); });
+document.addEventListener('click', (e) => { if (els.menu.classList.contains('open') && !els.menu.contains(e.target) && !els.menuBtn.contains(e.target)) els.menu.classList.remove('open'); });
+
+function closeActionsPanel() { els.panel.classList.remove('open'); clearInterval(tickerInterval); }
+els.repo.addEventListener('change', async (e) => { currentRepo = e.target.value; localStorage.setItem('lastRepo', currentRepo); await loadBranches(currentRepo); });
+els.branch.addEventListener('change', (e) => { localStorage.setItem('lastBranch', e.target.value); });
+
+async function openActionsPanel() {
+    if(!els.repo.value || !els.branch.value) { alert("Select Repo & Branch first!"); els.menu.classList.remove('open'); return; }
+    els.menu.classList.remove('open');
+    els.panel.classList.add('open');
+    els.list.innerHTML = '<div style="text-align:center; margin-top:40px; color:#8c959f;"><div class="spinner"></div><br>Fetching Runs...</div>';
+    await fetchRuns();
+    clearInterval(tickerInterval); tickerInterval = setInterval(tickTimers, 1000);
+}
+
+function tickTimers() {
+    document.querySelectorAll('.live-timer').forEach(el => {
+        const start = el.dataset.start;
+        if(start) el.innerText = `(${calcDuration(start, null)})`;
     });
 }
 
-/*  Render Django API ---------- */
+async function refreshRuns() {
+    els.refreshBtn.classList.add('spinning');
+    const start = Date.now();
+    const count = await fetchRuns();
+    const remain = Math.max(0, 800 - (Date.now() - start));
+    setTimeout(() => { els.refreshBtn.classList.remove('spinning'); showToast(count >= 0 ? "Updated successfully" : "Update failed"); }, remain);
+}
 
-fetch("https://hhdemo2b.onrender.com/api/topics/")
-  .then(r => r.json())
-  .then(data => {
-    const box = document.getElementById("topics");
-    box.innerHTML = "";
-    data.forEach(t => {
-      box.innerHTML += `
-        <div>
-          <b>${t.title}</b><br>
-          ${t.question}
-          <hr>
-        </div>
-      `;
+async function fetchRuns() {
+    const data = await gh(`/repos/${currentUser}/${currentRepo}/actions/runs?branch=${els.branch.value}&per_page=15`);
+    if(data?.workflow_runs) { renderBuilds(data.workflow_runs); return data.workflow_runs.length; } 
+    else { els.list.innerHTML = '<div style="text-align:center; margin-top:40px; color:#8c959f;">No runs found.</div>'; return -1; }
+}
+
+function showToast(msg) { els.toast.innerText = msg; els.toast.classList.add("show"); setTimeout(() => els.toast.classList.remove("show"), 3000); }
+function smartDate(iso) { if(!iso) return ""; const d=new Date(iso),n=new Date(),diff=(n-d)/1000; if(diff<60) return "Just now"; if(diff<3600) return `${Math.floor(diff/60)}m ago`; return d.toLocaleDateString(); }
+
+function renderBuilds(runs) {
+    els.list.innerHTML = runs.map(run => {
+        const isRunning = run.status === 'in_progress' || run.status === 'queued';
+        const isSuccess = run.conclusion === 'success';
+        
+        let icon = isRunning ? `<svg width="22" height="22" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#1a7f37" stroke-opacity="0.25" stroke-width="2" vector-effect="non-scaling-stroke"></circle><path class="spin-circle" d="M15 8a7.002 7.002 0 00-7-7" stroke="#1a7f37" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"></path></svg>` : 
+                   (isSuccess ? `<svg width="22" height="22" viewBox="0 0 24 24" fill="#0969da"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>` : 
+                   `<svg width="22" height="22" viewBox="0 0 24 24" fill="#cf222e"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>`);
+
+        let metaHtml = isRunning ? `<span class="meta-status running">update</span> • <span>${smartDate(run.updated_at)}</span> • <span>In progress...</span> <span class="time-bold live-timer" data-start="${run.run_started_at}">(${calcDuration(run.run_started_at, null)})</span>` : 
+                                   `<span class="meta-status ${isSuccess?'success':'failure'}">${run.conclusion}</span> • <span>${smartDate(run.updated_at)}</span> <span class="time-plain">in</span> <span class="time-bold">${calcDuration(run.run_started_at, run.updated_at)}</span>`;
+        
+        return `<div class="build-card"><div class="build-header ${isRunning?'disabled':''}" ${isRunning?'':`onclick="toggleBuild(this, '${run.id}', '${run.conclusion}', '${run.head_branch}')"`}><div class="status-icon">${icon}</div><div class="build-info"><div class="build-title">${run.display_title}</div><div class="build-workflow">${run.name} #${run.run_number}</div><div class="build-meta">${metaHtml}</div></div><svg class="arrow-icon ${isRunning?'hidden-arrow':''}" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 17l5-5-5-5v10z"/></svg></div><div id="details-${run.id}" class="accordion-content"><div class="details-pad content-area" data-loaded="false"><div style="color:#8c959f;">Loading details...</div></div></div></div>`;
+    }).join('');
+}
+
+async function toggleBuild(header, runId, conclusion, branch) {
+    const detail = document.getElementById(`details-${runId}`);
+    const arrow = header.querySelector('.arrow-icon');
+    const content = detail.querySelector('.content-area');
+    document.querySelectorAll('.accordion-content').forEach(e => { if(e!==detail) e.classList.remove('open'); });
+    document.querySelectorAll('.arrow-icon').forEach(e => { if(e!==arrow) e.classList.remove('open-state'); });
+    if(detail.classList.contains('open')) { detail.classList.remove('open'); arrow.classList.remove('open-state'); } 
+    else { detail.classList.add('open'); arrow.classList.add('open-state'); content.innerHTML = '<div style="color:#8c959f;">Loading details...</div>'; await loadAnalysis(runId, conclusion, branch, content); }
+}
+
+async function downloadArtifact(btn, id) {
+    const name = btn.getAttribute('data-name');
+    btn.classList.add('loading');
+    showToast(`Downloading ${name}...`);
+    try {
+        const blob = await gh(`/repos/${currentUser}/${currentRepo}/actions/artifacts/${id}/zip`, false, true);
+        if(blob) {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = `${name}.zip`;
+            document.body.appendChild(a); a.click();
+            window.URL.revokeObjectURL(url); document.body.removeChild(a);
+            showToast("Download started!");
+        } else { showToast("Error: Could not fetch file."); }
+    } catch(e) { showToast("Download failed. Check network."); console.error(e); }
+    btn.classList.remove('loading');
+}
+
+async function loadAnalysis(runId, conclusion, branch, container) {
+    let html = "";
+    const arts = await gh(`/repos/${currentUser}/${currentRepo}/actions/runs/${runId}/artifacts`);
+    const apk = arts?.artifacts?.find(a => a.name.match(/apk|release|debug/i));
+    
+    if(apk) {
+        html += `<button onclick="downloadArtifact(this, ${apk.id})" data-name="${escapeHtml(apk.name)}" class="apk-btn">
+               <div style="display:flex; align-items:center; gap:12px;"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85-.29-.15-.68-.06-.86.23l-1.91 3.29a8.94 8.94 0 0 0-8.82 0L5.68 5.68a.65.65 0 0 0-.86-.23c-.31.16-.42.54-.26.85l1.84 3.18C3.77 11.23 2 14 2 17h20c0-3-1.77-5.77-4.4-7.52zM7 15c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm10 0c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg>
+               <div style="text-align:left;"><div style="font-weight:700; font-size:14px; line-height:1.2;">${apk.name}</div><div style="font-size:11px; opacity:0.8; margin-top:2px;">${(apk.size_in_bytes/1048576).toFixed(2)} MB</div></div></div>
+               <svg class="dl-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg><div class="btn-spinner"></div></button>`;
+    }
+
+    const jobs = await gh(`/repos/${currentUser}/${currentRepo}/actions/runs/${runId}/jobs`);
+    if(!jobs || !jobs.jobs.length) { container.innerHTML = html + '<div style="color:#cf222e;">No jobs found.</div>'; return; }
+    const failJob = jobs.jobs.find(j => j.conclusion === 'failure') || jobs.jobs[0];
+    const failStep = failJob.steps.find(s => s.conclusion === 'failure');
+
+    // Steps
+    let stepsHtml = `<div class="steps-container">`;
+    failJob.steps.forEach(step => {
+        let icon = step.status==='in_progress' ? `<svg class="spin-circle" width="18" height="18" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#1a7f37" stroke-opacity="0.25" stroke-width="2" vector-effect="non-scaling-stroke"></circle><path d="M15 8a7.002 7.002 0 00-7-7" stroke="#1a7f37" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"></path></svg>` : (step.conclusion==='success' ? `<svg width="18" height="18" fill="#0969da" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"></path></svg>` : (step.conclusion==='failure' ? `<svg width="18" height="18" fill="#cf222e" viewBox="0 0 16 16"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06z"></path></svg>` : `<svg width="18" height="18" fill="#6e7781" viewBox="0 0 16 16"><circle cx="8" cy="8" r="4"></circle></svg>`));
+        let dur = step.status==='in_progress' ? `<span class="live-timer" data-start="${step.started_at}">${calcDuration(step.started_at, null)}</span>` : calcDuration(step.started_at, step.completed_at);
+        stepsHtml += `<div class="step-row"><div class="step-icon">${icon}</div><div class="step-name">${step.name}</div><div class="step-dur">${dur}</div></div>`;
     });
-  });
+    stepsHtml += `</div>`;
+    html += stepsHtml;
 
+    // Logs
+    const rawLog = await gh(`/repos/${currentUser}/${currentRepo}/actions/jobs/${failJob.id}/logs`, true);
+    if(!rawLog) { container.innerHTML = html + '<div style="color:#8c959f;">Log expired or not available yet.</div>'; return; }
+    const lines = rawLog.split('\n');
 
+    if(conclusion === 'failure') {
+        if(failStep) html += `<div class="failed-step-text">Failed Step: <span class="failed-step-name">${failStep.name}</span></div>`;
+        let s = -1, e = -1;
+        for(let i=0; i<lines.length; i++) { if(lines[i].match(/FAILURE:|What went wrong:/)) { s = i; break; } }
+        if(s !== -1) { for(let i=s; i<lines.length; i++) { if(lines[i].includes('* Try:')) { e = i; break; } } }
+        if(s !== -1 && e !== -1) {
+            const rawSnippet = lines.slice(s, e).join('\n');
+            const cleanSnippetText = rawSnippet.replace(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s/gm, "");
+            html += `<div class="log-box snippet-box"><button class="snippet-copy-btn" onclick="copySnippet(this)" data-content="${escapeHtml(cleanSnippetText)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>`;
+            lines.slice(s, e).forEach(l => {
+                let txt = l.replace(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s/, "");
+                let style = "";
+                if(txt.includes('FAILURE:')) { txt = `<span class="text-red">FAILURE:</span>` + txt.replace('FAILURE:', ''); style = `background-color:#fff2f0; padding-bottom:4px; border-bottom:1px solid rgba(207,34,46,0.1); font-weight:600;`; }
+                if(txt.includes('What went wrong:')) { html += `<div class="spacer"></div>`; txt = `<span class="text-red">What went wrong:</span>`; }
+                if(txt.trim().startsWith('* Where:')) { html += `<div class="spacer"></div>`; txt = `<span class="text-red">* Where:</span>` + txt.replace('* Where:', ''); }
+                html += `<div class="log-row" style="${style}"><div class="cl">${txt}</div></div>`;
+            });
+            html += `</div>`;
+        }
+    } else if(conclusion === 'success') { html += `<div style="color:#0969da; font-weight:700; font-size:14px; margin-bottom:15px; display:flex; align-items:center; gap:6px;"><svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Build Successful</div>`; }
+
+    html += `<button onclick="toggleFullLog('full-${runId}', this)" class="btn-full">View Full Logs</button><div id="full-${runId}" class="hidden log-box">${renderFullLog(lines, runId)}</div>`;
+    container.innerHTML = html;
+}
+
+function renderFullLog(lines) {
+    let html = "", count = 1, inGroup = false;
+    lines.forEach((line) => {
+        const clean = line.replace(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s/, "");
+        const isError = clean.match(/FAILURE|FAILED|error:/i) || clean.startsWith('* Where:');
+        if(clean.includes('##[group]')) { if(inGroup) html += `</div></details>`; inGroup = true; html += `<details class="log-group"><summary class="log-row"><div class="ln">${count++}</div><div class="cl"><div class="group-inner"><div class="group-caret"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M6 12l4-4-4-4z"></path></svg></div><div class="group-text">${clean.replace('##[group]', '').trim()}</div></div></div></summary><div class="group-content">`; return; }
+        if(clean.includes('##[endgroup]')) { if(inGroup) { html += `</div></details>`; inGroup = false; } return; }
+        let rowClass = isError ? "log-row highlight-fail-bg" : "log-row"; if(isError) rowClass += " text-red";
+        html += `<div class="${rowClass}"><div class="ln">${count++}</div><div class="cl">${escapeHtml(clean)}</div></div>`;
+    });
+    if(inGroup) html += `</div></details>`; return html;
+}
+
+function calcDuration(s, e) { if(!s) return ""; const sec = Math.floor(((e?new Date(e):new Date()) - new Date(s))/1000); if(sec<60) return `${sec}s`; return `${Math.floor(sec/60)}m ${sec%60}s`; }
+function toggleFullLog(id, b) { const e = document.getElementById(id); e.classList.toggle('hidden'); b.innerText = e.classList.contains('hidden') ? "View Full Logs" : "Hide Logs"; }
+function copySnippet(b) { navigator.clipboard.writeText(b.dataset.content).then(() => { let o=b.innerHTML; b.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="#1a7f37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`; setTimeout(()=>b.innerHTML=o,2000); }); }
+function escapeHtml(t) { return t ? t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;") : ""; }
+init();
 </script>
-
 </body>
 </html>
