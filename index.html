@@ -1,1 +1,135 @@
-1
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>APK Download</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f6f8fa;
+    padding: 30px;
+}
+
+.card {
+    max-width: 420px;
+    margin: auto;
+    background: #fff;
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #d0d7de;
+    font-size: 13px;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.btn-token {
+    background: #0969da;
+    color: #fff;
+}
+
+.btn-nightly {
+    background: #1f883d;
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+}
+
+.note {
+    font-size: 12px;
+    color: #57606a;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>Download APK</h2>
+
+    <!-- TOKEN INPUT (SAFE) -->
+    <input
+      type="password"
+      id="tokenInput"
+      placeholder="Paste GitHub Token here"
+    />
+
+    <button class="btn btn-token" onclick="downloadWithToken()">
+        Download with Token
+    </button>
+
+    <!-- NIGHTLY / PUBLIC DOWNLOAD -->
+    <a
+      class="btn btn-nightly"
+      href="https://nightly.link/hgwebs1/Kotlin-Template-Action/actions/runs/20925448675/artifacts/app-debug-apk.zip"
+      target="_blank"
+    >
+        Download (Public / Nightly)
+    </a>
+
+    <div class="note">
+        • Token download works for private & public repos<br>
+        • Nightly works only for public repos
+    </div>
+</div>
+
+<script>
+const OWNER = "hgwebs1";
+const REPO = "Kotlin-Template-Action";
+const ARTIFACT_ID = "5100015781";
+
+function downloadWithToken() {
+    const token = document.getElementById("tokenInput").value.trim();
+    if (!token) {
+        alert("Please paste GitHub token first");
+        return;
+    }
+
+    const url = `https://api.github.com/repos/${OWNER}/${REPO}/actions/artifacts/${ARTIFACT_ID}/zip`;
+
+    fetch(url, {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Download failed");
+        return res.blob();
+    })
+    .then(blob => {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "apk-artifact.zip";
+        a.click();
+        URL.revokeObjectURL(a.href);
+    })
+    .catch(err => alert(err.message));
+}
+</script>
+
+</body>
+</html>
