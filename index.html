@@ -1,188 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>H-Local Save Client</title>
-
-<style>
-:root {
-  --accent: #5c67f2;
-  --bg: #f4f7f6;
-  --card: #ffffff;
-  --text: #333;
-}
-
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-  background: var(--bg);
-  display: flex;
-  justify-content: center;
-  padding: 40px 10px;
-}
-
-.card {
-  background: var(--card);
-  padding: 25px;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 380px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-}
-
-h3 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: var(--text);
-}
-
-button {
-  width: 100%;
-  border: none;
-  padding: 14px;
-  border-radius: 12px;
-  background: var(--accent);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.status-box {
-  margin-top: 20px;
-  background: #f9f9f9;
-  border-radius: 12px;
-  padding: 15px;
-  border: 1px solid #eee;
-}
-
-.token-row {
-  margin-bottom: 14px;
-}
-
-.label {
-  font-size: 0.72rem;
-  color: #777;
-  font-weight: 700;
-}
-
-.value {
-  margin-top: 4px;
-  font-family: monospace;
-  font-size: 0.85rem;
-  font-weight: 600;
-  word-break: break-all;
-  color: #111;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netlify Custom Deployer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
+        body { background: #0f172a; color: white; }
+    </style>
 </head>
+<body class="p-5">
 
-<body>
+    <header class="flex justify-between items-center mb-10 border-b border-gray-700 pb-5">
+        <h1 class="text-2xl font-bold text-blue-400">Netlify Control Panel</h1>
+        <div class="text-xs space-y-1">
+            <p>GitHub: <span id="gh_val" class="text-green-400">Checking...</span></p>
+            <p>Netlify: <span id="nf_val" class="text-green-400">Checking...</span></p>
+        </div>
+    </header>
 
-<div class="card">
-  <h3>H-Local Save Client</h3>
+    <main class="max-w-4xl mx-auto">
+        <section class="mb-10 p-6 glass rounded-xl border border-gray-600">
+            <h2 class="text-xl mb-4 font-semibold">🚀 Deploy New Website</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" id="repoName" placeholder="GitHub Repo (user/repo)" class="bg-gray-800 p-2 rounded">
+                <input type="text" id="branchName" placeholder="Branch (e.g. main)" class="bg-gray-800 p-2 rounded">
+                <input type="text" id="siteName" placeholder="Website Name (Unique)" class="bg-gray-800 p-2 rounded">
+                
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="autoFunc">
+                    <label for="autoFunc">Auto Netlify Functions (/functions)</label>
+                </div>
+            </div>
 
-  <button onclick="manualSync()">🔄 Sync Tokens</button>
+            <div class="mt-4">
+                <p class="text-sm mb-2">Environment Variables (JSON format):</p>
+                <textarea id="envVars" placeholder='{"API_KEY": "123"}' class="w-full bg-gray-800 p-2 rounded h-20 text-xs"></textarea>
+            </div>
 
-  <div class="status-box">
-    <div class="token-row">
-      <span class="label">GITHUB_TOKEN</span>
-      <span id="gh_val" class="value">Checking…</span>
+            <button onclick="startDeployment()" class="w-full mt-5 bg-blue-600 hover:bg-blue-500 py-3 rounded-lg font-bold transition">
+                DEPLOY TO NETLIFY
+            </button>
+        </section>
+
+        <section>
+            <h2 class="text-xl mb-4 font-semibold">📂 Your Deployed Sites</h2>
+            <div id="sitesList" class="grid gap-4">
+                <p class="text-gray-500">Loading sites...</p>
+            </div>
+        </section>
+    </main>
+
+    <div id="settingsModal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4">
+        <div class="bg-gray-900 p-6 rounded-xl w-full max-w-md border border-blue-500">
+            <h3 id="modalTitle" class="text-lg font-bold mb-4">Edit Site Settings</h3>
+            <div class="space-y-3">
+                <input type="text" id="newSiteName" placeholder="New Site Name" class="w-full bg-gray-800 p-2 rounded">
+                <button onclick="updateSite()" class="w-full bg-green-600 py-2 rounded">Save Changes</button>
+                <button onclick="triggerDeploy()" class="w-full bg-orange-600 py-2 rounded">Manual Trigger Deploy</button>
+                <button onclick="closeModal()" class="w-full bg-gray-700 py-2 rounded">Cancel</button>
+            </div>
+        </div>
     </div>
 
-    <div class="token-row">
-      <span class="label">NETLIFY_TOKEN</span>
-      <span id="nf_val" class="value">Checking…</span>
-    </div>
-  </div>
-</div>
+    <script>
+        const HLOCALSAVE = "https://hlocalsave.netlify.app";
+        const REQUIRED_KEYS = ["GITHUB_TOKEN", "NETLIFY_TOKEN"];
 
-<script>
-/* ================= CONFIG ================= */
+        /* 1. INITIALIZATION & TOKEN CHECK */
+        function checkTokens() {
+            const missing = REQUIRED_KEYS.filter(k => !localStorage.getItem(k));
+            updateUI();
+            if (missing.length > 0) {
+                const returnURL = encodeURIComponent(window.location.href);
+                window.location.replace(`${HLOCALSAVE}?request=keys&keys=${missing.join(",")}&return=${returnURL}`);
+            } else {
+                fetchSites();
+            }
+        }
 
-const HLOCALSAVE = "https://hlocalsave.netlify.app";
-const REQUIRED_KEYS = ["GITHUB_TOKEN", "NETLIFY_TOKEN"];
+        function updateUI() {
+            document.getElementById("gh_val").innerText = localStorage.getItem("GITHUB_TOKEN") ? "✅ Saved" : "❌ Empty";
+            document.getElementById("nf_val").innerText = localStorage.getItem("NETLIFY_TOKEN") ? "✅ Saved" : "❌ Empty";
+        }
 
-/* ================= UI ================= */
+        /* 2. NETLIFY API CALLS */
+        async function fetchSites() {
+            const token = localStorage.getItem("NETLIFY_TOKEN");
+            try {
+                const res = await fetch('https://api.netlify.com/api/v1/sites', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const sites = await res.json();
+                renderSites(sites);
+            } catch (err) { console.error("Error fetching sites", err); }
+        }
 
-function updateUI() {
-  document.getElementById("gh_val").innerText =
-    localStorage.getItem("GITHUB_TOKEN") || "Empty";
+        function renderSites(sites) {
+            const container = document.getElementById("sitesList");
+            container.innerHTML = sites.map(site => `
+                <div onclick="openSettings('${site.id}', '${site.name}')" class="bg-gray-800 p-4 rounded-lg cursor-pointer hover:border-blue-400 border border-transparent flex justify-between">
+                    <div>
+                        <p class="font-bold">${site.name}</p>
+                        <p class="text-xs text-gray-400">${site.url}</p>
+                    </div>
+                    <span class="text-blue-400">Settings ⚙️</span>
+                </div>
+            `).join('');
+        }
 
-  document.getElementById("nf_val").innerText =
-    localStorage.getItem("NETLIFY_TOKEN") || "Empty";
-}
+        /* 3. DEPLOYMENT LOGIC */
+        async function startDeployment() {
+            const siteName = document.getElementById("siteName").value;
+            const repo = document.getElementById("repoName").value;
+            
+            // Domain availability check (Simple)
+            if(!siteName) return alert("Enter site name");
+            
+            const nfToken = localStorage.getItem("NETLIFY_TOKEN");
+            
+            // Step 1: Create Site with GitHub Link
+            // Note: In real world, you'd need to handle GitHub App permissions
+            alert("Starting Deployment for: " + siteName);
+            
+            // Pseudo-code for Netlify Site Creation
+            // POST to /api/v1/sites with build_settings including repo and branch
+        }
 
-/* ================= SYNC CORE ================= */
+        /* 4. MODAL LOGIC */
+        function openSettings(id, name) {
+            document.getElementById("settingsModal").classList.remove("hidden");
+            document.getElementById("modalTitle").innerText = `Settings: ${name}`;
+        }
 
-function requestTokens(auto = false) {
-  const popup = window.open(
-    HLOCALSAVE,
-    "HLocalSaveSync",
-    "width=420,height=620"
-  );
+        function closeModal() {
+            document.getElementById("settingsModal").classList.add("hidden");
+        }
 
-  const receive = (event) => {
-    if (event.origin !== HLOCALSAVE) return;
-
-    if (event.data?.type === "SEND_KEYS") {
-      const tokens = event.data.tokens || {};
-
-      if (tokens.GITHUB_TOKEN)
-        localStorage.setItem("GITHUB_TOKEN", tokens.GITHUB_TOKEN);
-
-      if (tokens.NETLIFY_TOKEN)
-        localStorage.setItem("NETLIFY_TOKEN", tokens.NETLIFY_TOKEN);
-
-      updateUI();
-      window.removeEventListener("message", receive);
-      popup?.close();
-    }
-  };
-
-  window.addEventListener("message", receive);
-
-  const ping = setInterval(() => {
-    if (popup.closed) {
-      clearInterval(ping);
-      return;
-    }
-
-    popup.postMessage(
-      {
-        type: "REQUEST_KEYS",
-        keys: REQUIRED_KEYS
-      },
-      HLOCALSAVE
-    );
-  }, 1200);
-}
-
-/* ================= AUTO CHECK ================= */
-
-function autoCheck() {
-  const missing = REQUIRED_KEYS.some(
-    k => !localStorage.getItem(k)
-  );
-
-  updateUI();
-
-  if (missing) {
-    requestTokens(true);
-  }
-}
-
-/* ================= MANUAL ================= */
-
-function manualSync() {
-  requestTokens(false);
-}
-
-/* ================= INIT ================= */
-
-document.addEventListener("DOMContentLoaded", autoCheck);
-</script>
-
+        window.onload = checkTokens;
+    </script>
 </body>
 </html>
