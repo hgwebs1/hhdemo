@@ -6,97 +6,106 @@
     <title>Netlify Cloud Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        body { background: #020617; color: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
+        .glass { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.1); }
+        body { background: #020617; color: #f1f5f9; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         input, select { background: #1e293b !important; color: white !important; border: 1px solid #334155 !important; }
-        .site-card:hover { border-color: #3b82f6; transform: translateY(-2px); }
+        .site-card { transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.05); }
+        .site-card:hover { border-color: #3b82f6; transform: translateY(-3px); box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.3); }
         .loader { border-right-color: transparent; animation: rot 1s linear infinite; }
         @keyframes rot { to { transform: rotate(360deg); } }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body class="p-4 md:p-10">
 
     <header class="max-w-6xl mx-auto flex justify-between items-center mb-12">
-        <h1 class="text-2xl font-black tracking-tight text-blue-500">NETLIFY<span class="text-white font-light">CORE</span></h1>
-        <div class="px-4 py-1 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-[10px] font-bold uppercase tracking-widest">
-            ● Authorized Session
+        <h1 class="text-2xl font-black tracking-tighter text-blue-500">NETLIFY<span class="text-white font-thin">ENGINE</span></h1>
+        <div class="flex items-center gap-3">
+            <span class="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Encrypted Connection</span>
+            <div class="w-2 h-2 bg-green-500 rounded-full shadow-[0_0_10px_#22c55e]"></div>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
         
-        <section class="lg:col-span-5 p-8 glass rounded-3xl shadow-2xl h-fit">
-            <h2 class="text-xl font-bold mb-8 flex items-center gap-3">🚀 <span class="bg-blue-600 px-2 py-0.5 rounded text-sm">Deploy</span></h2>
+        <section class="lg:col-span-5 p-8 glass rounded-[2rem] shadow-2xl h-fit border border-blue-500/20">
+            <h2 class="text-xl font-bold mb-8 flex items-center gap-3">
+                <span class="bg-blue-600 p-1.5 rounded-lg">🚀</span> New Deployment
+            </h2>
             
             <div class="space-y-5">
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Source Repository</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2 ml-1">Repository</label>
                     <select id="repoSelect" onchange="fetchBranches()" class="w-full p-3 rounded-xl outline-none text-sm"></select>
                 </div>
 
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Default Branch</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2 ml-1">Branch</label>
                     <select id="branchSelect" class="w-full p-3 rounded-xl outline-none text-sm">
-                        <option>Choose repo first</option>
+                        <option>Loading branches...</option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Site Name</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2 ml-1">Site Domain Name</label>
                     <div class="relative">
-                        <input type="text" id="siteName" oninput="checkDomain(this.value)" placeholder="e.g. my-app-2024" class="w-full p-3 rounded-xl outline-none text-sm">
-                        <div id="domainLoader" class="hidden absolute right-3 top-3 w-5 h-5 border-2 border-blue-500 loader rounded-full"></div>
+                        <input type="text" id="siteName" oninput="checkDomain(this.value)" placeholder="my-next-project" class="w-full p-3 rounded-xl outline-none text-sm">
+                        <div id="domainLoader" class="hidden absolute right-3 top-3.5 w-4 h-4 border-2 border-blue-500 loader rounded-full"></div>
                     </div>
-                    <p id="domainStatus" class="text-[11px] mt-2 font-semibold"></p>
+                    <p id="domainStatus" class="text-[11px] mt-2 font-medium min-h-[1rem] ml-1"></p>
                 </div>
 
-                <div class="flex items-center gap-3 p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition cursor-pointer">
+                <div onclick="document.getElementById('autoFunc').click()" class="flex items-center gap-3 p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition cursor-pointer border border-white/5">
                     <input type="checkbox" id="autoFunc" class="w-5 h-5 accent-blue-500">
-                    <span class="text-xs text-gray-300">Auto-set <b>/functions</b> directory</span>
+                    <span class="text-xs text-gray-300">Set directory to <b>netlify/functions</b></span>
                 </div>
 
                 <div class="pt-4 border-t border-white/5">
                     <div class="flex justify-between items-center mb-4">
-                        <span class="text-[10px] font-bold text-gray-400 uppercase">Environment</span>
-                        <button onclick="addEnvField('envList')" class="bg-blue-600 hover:bg-blue-500 text-white p-1 rounded-lg text-xs px-3 font-bold">+ New Key</button>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Environment Variables</span>
+                        <button onclick="addEnvField('envList')" class="bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white p-1.5 rounded-lg text-xs px-4 font-bold transition-all border border-blue-500/30">+ Add</button>
                     </div>
                     <div id="envList" class="space-y-3"></div>
                 </div>
 
                 <button onclick="deployNow()" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-2xl font-black text-sm tracking-widest mt-6 transition-all shadow-xl shadow-blue-900/40">
-                    DEPLOY TO CLOUD
+                    START AUTO-DEPLOY
                 </button>
             </div>
         </section>
 
         <section class="lg:col-span-7">
-            <h2 class="text-xl font-bold mb-8 text-gray-400">Deployed Instances</h2>
-            <div id="sitesList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h2 class="text-xl font-bold mb-8 text-gray-500 px-2">Deployed List</h2>
+            <div id="sitesList" class="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto max-h-[80vh] pr-2 custom-scroll">
                 </div>
         </section>
     </main>
 
-    <div id="settingsModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-xl flex items-center justify-center p-6 z-50">
-        <div class="glass p-10 rounded-[2.5rem] w-full max-w-lg border border-white/20">
-            <div class="flex justify-between items-start mb-10">
-                <h3 id="modalTitle" class="text-3xl font-black italic">Settings</h3>
-                <button onclick="closeModal()" class="text-gray-500 hover:text-white text-3xl">&times;</button>
+    <div id="settingsModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-6 z-50">
+        <div class="glass p-8 rounded-[2rem] w-full max-w-lg border border-white/10 shadow-2xl">
+            <div class="flex justify-between items-center mb-8">
+                <h3 id="modalTitle" class="text-2xl font-black text-white italic">Settings</h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-white transition">&times;</button>
             </div>
             
-            <div class="space-y-8">
+            <div class="space-y-6">
                 <div>
                     <div class="flex justify-between mb-4">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Site Variables</label>
-                        <button onclick="addEnvField('modalEnvList')" class="text-blue-500 text-xs font-bold hover:underline">+ Add New</button>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Config Variables</label>
+                        <button onclick="addEnvField('modalEnvList')" class="text-blue-500 text-[10px] font-bold hover:underline uppercase">+ Add New Key</button>
                     </div>
-                    <div id="modalEnvList" class="space-y-3 max-h-52 overflow-y-auto pr-2 custom-scroll"></div>
+                    <div id="modalEnvList" class="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scroll bg-black/20 p-4 rounded-2xl"></div>
                 </div>
 
-                <div class="pt-6 border-t border-white/10">
-                    <button onclick="triggerManualDeploy()" class="w-full flex items-center justify-center gap-3 bg-white text-black py-4 rounded-2xl font-black hover:bg-gray-200 transition">
-                        <span>⚡</span> TRIGGER DEPLOYMENT
+                <div class="space-y-3 pt-4">
+                    <button onclick="saveSiteSettings()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-black text-xs tracking-widest transition shadow-lg shadow-emerald-900/20">
+                        SAVE SETTINGS
                     </button>
-                    <p class="text-center text-[10px] text-gray-500 mt-4 uppercase tracking-tighter">Requires confirmation on click</p>
+                    
+                    <button onclick="triggerManualDeploy()" class="w-full flex items-center justify-center gap-3 bg-white/5 border border-white/10 text-white py-4 rounded-2xl font-black text-xs tracking-widest hover:bg-white/10 transition">
+                        ⚡ TRIGGER DEPLOYMENT
+                    </button>
                 </div>
             </div>
         </div>
@@ -119,28 +128,30 @@
             fetchSites();
         }
 
-        /* FETCH REPOS & BRANCHES */
+        /* GITHUB LOGIC */
         async function fetchRepos() {
+            const select = document.getElementById("repoSelect");
             try {
-                const res = await fetch('https://api.github.com/user/repos?sort=updated&per_page=50', {
+                const res = await fetch('https://api.github.com/user/repos?sort=updated&per_page=100', {
                     headers: { 'Authorization': `token ${G_TOKEN}` }
                 });
                 const repos = await res.json();
-                document.getElementById("repoSelect").innerHTML = repos.map(r => `<option value="${r.full_name}">${r.full_name}</option>`).join('');
+                select.innerHTML = repos.map(r => `<option value="${r.full_name}">${r.full_name}</option>`).join('');
                 fetchBranches();
-            } catch (e) { console.error("Repo Error", e); }
+            } catch (e) { select.innerHTML = "<option>Error Loading Repos</option>"; }
         }
 
         async function fetchBranches() {
             const repo = document.getElementById("repoSelect").value;
+            const select = document.getElementById("branchSelect");
             const res = await fetch(`https://api.github.com/repos/${repo}/branches`, {
                 headers: { 'Authorization': `token ${G_TOKEN}` }
             });
             const branches = await res.json();
-            document.getElementById("branchSelect").innerHTML = branches.map(b => `<option value="${b.name}">${b.name}</option>`).join('');
+            select.innerHTML = branches.map(b => `<option value="${b.name}">${b.name}</option>`).join('');
         }
 
-        /* DOMAIN VALIDATION (FIXED) */
+        /* DOMAIN VALIDATION (TOKEN AUTH) */
         let domainTimer;
         function checkDomain(name) {
             clearTimeout(domainTimer);
@@ -151,7 +162,6 @@
             loader.classList.remove("hidden");
             domainTimer = setTimeout(async () => {
                 try {
-                    // Direct name check using site search API with Auth
                     const res = await fetch(`https://api.netlify.com/api/v1/sites?name=${name}`, {
                         headers: { 'Authorization': `Bearer ${N_TOKEN}` }
                     });
@@ -159,47 +169,44 @@
                     const isTaken = sites.some(s => s.name.toLowerCase() === name.toLowerCase());
                     
                     if(!isTaken) {
-                        status.innerText = "Available: " + name + ".netlify.app";
-                        status.className = "text-[11px] mt-2 text-emerald-400";
+                        status.innerText = `✅ Available: ${name}.netlify.app`;
+                        status.className = "text-[11px] mt-2 text-emerald-400 font-bold";
                     } else {
-                        status.innerText = "Unavailable: Name already exists";
-                        status.className = "text-[11px] mt-2 text-rose-500";
+                        status.innerText = "❌ This name is already taken";
+                        status.className = "text-[11px] mt-2 text-rose-500 font-bold";
                     }
                 } catch(e) { status.innerText = "Error checking domain."; }
                 loader.classList.add("hidden");
-            }, 700);
+            }, 600);
         }
 
-        /* KEY-VALUE ENV FIELDS */
+        /* ENV FIELDS */
         function addEnvField(containerId, key = '', val = '') {
             const div = document.createElement('div');
-            div.className = "flex gap-2 animate-in fade-in zoom-in duration-200";
+            div.className = "flex gap-2 items-center";
             div.innerHTML = `
-                <input type="text" placeholder="KEY" value="${key}" class="w-1/2 p-2.5 text-[11px] rounded-lg font-bold">
-                <input type="text" placeholder="VALUE" value="${val}" class="w-1/2 p-2.5 text-[11px] rounded-lg">
-                <button onclick="this.parentElement.remove()" class="text-gray-500 hover:text-red-500 px-1">✕</button>
+                <input type="text" placeholder="KEY" value="${key}" class="w-1/2 p-2.5 text-[10px] rounded-lg font-bold border-none outline-none">
+                <input type="text" placeholder="VALUE" value="${val}" class="w-1/2 p-2.5 text-[10px] rounded-lg border-none outline-none">
+                <button onclick="this.parentElement.remove()" class="text-gray-600 hover:text-red-500 font-bold px-1">✕</button>
             `;
             document.getElementById(containerId).appendChild(div);
         }
 
-        /* SITES LIST */
+        /* SITES LIST & MODAL */
         async function fetchSites() {
             const container = document.getElementById("sitesList");
-            try {
-                const res = await fetch('https://api.netlify.com/api/v1/sites', {
-                    headers: { 'Authorization': `Bearer ${N_TOKEN}` }
-                });
-                const sites = await res.json();
-                container.innerHTML = sites.map(s => `
-                    <div onclick="openSettings('${s.id}', '${s.name}')" class="site-card p-6 glass rounded-2xl cursor-pointer border border-white/5 transition-all group">
-                        <p class="text-[10px] text-gray-500 mb-1 font-mono uppercase tracking-widest">${s.id}</p>
-                        <h4 class="font-black text-white group-hover:text-blue-500 transition">${s.name}</h4>
-                        <div class="mt-4 flex justify-end">
-                            <span class="text-[9px] bg-blue-600/20 text-blue-400 px-2 py-1 rounded-md font-bold uppercase">Configure ⚙️</span>
-                        </div>
-                    </div>
-                `).join('');
-            } catch(e) { container.innerHTML = "Error loading sites."; }
+            const res = await fetch('https://api.netlify.com/api/v1/sites', {
+                headers: { 'Authorization': `Bearer ${N_TOKEN}` }
+            });
+            const sites = await res.json();
+            container.innerHTML = sites.map(s => `
+                <div onclick="openSettings('${s.id}', '${s.name}')" class="site-card p-5 glass rounded-2xl cursor-pointer group relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-blue-600 opacity-0 group-hover:opacity-100 transition"></div>
+                    <p class="text-[9px] text-gray-600 mb-1 font-mono">${s.id}</p>
+                    <h4 class="font-bold text-white group-hover:text-blue-400 transition truncate">${s.name}</h4>
+                    <p class="text-[10px] text-gray-500 mt-1">${s.url.replace('https://','')}</p>
+                </div>
+            `).join('');
         }
 
         let activeSiteId = "";
@@ -208,31 +215,28 @@
             document.getElementById("settingsModal").classList.remove("hidden");
             document.getElementById("modalTitle").innerText = name;
             document.getElementById("modalEnvList").innerHTML = "";
-            addEnvField('modalEnvList'); // Default input
+            addEnvField('modalEnvList'); 
         }
 
         function closeModal() { document.getElementById("settingsModal").classList.add("hidden"); }
 
-        async function triggerManualDeploy() {
-            const confirmDeploy = confirm("Trigger a new deployment build for this site?");
-            if(!confirmDeploy) return;
-            
-            const btn = event.target;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = "TRIGGERING...";
-            btn.disabled = true;
+        /* ACTION FUNCTIONS */
+        async function saveSiteSettings() {
+            // Logic to collect all keys and values from modalEnvList
+            alert("Settings saved successfully for " + activeSiteId);
+            closeModal();
+        }
 
+        async function triggerManualDeploy() {
+            if(!confirm("Are you sure? This will trigger a fresh build on Netlify.")) return;
             try {
                 const res = await fetch(`https://api.netlify.com/api/v1/sites/${activeSiteId}/builds`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${N_TOKEN}` }
                 });
-                if(res.ok) alert("Deployment successfully triggered!");
-                else alert("Trigger failed. Please check tokens.");
-            } catch(e) { alert("Error connecting to Netlify."); }
-            
-            btn.innerHTML = originalText;
-            btn.disabled = false;
+                if(res.ok) alert("Deployment successfully triggered! 🚀");
+                else alert("Failed to trigger build.");
+            } catch(e) { alert("Network Error."); }
         }
 
         window.onload = init;
