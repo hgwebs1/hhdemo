@@ -73,67 +73,36 @@ h3 {
 /* ================= CONFIG ================= */
 
 const HLOCALSAVE = "https://hlocalsave.netlify.app";
-const KEYS = ["GITHUB_TOKEN", "NETLIFY_TOKEN"];
+const REQUIRED_KEYS = ["GITHUB_TOKEN", "NETLIFY_TOKEN"];
 
 /* ================= UI ================= */
 
 function updateUI() {
-  document.getElementById("gh_val").innerText =
-    localStorage.getItem("GITHUB_TOKEN") || "Empty";
+  const gh = localStorage.getItem("GITHUB_TOKEN");
+  const nf = localStorage.getItem("NETLIFY_TOKEN");
 
-  document.getElementById("nf_val").innerText =
-    localStorage.getItem("NETLIFY_TOKEN") || "Empty";
+  document.getElementById("gh_val").innerText = gh || "Empty";
+  document.getElementById("nf_val").innerText = nf || "Empty";
 }
 
-/* ================= SILENT REQUEST ================= */
+/* ================= CHECK & REDIRECT ================= */
 
-function requestKeysSilently() {
-  // invisible iframe (no UI, no popup)
-  const iframe = document.createElement("iframe");
-  iframe.src = HLOCALSAVE;
-  iframe.style.display = "none";
-  document.body.appendChild(iframe);
+function checkTokensOrRedirect() {
+  const missing = REQUIRED_KEYS.some(
+    key => !localStorage.getItem(key)
+  );
 
-  window.addEventListener("message", function handler(event) {
-    if (event.origin !== HLOCALSAVE) return;
+  updateUI();
 
-    if (event.data?.type === "SEND_KEYS") {
-      const tokens = event.data.tokens || {};
-
-      if (tokens.GITHUB_TOKEN)
-        localStorage.setItem("GITHUB_TOKEN", tokens.GITHUB_TOKEN);
-
-      if (tokens.NETLIFY_TOKEN)
-        localStorage.setItem("NETLIFY_TOKEN", tokens.NETLIFY_TOKEN);
-
-      updateUI();
-      window.removeEventListener("message", handler);
-      iframe.remove();
-    }
-  });
-
-  // send request after iframe loads
-  iframe.onload = () => {
-    iframe.contentWindow.postMessage(
-      {
-        type: "REQUEST_KEYS",
-        keys: KEYS
-      },
-      HLOCALSAVE
-    );
-  };
+  if (missing) {
+    // ⛔ Direct redirect (no popup, no iframe)
+    window.location.href = HLOCALSAVE;
+  }
 }
 
 /* ================= INIT ================= */
 
-document.addEventListener("DOMContentLoaded", () => {
-  updateUI();
-
-  const missing = KEYS.some(k => !localStorage.getItem(k));
-  if (missing) {
-    requestKeysSilently();
-  }
-});
+document.addEventListener("DOMContentLoaded", checkTokensOrRedirect);
 </script>
 
 </body>
