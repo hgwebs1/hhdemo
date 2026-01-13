@@ -1,79 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>H-Local Save Client Template</title>
-    <style>
-        :root { --accent: #5c67f2; --bg: #f4f7f6; }
-        body { font-family: sans-serif; background: var(--bg); display: flex; justify-content: center; padding-top: 50px; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); width: 90%; max-width: 380px; }
-        h3 { margin-bottom: 20px; color: #333; text-align: center; }
-        .btn-sync { background: var(--accent); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; }
-        .status-box { margin-top: 20px; background: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #eee; }
-        .token-row { margin-bottom: 12px; }
-        .label { display: block; font-size: 0.75rem; color: #888; font-weight: bold; }
-        .value { display: block; font-family: monospace; color: #222; font-weight: 600; word-break: break-all; margin-top: 2px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H-Local Save Client</title>
+
+<style>
+:root {
+  --accent: #5c67f2;
+  --bg: #f4f7f6;
+}
+body {
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  display: flex;
+  justify-content: center;
+  padding-top: 40px;
+}
+.card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 380px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+h3 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.status-box {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #eee;
+}
+.token-row {
+  margin-bottom: 12px;
+}
+.label {
+  font-size: 0.75rem;
+  color: #777;
+  font-weight: 700;
+}
+.value {
+  font-family: monospace;
+  font-weight: 600;
+  word-break: break-all;
+}
+</style>
 </head>
+
 <body>
 
 <div class="card">
-    <h3>H-Local Save Client</h3>
-    <button class="btn-sync" onclick="syncTokens()">🔄 Sync Keys</button>
+  <h3>H-Local Save Client</h3>
 
-    <div class="status-box" id="display">
-        <div class="token-row">
-            <span class="label">GITHUB_TOKEN</span>
-            <span id="gh_val" class="value">Not Synced</span>
-        </div>
-        <div class="token-row">
-            <span class="label">NETLIFY_TOKEN</span>
-            <span id="nf_val" class="value">Not Synced</span>
-        </div>
+  <div class="status-box">
+    <div class="token-row">
+      <span class="label">GITHUB_TOKEN</span>
+      <span id="gh_val" class="value">Checking…</span>
     </div>
+
+    <div class="token-row">
+      <span class="label">NETLIFY_TOKEN</span>
+      <span id="nf_val" class="value">Checking…</span>
+    </div>
+  </div>
 </div>
 
 <script>
-    // Central System URL
-    const HLOCALSAVE = "https://hlocalsave.netlify.app";
+/* ================= CONFIG ================= */
 
-    function updateUI() {
-        document.getElementById("gh_val").innerText = localStorage.getItem("GITHUB_TOKEN") || "Empty";
-        document.getElementById("nf_val").innerText = localStorage.getItem("NETLIFY_TOKEN") || "Empty";
+const HLOCALSAVE = "https://hlocalsave.netlify.app";
+const KEYS = ["GITHUB_TOKEN", "NETLIFY_TOKEN"];
+
+/* ================= UI ================= */
+
+function updateUI() {
+  document.getElementById("gh_val").innerText =
+    localStorage.getItem("GITHUB_TOKEN") || "Empty";
+
+  document.getElementById("nf_val").innerText =
+    localStorage.getItem("NETLIFY_TOKEN") || "Empty";
+}
+
+/* ================= SILENT REQUEST ================= */
+
+function requestKeysSilently() {
+  // invisible iframe (no UI, no popup)
+  const iframe = document.createElement("iframe");
+  iframe.src = HLOCALSAVE;
+  iframe.style.display = "none";
+  document.body.appendChild(iframe);
+
+  window.addEventListener("message", function handler(event) {
+    if (event.origin !== HLOCALSAVE) return;
+
+    if (event.data?.type === "SEND_KEYS") {
+      const tokens = event.data.tokens || {};
+
+      if (tokens.GITHUB_TOKEN)
+        localStorage.setItem("GITHUB_TOKEN", tokens.GITHUB_TOKEN);
+
+      if (tokens.NETLIFY_TOKEN)
+        localStorage.setItem("NETLIFY_TOKEN", tokens.NETLIFY_TOKEN);
+
+      updateUI();
+      window.removeEventListener("message", handler);
+      iframe.remove();
     }
+  });
 
-    function syncTokens() {
-        const win = window.open(HLOCALSAVE, "HLocalSync", "width=400,height=600");
+  // send request after iframe loads
+  iframe.onload = () => {
+    iframe.contentWindow.postMessage(
+      {
+        type: "REQUEST_KEYS",
+        keys: KEYS
+      },
+      HLOCALSAVE
+    );
+  };
+}
 
-        const handleMessage = (event) => {
-            if (event.origin !== HLOCALSAVE) return;
+/* ================= INIT ================= */
 
-            if (event.data.type === "SEND_KEYS") {
-                const tokens = event.data.tokens;
-                if(tokens.GITHUB_TOKEN) localStorage.setItem("GITHUB_TOKEN", tokens.GITHUB_TOKEN);
-                if(tokens.NETLIFY_TOKEN) localStorage.setItem("NETLIFY_TOKEN", tokens.NETLIFY_TOKEN);
-                
-                updateUI();
-                window.removeEventListener("message", handleMessage);
-                win.close();
-            }
-        };
+document.addEventListener("DOMContentLoaded", () => {
+  updateUI();
 
-        window.addEventListener("message", handleMessage);
-
-        // Signal request to central system
-        let interval = setInterval(() => {
-            if (win.closed) return clearInterval(interval);
-            win.postMessage({
-                type: "REQUEST_KEYS",
-                keys: ["GITHUB_TOKEN", "NETLIFY_TOKEN"]
-            }, HLOCALSAVE);
-        }, 1500);
-    }
-
-    // Initial Load
-    updateUI();
+  const missing = KEYS.some(k => !localStorage.getItem(k));
+  if (missing) {
+    requestKeysSilently();
+  }
+});
 </script>
 
 </body>
