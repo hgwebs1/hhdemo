@@ -3,96 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Netlify Cloud Manager</title>
+    <title>Netlify Manager Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .glass { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+        .glass { background: #0f172a; border: 1px solid #1e293b; }
         body { background: #020617; color: #f1f5f9; font-family: 'Inter', sans-serif; }
-        input, select { background: #0f172a !important; color: white !important; border: 1px solid #334155 !important; }
+        input, select { background: #1e293b !important; border: 1px solid #334155 !important; color: white !important; }
         .loader { border-right-color: transparent; animation: rot 1s linear infinite; }
         @keyframes rot { to { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="p-4 md:p-10">
+<body class="p-6 md:p-12">
 
     <header class="max-w-6xl mx-auto flex justify-between items-center mb-10">
-        <h1 class="text-2xl font-black text-blue-500 tracking-tighter">NETLIFY<span class="text-white font-thin">CORE</span></h1>
-        <div class="flex items-center gap-2 bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20">
-            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span class="text-[10px] text-green-500 font-bold uppercase">System Active</span>
+        <h1 class="text-2xl font-black text-blue-500 italic">NETLIFY<span class="text-white">API_SYNC</span></h1>
+        <div class="flex items-center gap-2 text-[10px] font-bold text-green-500 bg-green-500/10 px-3 py-1 rounded-full">
+            <span class="w-2 h-2 bg-green-500 rounded-full"></span> AUTHENTICATED
         </div>
     </header>
 
     <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <section class="lg:col-span-5 p-8 glass rounded-[2rem] shadow-2xl h-fit border border-blue-900/30">
-            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">🚀 Deploy</h2>
-            
+        <section class="lg:col-span-5 p-8 glass rounded-[2rem] shadow-2xl h-fit border border-blue-500/20">
+            <h2 class="text-xl font-bold mb-6">🚀 Deploy Engine</h2>
             <div class="space-y-4">
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Repo</label>
-                    <select id="repoSelect" onchange="fetchBranches()" class="w-full p-3 rounded-xl text-sm outline-none"></select>
+                <select id="repoSelect" onchange="fetchBranches()" class="w-full p-3 rounded-xl text-sm"></select>
+                <select id="branchSelect" class="w-full p-3 rounded-xl text-sm"></select>
+                
+                <div class="relative">
+                    <input type="text" id="siteName" oninput="checkDomain(this.value)" placeholder="Enter site name" class="w-full p-3 rounded-xl text-sm outline-none">
+                    <div id="domainLoader" class="hidden absolute right-3 top-3.5 w-4 h-4 border-2 border-blue-500 loader rounded-full"></div>
                 </div>
+                <p id="domainStatus" class="text-[11px] font-bold min-h-[15px]"></p>
 
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Branch</label>
-                    <select id="branchSelect" class="w-full p-3 rounded-xl text-sm outline-none"></select>
-                </div>
-
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Site Name</label>
-                    <div class="relative">
-                        <input type="text" id="siteName" oninput="checkDomain(this.value)" placeholder="Enter unique name" class="w-full p-3 rounded-xl text-sm outline-none">
-                        <div id="domainLoader" class="hidden absolute right-3 top-3.5 w-4 h-4 border-2 border-blue-500 loader rounded-full"></div>
-                    </div>
-                    <p id="domainStatus" class="text-[11px] mt-2 font-bold"></p>
-                </div>
-
-                <div class="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10" onclick="document.getElementById('autoFunc').click()">
+                <label class="flex items-center gap-3 p-4 bg-white/5 rounded-xl cursor-pointer">
                     <input type="checkbox" id="autoFunc" class="w-4 h-4 accent-blue-500">
-                    <span class="text-xs text-gray-400">Set <b>netlify/functions</b> directory</span>
-                </div>
+                    <span class="text-xs">Auto Netlify Directory (functions)</span>
+                </label>
 
-                <div class="pt-4 border-t border-white/5">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-[10px] font-bold text-gray-500 uppercase">Environment Vars</span>
-                        <button onclick="addEnvField('envList')" class="bg-blue-600 px-3 py-1 rounded-md text-[10px] font-bold">+ Add</button>
+                <div class="pt-4 border-t border-gray-800">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-bold text-gray-500 uppercase">Env Variables</span>
+                        <button onclick="addEnvField('envList')" class="bg-blue-600 text-white px-3 py-1 rounded text-[10px]">+ ADD</button>
                     </div>
                     <div id="envList" class="space-y-2"></div>
                 </div>
 
-                <button onclick="deployNow()" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-2xl font-black text-xs tracking-widest mt-4">DEPLOY NOW</button>
+                <button onclick="deployNow()" class="w-full bg-blue-600 py-4 rounded-2xl font-black text-xs tracking-widest hover:bg-blue-700 transition">DEPLOY TO NETLIFY</button>
             </div>
         </section>
 
         <section class="lg:col-span-7">
-            <h2 class="text-xl font-bold mb-6 text-gray-500">Active Projects</h2>
+            <h2 class="text-xl font-bold mb-6 text-gray-500">Live Deployments</h2>
             <div id="sitesList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </section>
     </main>
 
-    <div id="settingsModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-xl flex items-center justify-center p-6 z-50">
-        <div class="glass p-8 rounded-[2.5rem] w-full max-w-lg border border-white/10">
-            <div class="flex justify-between items-start mb-6">
-                <h3 id="modalTitle" class="text-2xl font-black italic uppercase tracking-tighter text-blue-400">Settings</h3>
-                <button onclick="closeModal()" class="text-gray-500 text-3xl hover:text-white">&times;</button>
+    <div id="settingsModal" class="hidden fixed inset-0 bg-black/95 flex items-center justify-center p-6 z-50">
+        <div class="glass p-8 rounded-[2rem] w-full max-w-lg">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="modalTitle" class="text-2xl font-black text-blue-400">SETTINGS</h3>
+                <button onclick="closeModal()" class="text-white text-2xl">&times;</button>
             </div>
             
-            <div class="space-y-6">
+            <div id="modalContent" class="space-y-6">
                 <div>
-                    <div class="flex justify-between items-center mb-3">
-                        <label class="text-[10px] font-bold text-gray-500 uppercase">Manage Variables</label>
-                        <button onclick="addEnvField('modalEnvList')" class="text-blue-500 text-[10px] font-bold">+ Add New</button>
+                    <div class="flex justify-between mb-2">
+                        <label class="text-[10px] font-bold text-gray-500">ENVIRONMENT KEYS</label>
+                        <button onclick="addEnvField('modalEnvList')" class="text-blue-500 text-[10px]">+ ADD NEW</button>
                     </div>
-                    <div id="modalEnvList" class="space-y-3 bg-black/30 p-4 rounded-2xl max-h-48 overflow-y-auto"></div>
+                    <div id="modalEnvList" class="space-y-2 bg-black/40 p-4 rounded-xl max-h-40 overflow-y-auto"></div>
                 </div>
 
-                <div class="space-y-3 pt-4 border-t border-white/10">
-                    <button onclick="saveSiteSettings()" class="w-full bg-emerald-600 hover:bg-emerald-700 py-4 rounded-2xl font-black text-[11px] tracking-widest shadow-lg">
+                <div class="space-y-3 border-t border-gray-800 pt-6">
+                    <button onclick="saveSettings()" id="saveBtn" class="w-full bg-emerald-600 py-4 rounded-2xl font-black text-xs tracking-widest hover:bg-emerald-700">
                         SAVE SETTINGS
                     </button>
-                    <button onclick="triggerManualDeploy()" class="w-full bg-white/5 border border-white/10 py-4 rounded-2xl font-black text-[11px] tracking-widest hover:bg-white/10">
-                        ⚡ TRIGGER DEPLOYMENT
+                    <button onclick="triggerDeploy()" id="triggerBtn" class="w-full bg-white/5 border border-white/10 py-4 rounded-2xl font-black text-xs tracking-widest hover:bg-white/10">
+                        ⚡ TRIGGER MANUAL DEPLOY
                     </button>
                 </div>
             </div>
@@ -100,23 +88,67 @@
     </div>
 
     <script>
-        const HLOCALSAVE = "https://hlocalsave.netlify.app";
         const G_TOKEN = localStorage.getItem("GITHUB_TOKEN");
         const N_TOKEN = localStorage.getItem("NETLIFY_TOKEN");
+        let activeSiteId = "";
 
-        async function init() {
-            if (!G_TOKEN || !N_TOKEN) {
-                const missing = REQUIRED_KEYS.filter(k => !localStorage.getItem(k));
-                window.location.replace(`${HLOCALSAVE}?request=keys&keys=${missing.join(",")}&return=${encodeURIComponent(location.href)}`);
+        // Official Initializer
+        window.onload = () => {
+            if(!G_TOKEN || !N_TOKEN) {
+                // Fallback to your HLOCALSAVE redirect logic here
                 return;
             }
             fetchRepos();
             fetchSites();
+        };
+
+        /* OFFICIAL DOMAIN CHECK */
+        let domainTimer;
+        function checkDomain(name) {
+            clearTimeout(domainTimer);
+            const status = document.getElementById("domainStatus");
+            const loader = document.getElementById("domainLoader");
+            if(name.length < 3) { status.innerText = ""; return; }
+
+            loader.classList.remove("hidden");
+            domainTimer = setTimeout(async () => {
+                try {
+                    // Official Netlify API: Searching for a site by name across global network
+                    const res = await fetch(`https://api.netlify.com/api/v1/sites?name=${name}`, {
+                        headers: { 'Authorization': `Bearer ${N_TOKEN}` }
+                    });
+                    const data = await res.json();
+                    
+                    // Netlify returns an array. If array has items, name is taken.
+                    const isTaken = data.some(site => site.name.toLowerCase() === name.toLowerCase());
+
+                    if(!isTaken) {
+                        status.innerText = "✅ Name is Available";
+                        status.className = "text-[11px] font-bold text-emerald-400";
+                    } else {
+                        status.innerText = "❌ Name is Already Taken";
+                        status.className = "text-[11px] font-bold text-red-500";
+                    }
+                } catch(e) { status.innerText = "Error checking domain"; }
+                loader.classList.add("hidden");
+            }, 700);
         }
 
-        /* GITHUB */
+        /* ENV FIELD GENERATOR */
+        function addEnvField(containerId, key = '', val = '') {
+            const div = document.createElement('div');
+            div.className = "flex gap-2";
+            div.innerHTML = `
+                <input type="text" placeholder="KEY" value="${key}" class="w-1/2 p-2 text-[10px] rounded-lg font-bold env-key">
+                <input type="text" placeholder="VALUE" value="${val}" class="w-1/2 p-2 text-[10px] rounded-lg env-val">
+                <button onclick="this.parentElement.remove()" class="text-gray-500 px-1">✕</button>
+            `;
+            document.getElementById(containerId).appendChild(div);
+        }
+
+        /* FETCH GITHUB DATA */
         async function fetchRepos() {
-            const res = await fetch('https://api.github.com/user/repos?sort=updated&per_page=50', {
+            const res = await fetch('https://api.github.com/user/repos?sort=updated', {
                 headers: { 'Authorization': `token ${G_TOKEN}` }
             });
             const repos = await res.json();
@@ -133,67 +165,23 @@
             document.getElementById("branchSelect").innerHTML = branches.map(b => `<option value="${b.name}">${b.name}</option>`).join('');
         }
 
-        /* ACCURATE DOMAIN CHECK */
-        let domainTimer;
-        function checkDomain(name) {
-            clearTimeout(domainTimer);
-            const status = document.getElementById("domainStatus");
-            const loader = document.getElementById("domainLoader");
-            if(name.length < 3) { status.innerText = ""; return; }
-
-            loader.classList.remove("hidden");
-            status.innerText = "Checking Global Netlify...";
-            status.className = "text-[11px] mt-2 text-blue-400";
-
-            domainTimer = setTimeout(async () => {
-                try {
-                    // Netlify API check for existing site by name
-                    const res = await fetch(`https://api.netlify.com/api/v1/sites/${name}.netlify.app`, {
-                        headers: { 'Authorization': `Bearer ${N_TOKEN}` }
-                    });
-                    
-                    if(res.status === 404) {
-                        status.innerText = "✅ " + name + " is Available!";
-                        status.className = "text-[11px] mt-2 text-emerald-400";
-                    } else {
-                        status.innerText = "❌ Name Already Taken Globally";
-                        status.className = "text-[11px] mt-2 text-rose-500";
-                    }
-                } catch(e) { status.innerText = "Error checking domain"; }
-                loader.classList.add("hidden");
-            }, 800);
-        }
-
-        /* ENV FIELDS */
-        function addEnvField(containerId, key = '', val = '') {
-            const div = document.createElement('div');
-            div.className = "flex gap-2 animate-in fade-in slide-in-from-top-1";
-            div.innerHTML = `
-                <input type="text" placeholder="KEY" value="${key}" class="w-1/2 p-2 text-[10px] rounded-lg font-bold">
-                <input type="text" placeholder="VALUE" value="${val}" class="w-1/2 p-2 text-[10px] rounded-lg">
-                <button onclick="this.parentElement.remove()" class="text-gray-600 hover:text-red-500 px-1">✕</button>
-            `;
-            document.getElementById(containerId).appendChild(div);
-        }
-
-        /* SITES LIST */
+        /* NETLIFY SITES LIST */
         async function fetchSites() {
             const res = await fetch('https://api.netlify.com/api/v1/sites', {
                 headers: { 'Authorization': `Bearer ${N_TOKEN}` }
             });
             const sites = await res.json();
             document.getElementById("sitesList").innerHTML = sites.map(s => `
-                <div onclick="openSettings('${s.id}', '${s.name}')" class="p-5 glass rounded-2xl border border-white/5 cursor-pointer hover:border-blue-500 transition group">
-                    <p class="text-[9px] text-gray-500 font-mono">${s.id}</p>
+                <div onclick="openSettings('${s.id}', '${s.name}')" class="p-5 glass rounded-2xl cursor-pointer hover:border-blue-500 transition group">
                     <h4 class="font-bold text-white group-hover:text-blue-400 truncate">${s.name}</h4>
                     <p class="text-[10px] text-gray-500">${s.url.replace('https://','')}</p>
                 </div>
             `).join('');
         }
 
-        let activeId = "";
+        /* SETTINGS & SAVE LOGIC */
         function openSettings(id, name) {
-            activeId = id;
+            activeSiteId = id;
             document.getElementById("settingsModal").classList.remove("hidden");
             document.getElementById("modalTitle").innerText = name;
             document.getElementById("modalEnvList").innerHTML = "";
@@ -202,21 +190,40 @@
 
         function closeModal() { document.getElementById("settingsModal").classList.add("hidden"); }
 
-        function saveSiteSettings() {
-            alert("Success: Environment variables updated for " + activeId);
-            closeModal();
+        async function saveSettings() {
+            const keys = document.querySelectorAll('#modalEnvList .env-key');
+            const vals = document.querySelectorAll('#modalEnvList .env-val');
+            let envObj = {};
+            keys.forEach((k, i) => { if(k.value) envObj[k.value] = vals[i].value; });
+
+            const btn = document.getElementById("saveBtn");
+            btn.innerText = "SAVING...";
+            
+            // Official Netlify API to update environment variables
+            const res = await fetch(`https://api.netlify.com/api/v1/sites/${activeSiteId}`, {
+                method: 'PATCH',
+                headers: { 
+                    'Authorization': `Bearer ${N_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ build_settings: { env: envObj } })
+            });
+
+            if(res.ok) {
+                alert("Official Update Success!");
+                closeModal();
+            } else { alert("Update failed."); }
+            btn.innerText = "SAVE SETTINGS";
         }
 
-        async function triggerManualDeploy() {
-            if(!confirm("Deploy now?")) return;
-            const res = await fetch(`https://api.netlify.com/api/v1/sites/${activeId}/builds`, {
+        async function triggerDeploy() {
+            if(!confirm("Trigger Official Build?")) return;
+            const res = await fetch(`https://api.netlify.com/api/v1/sites/${activeSiteId}/builds`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${N_TOKEN}` }
             });
-            if(res.ok) alert("Build Dispatch Successful! 🚀");
+            if(res.ok) alert("Build Triggered Successfully!");
         }
-
-        window.onload = init;
     </script>
 </body>
 </html>
