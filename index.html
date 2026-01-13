@@ -3,140 +3,185 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LocalStorage Checker</title>
+<title>H-Local Save Client</title>
 
 <style>
-  body{
-    margin:0;
-    font-family: system-ui, -apple-system, sans-serif;
-    background: linear-gradient(135deg,#e3f2fd,#ffffff);
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    padding:12px;
-  }
+:root {
+  --accent: #5c67f2;
+  --bg: #f4f7f6;
+  --card: #ffffff;
+  --text: #333;
+}
 
-  .app{
-    width:100%;
-    max-width:420px;
-    background:#fff;
-    border-radius:16px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.1);
-    padding:16px;
-  }
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  display: flex;
+  justify-content: center;
+  padding: 40px 10px;
+}
 
-  h1{
-    font-size:20px;
-    text-align:center;
-    margin:0 0 10px;
-  }
+.card {
+  background: var(--card);
+  padding: 25px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
 
-  button{
-    width:100%;
-    padding:10px;
-    border:none;
-    border-radius:10px;
-    background:#1976d2;
-    color:#fff;
-    font-size:14px;
-    cursor:pointer;
-  }
+h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--text);
+}
 
-  button:active{
-    transform:scale(0.98);
-  }
+button {
+  width: 100%;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
 
-  .list{
-    margin-top:12px;
-  }
+.status-box {
+  margin-top: 20px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 15px;
+  border: 1px solid #eee;
+}
 
-  .item{
-    border:1px solid #eee;
-    border-radius:10px;
-    padding:10px;
-    margin-bottom:8px;
-  }
+.token-row {
+  margin-bottom: 14px;
+}
 
-  .key{
-    font-weight:600;
-    word-break:break-all;
-  }
+.label {
+  font-size: 0.72rem;
+  color: #777;
+  font-weight: 700;
+}
 
-  .value{
-    font-size:12px;
-    color:#555;
-    margin:6px 0;
-    max-height:60px;
-    overflow:auto;
-  }
-
-  .del{
-    background:#e53935;
-    margin-top:5px;
-  }
-
-  .empty{
-    text-align:center;
-    color:#777;
-    font-size:14px;
-    margin-top:20px;
-  }
+.value {
+  margin-top: 4px;
+  font-family: monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  word-break: break-all;
+  color: #111;
+}
 </style>
 </head>
+
 <body>
 
-<div class="app">
-  <h1>📦 LocalStorage Keys</h1>
-  <button onclick="loadKeys()">🔄 Refresh</button>
+<div class="card">
+  <h3>H-Local Save Client</h3>
 
-  <div id="list" class="list"></div>
+  <button onclick="manualSync()">🔄 Sync Tokens</button>
+
+  <div class="status-box">
+    <div class="token-row">
+      <span class="label">GITHUB_TOKEN</span>
+      <span id="gh_val" class="value">Checking…</span>
+    </div>
+
+    <div class="token-row">
+      <span class="label">NETLIFY_TOKEN</span>
+      <span id="nf_val" class="value">Checking…</span>
+    </div>
+  </div>
 </div>
 
 <script>
-function loadKeys(){
-  const list = document.getElementById("list");
-  list.innerHTML = "";
+/* ================= CONFIG ================= */
 
-  if(localStorage.length === 0){
-    list.innerHTML = '<div class="empty">❌ No localStorage keys found</div>';
-    return;
-  }
+const HLOCALSAVE = "https://hlocalsave.netlify.app";
+const REQUIRED_KEYS = ["GITHUB_TOKEN", "NETLIFY_TOKEN"];
 
-  for(let i=0;i<localStorage.length;i++){
-    const key = localStorage.key(i);
-    const value = localStorage.getItem(key);
+/* ================= UI ================= */
 
-    const div = document.createElement("div");
-    div.className = "item";
+function updateUI() {
+  document.getElementById("gh_val").innerText =
+    localStorage.getItem("GITHUB_TOKEN") || "Empty";
 
-    div.innerHTML = `
-      <div class="key">🔑 ${key}</div>
-      <div class="value">${escapeHtml(value)}</div>
-      <button class="del" onclick="removeKey('${key}')">🗑️ Delete</button>
-    `;
+  document.getElementById("nf_val").innerText =
+    localStorage.getItem("NETLIFY_TOKEN") || "Empty";
+}
 
-    list.appendChild(div);
+/* ================= SYNC CORE ================= */
+
+function requestTokens(auto = false) {
+  const popup = window.open(
+    HLOCALSAVE,
+    "HLocalSaveSync",
+    "width=420,height=620"
+  );
+
+  const receive = (event) => {
+    if (event.origin !== HLOCALSAVE) return;
+
+    if (event.data?.type === "SEND_KEYS") {
+      const tokens = event.data.tokens || {};
+
+      if (tokens.GITHUB_TOKEN)
+        localStorage.setItem("GITHUB_TOKEN", tokens.GITHUB_TOKEN);
+
+      if (tokens.NETLIFY_TOKEN)
+        localStorage.setItem("NETLIFY_TOKEN", tokens.NETLIFY_TOKEN);
+
+      updateUI();
+      window.removeEventListener("message", receive);
+      popup?.close();
+    }
+  };
+
+  window.addEventListener("message", receive);
+
+  const ping = setInterval(() => {
+    if (popup.closed) {
+      clearInterval(ping);
+      return;
+    }
+
+    popup.postMessage(
+      {
+        type: "REQUEST_KEYS",
+        keys: REQUIRED_KEYS
+      },
+      HLOCALSAVE
+    );
+  }, 1200);
+}
+
+/* ================= AUTO CHECK ================= */
+
+function autoCheck() {
+  const missing = REQUIRED_KEYS.some(
+    k => !localStorage.getItem(k)
+  );
+
+  updateUI();
+
+  if (missing) {
+    requestTokens(true);
   }
 }
 
-function removeKey(key){
-  if(confirm("Delete key: " + key + " ?")){
-    localStorage.removeItem(key);
-    loadKeys();
-  }
+/* ================= MANUAL ================= */
+
+function manualSync() {
+  requestTokens(false);
 }
 
-function escapeHtml(text){
-  if(!text) return "";
-  return text
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;");
-}
+/* ================= INIT ================= */
 
-// Auto load on start
-loadKeys();
+document.addEventListener("DOMContentLoaded", autoCheck);
 </script>
 
 </body>
