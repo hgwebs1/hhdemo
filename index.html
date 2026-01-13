@@ -1,170 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Netlify Cloud Console</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .glass { background: rgba(10, 15, 28, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.08); }
-        body { background: #010409; color: #e6edf3; font-family: 'Segoe UI', sans-serif; }
-        input, select { background: #0d1117 !important; border: 1px solid #30363d !important; color: #c9d1d9 !important; transition: 0.2s; }
-        input:focus { border-color: #388bfd !important; outline: none; box-shadow: 0 0 0 3px rgba(56,139,253,0.1); }
-        .loader { border-top-color: #388bfd; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Netlify Name Check + Deploy</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body { background:#010409; color:#e6edf3; font-family:Segoe UI,sans-serif }
+.glass { background:rgba(10,15,28,.95); border:1px solid rgba(255,255,255,.08); backdrop-filter:blur(14px) }
+input,select { background:#0d1117!important; border:1px solid #30363d!important; color:#c9d1d9!important }
+</style>
 </head>
+
 <body class="p-6 md:p-10">
 
-<header class="max-w-6xl mx-auto flex justify-between items-center mb-10 border-b border-gray-800 pb-6">
-    <h1 class="text-xl font-bold tracking-tight">NETLIFY
-        <span class="text-blue-500 underline decoration-2 underline-offset-4 ml-1">CONSOLE</span>
-    </h1>
-    <div class="flex items-center gap-2 text-[10px] font-mono text-gray-400">
-        <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span> SYSTEM_READY
-    </div>
-</header>
+<div class="max-w-5xl mx-auto space-y-8">
 
-<main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
+<!-- ================= NAME CHECK BOX ================= -->
 
-<section class="lg:col-span-5 space-y-6">
-<div class="p-8 glass rounded-3xl border border-blue-500/10">
-<h2 class="text-lg font-bold mb-6 text-blue-400">Launch Project</h2>
+<div class="glass p-6 rounded-2xl">
+<h2 class="text-sm font-bold text-blue-400 mb-3 uppercase">Check Site Name</h2>
+
+<div class="flex gap-2">
+<input id="checkName" placeholder="my-awesome-site" class="flex-1 p-3 rounded-xl text-sm">
+<button onclick="checkOnly()" class="px-5 bg-blue-600 rounded-xl text-xs font-bold">
+CHECK
+</button>
+</div>
+
+<p id="checkResult" class="text-xs mt-3"></p>
+
+<p class="text-[10px] text-gray-500 mt-2">
+ℹ This check does NOT reserve the name. Final availability is confirmed during deployment.
+</p>
+</div>
+
+<!-- ================= DEPLOY SECTION ================= -->
+
+<div class="glass p-8 rounded-3xl">
+<h2 class="text-lg font-bold text-blue-400 mb-6">Create & Deploy Site</h2>
 
 <div class="space-y-4">
 
 <div>
-<label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">GitHub Repository</label>
-<select id="repoSelect" onchange="fetchBranches()" class="w-full p-3 rounded-xl text-sm"></select>
+<label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">
+Site Name
+</label>
+<input id="siteName" class="w-full p-3 rounded-xl text-sm" placeholder="my-awesome-site">
 </div>
 
 <div>
-<label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">Deployment Branch</label>
-<select id="branchSelect" class="w-full p-3 rounded-xl text-sm"></select>
+<label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">
+GitHub Repository (optional)
+</label>
+<input id="repo" class="w-full p-3 rounded-xl text-sm" placeholder="username/repo">
 </div>
 
 <div>
-<label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">Official Subdomain</label>
-<div class="relative">
-<input type="text" id="siteName" oninput="checkDomain(this.value)" placeholder="my-awesome-site" class="w-full p-3 rounded-xl text-sm pr-10">
-<div id="domainLoader" class="hidden absolute right-3 top-3.5 w-4 h-4 border-2 border-gray-600 loader rounded-full"></div>
-</div>
-<p id="domainStatus" class="text-[11px] mt-2 font-medium"></p>
+<label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">
+Branch (optional)
+</label>
+<input id="branch" class="w-full p-3 rounded-xl text-sm" placeholder="main">
 </div>
 
-<button onclick="deploySite()" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-2xl font-bold text-xs tracking-widest mt-4 transition">
-DEPLOY TO PRODUCTION
+<button onclick="deploySite()" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-2xl font-bold text-xs tracking-widest mt-4">
+DEPLOY
 </button>
 
+<p id="deployStatus" class="text-xs mt-4"></p>
+
 </div>
 </div>
-</section>
 
-<section class="lg:col-span-7">
-<h3 class="text-sm font-bold text-gray-500 mb-6 uppercase tracking-widest">Active Deployments</h3>
-<div id="sitesList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-</section>
-
-</main>
+</div>
 
 <script>
-const G_TOKEN = localStorage.getItem("GITHUB_TOKEN");
 const N_TOKEN = localStorage.getItem("NETLIFY_TOKEN");
 
-async function init(){
-    if(!G_TOKEN || !N_TOKEN){
-        alert("GitHub or Netlify token missing");
+/* ================= NAME CHECK (SAFE & HONEST) ================= */
+
+function checkOnly(){
+    const name = checkName.value.trim();
+    const res = document.getElementById("checkResult");
+
+    if(!/^[a-z0-9-]{3,}$/.test(name)){
+        res.innerText = "❌ Invalid format (use a–z, 0–9, hyphen, min 3 chars)";
+        res.className = "text-red-500 text-xs";
         return;
     }
-    fetchRepos();
-    fetchSites();
+
+    res.innerText = "✔ Format valid — availability will be checked during deployment";
+    res.className = "text-yellow-400 text-xs";
 }
 
-/* ================= DOMAIN CHECK (FIXED & OFFICIAL) ================= */
+/* ================= DEPLOY (REAL CHECK HERE) ================= */
 
-let checkTimeout;
+async function deploySite(){
+    const name = siteName.value.trim();
+    const repo = repo.value.trim();
+    const branch = branch.value.trim() || "main";
+    const status = document.getElementById("deployStatus");
 
-function checkDomain(name){
-    clearTimeout(checkTimeout);
-
-    const status = document.getElementById("domainStatus");
-    const loader = document.getElementById("domainLoader");
-
-    if(!name || name.length < 3){
-        status.innerText = "";
+    if(!name){
+        status.innerText = "❌ Site name required";
+        status.className = "text-red-500";
         return;
     }
 
-    loader.classList.remove("hidden");
-    status.innerText = "";
+    status.innerText = "⏳ Creating site…";
+    status.className = "text-yellow-400";
 
-    checkTimeout = setTimeout(async () => {
-        try {
-            const res = await fetch(
-                `https://api.netlify.com/api/v1/sites/${name}`,
-                {
-                    headers: { Authorization: `Bearer ${N_TOKEN}` }
-                }
-            );
+    let body = { name };
 
-            if(res.status === 404){
-                status.innerText = `✓ ${name}.netlify.app is available`;
-                status.className = "text-[11px] mt-2 text-green-500 font-bold";
-            } 
-            else if(res.ok){
-                status.innerText = "✕ Name already claimed on Netlify";
-                status.className = "text-[11px] mt-2 text-red-500 font-bold";
-            } 
-            else {
-                status.innerText = "Unable to verify domain";
-                status.className = "text-[11px] mt-2 text-yellow-500 font-bold";
-            }
+    if(repo){
+        body.repo = {
+            provider: "github",
+            repo: repo,
+            branch: branch
+        };
+    }
 
-        } catch(err){
-            status.innerText = "Validation service unavailable";
-            status.className = "text-[11px] mt-2 text-yellow-500 font-bold";
+    try{
+        const res = await fetch("https://api.netlify.com/api/v1/sites",{
+            method:"POST",
+            headers:{
+                Authorization:`Bearer ${N_TOKEN}`,
+                "Content-Type":"application/json"
+            },
+            body: JSON.stringify(body)
+        });
+
+        if(res.status === 422){
+            status.innerText = "❌ Name already taken. Try another.";
+            status.className = "text-red-500";
+            return;
         }
 
-        loader.classList.add("hidden");
-    }, 600);
+        if(res.ok){
+            const data = await res.json();
+            status.innerText = `✅ Site created: ${data.name}.netlify.app`;
+            status.className = "text-green-500";
+        } else {
+            status.innerText = "❌ Failed to create site";
+            status.className = "text-red-500";
+        }
+
+    }catch(err){
+        status.innerText = "❌ Network / API error";
+        status.className = "text-red-500";
+    }
 }
-
-/* ================= GITHUB ================= */
-
-async function fetchRepos(){
-    const res = await fetch("https://api.github.com/user/repos?sort=updated",{
-        headers:{ Authorization:`token ${G_TOKEN}` }
-    });
-    const repos = await res.json();
-    repoSelect.innerHTML = repos.map(r=>`<option>${r.full_name}</option>`).join("");
-    fetchBranches();
-}
-
-async function fetchBranches(){
-    const repo = repoSelect.value;
-    const res = await fetch(`https://api.github.com/repos/${repo}/branches`,{
-        headers:{ Authorization:`token ${G_TOKEN}` }
-    });
-    const branches = await res.json();
-    branchSelect.innerHTML = branches.map(b=>`<option>${b.name}</option>`).join("");
-}
-
-/* ================= NETLIFY ================= */
-
-async function fetchSites(){
-    const res = await fetch("https://api.netlify.com/api/v1/sites",{
-        headers:{ Authorization:`Bearer ${N_TOKEN}` }
-    });
-    const sites = await res.json();
-    sitesList.innerHTML = sites.map(s=>`
-        <div class="p-6 glass rounded-2xl border border-gray-800">
-            <h4 class="font-bold text-white">${s.name}</h4>
-            <p class="text-[10px] text-gray-500">${s.url.replace("https://","")}</p>
-        </div>
-    `).join("");
-}
-
-window.onload = init;
 </script>
 
 </body>
