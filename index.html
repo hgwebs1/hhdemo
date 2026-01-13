@@ -78,31 +78,42 @@ const REQUIRED_KEYS = ["GITHUB_TOKEN", "NETLIFY_TOKEN"];
 /* ================= UI ================= */
 
 function updateUI() {
-  const gh = localStorage.getItem("GITHUB_TOKEN");
-  const nf = localStorage.getItem("NETLIFY_TOKEN");
+  document.getElementById("gh_val").innerText =
+    localStorage.getItem("GITHUB_TOKEN") || "Empty";
 
-  document.getElementById("gh_val").innerText = gh || "Empty";
-  document.getElementById("nf_val").innerText = nf || "Empty";
+  document.getElementById("nf_val").innerText =
+    localStorage.getItem("NETLIFY_TOKEN") || "Empty";
 }
 
-/* ================= CHECK & REDIRECT ================= */
+/* ================= CORE LOGIC ================= */
 
-function checkTokensOrRedirect() {
-  const missing = REQUIRED_KEYS.some(
-    key => !localStorage.getItem(key)
+function checkTokens() {
+  const missing = REQUIRED_KEYS.filter(
+    k => !localStorage.getItem(k)
   );
 
   updateUI();
 
-  if (missing) {
-    // ⛔ Direct redirect (no popup, no iframe)
-    window.location.href = HLOCALSAVE;
+  if (missing.length > 0) {
+    redirectForTokens(missing);
   }
+}
+
+function redirectForTokens(missingKeys) {
+  const returnURL = encodeURIComponent(window.location.href);
+
+  const redirectURL =
+    `${HLOCALSAVE}?request=keys` +
+    `&keys=${missingKeys.join(",")}` +
+    `&return=${returnURL}`;
+
+  // 🔥 direct redirect with request
+  window.location.replace(redirectURL);
 }
 
 /* ================= INIT ================= */
 
-document.addEventListener("DOMContentLoaded", checkTokensOrRedirect);
+document.addEventListener("DOMContentLoaded", checkTokens);
 </script>
 
 </body>
