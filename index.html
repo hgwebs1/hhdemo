@@ -1,80 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LocalStorage Token Test</title>
-
-<style>
-body{
-    font-family: system-ui, sans-serif;
-    background:#f1f5f9;
-    padding:20px;
-}
-h2{
-    text-align:center;
-    margin-bottom:20px;
-}
-.card{
-    background:white;
-    border:1px solid #e2e8f0;
-    border-radius:12px;
-    padding:15px;
-    margin-bottom:12px;
-}
-.key{
-    font-weight:800;
-    margin-bottom:6px;
-}
-.value{
-    background:#0f172a;
-    color:#e5e7eb;
-    padding:10px;
-    border-radius:8px;
-    word-break:break-all;
-    font-size:14px;
-}
-button{
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:12px;
-    background:#4f46e5;
-    color:white;
-    font-size:16px;
-    font-weight:700;
-    cursor:pointer;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool Website | Client Demo</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; }
+        h1 { color: #333; font-size: 1.5rem; margin-bottom: 20px; }
+        .btn-sync { background: #4f46e5; color: white; border: none; padding: 15px 25px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; transition: 0.3s; }
+        .btn-sync:active { transform: scale(0.98); }
+        .status-box { margin-top: 25px; text-align: left; background: #fafafa; padding: 15px; border-radius: 12px; border: 1px solid #eee; }
+        .token-row { margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .token-row:last-child { border: none; }
+        .label { display: block; font-size: 0.8rem; color: #666; font-weight: bold; text-transform: uppercase; }
+        .value { display: block; font-family: monospace; color: #059669; word-break: break-all; font-size: 1rem; margin-top: 4px; }
+        .empty { color: #999; font-style: italic; text-align: center; display: block; padding: 10px; }
+    </style>
 </head>
-
 <body>
 
-<h2>🔍 LocalStorage Token Test</h2>
-
-<button onclick="check()">Check Tokens</button>
-
 <div class="card">
-    <div class="key">GITHUB_TOKEN</div>
-    <div class="value" id="git">Not Found</div>
-</div>
+    <h1>Tool Dashboard</h1>
+    <p style="color: #666; margin-bottom: 20px; font-size: 0.9rem;">Sync tokens from Central System</p>
+    
+    <button class="btn-sync" onclick="syncFromHLocal()">🔄 Sync from H-Local</button>
 
-<div class="card">
-    <div class="key">NETLIFY_TOKEN</div>
-    <div class="value" id="netlify">Not Found</div>
+    <div class="status-box">
+        <div id="displayArea">
+            <span class="empty">No tokens found in LocalStorage</span>
+        </div>
+    </div>
 </div>
 
 <script>
-function check(){
-    const git = localStorage.getItem("GITHUB_TOKEN");
-    const netlify = localStorage.getItem("NETLIFY_TOKEN");
+    const CENTRAL_URL = "https://hlocalsave.netlify.app";
 
-    document.getElementById("git").textContent =
-        git ? git : "❌ Not Found";
+    // 1. Tokens ko display karne ka function
+    function updateDisplay() {
+        const github = localStorage.getItem("GITHUB_TOKEN");
+        const netlify = localStorage.getItem("NETLIFY_TOKEN");
+        const area = document.getElementById("displayArea");
 
-    document.getElementById("netlify").textContent =
-        netlify ? netlify : "❌ Not Found";
-}
+        if (!github && !netlify) {
+            area.innerHTML = '<span class="empty">No tokens found in LocalStorage</span>';
+            return;
+        }
+
+        area.innerHTML = `
+            <div class="token-row">
+                <span class="label">GITHUB_TOKEN</span>
+                <span class="value">${github || "Not Found"}</span>
+            </div>
+            <div class="token-row">
+                <span class="label">NETLIFY_TOKEN</span>
+                <span class="value">${netlify || "Not Found"}</span>
+            </div>
+        `;
+    }
+
+    // 2. Central System se keys mangne ka function
+    function syncFromHLocal() {
+        // Popup window kholna
+        const win = window.open(CENTRAL_URL, "HLocalSync", "width=450,height=650");
+
+        // Message receiver setup karna
+        const messageHandler = (event) => {
+            // Security: Sirf apne central URL se data lena
+            if (event.origin !== CENTRAL_URL) return;
+
+            if (event.data.type === "SEND_KEYS") {
+                const tokens = event.data.tokens;
+                
+                // Jo tokens aaye unhe LocalStorage mein save karna
+                if (tokens.GITHUB_TOKEN) localStorage.setItem("GITHUB_TOKEN", tokens.GITHUB_TOKEN);
+                if (tokens.NETLIFY_TOKEN) localStorage.setItem("NETLIFY_TOKEN", tokens.NETLIFY_TOKEN);
+                
+                updateDisplay();
+                alert("Success: Tokens Synced!");
+                
+                // Cleanup
+                window.removeEventListener("message", messageHandler);
+                win.close();
+            }
+        };
+
+        window.addEventListener("message", messageHandler);
+
+        // Jab popup load ho jaye tab request bhejna
+        let attempts = 0;
+        const interval = setInterval(() => {
+            attempts++;
+            if (win.closed || attempts > 20) {
+                clearInterval(interval);
+                return;
+            }
+            win.postMessage({
+                type: "REQUEST_KEYS",
+                keys: ["GITHUB_TOKEN", "NETLIFY_TOKEN"]
+            }, CENTRAL_URL);
+        }, 1500);
+    }
+
+    // Page load hone par check karein
+    updateDisplay();
 </script>
 
 </body>
