@@ -2,6 +2,9 @@ name: Generate Gradle Wrapper
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - hhdemo3
 
 jobs:
   wrapper:
