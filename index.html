@@ -15,16 +15,17 @@
         
         .port { display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid #eee; }
         .portTitle { font-size:16px; font-weight:700; }
-        .cs-tag { color: #888; font-size: 13px; font-weight: normal; margin-left: 5px; }
         
         .status-dot { font-size: 12px; margin-right: 4px; }
         .running { color: #20b36b; }
         .stopped { color: #bbb; }
+        .checking { color: #f57c00; }
         
         .status-text { font-size:13px; color:#777; margin-top:4px; display: flex; align-items: center; }
         .actions button { font-size:13px; padding:7px 10px; margin-left:6px; }
         .openBtn { background:#2196F3; }
         .deleteBtn { background:#dc3545; }
+        .checkBtn { background:#ff9800; }
         
         .tokenIcon { position:fixed; top:12px; left:12px; font-size:20px; cursor:pointer; background:white; padding:6px 10px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
         #tokenPopup { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.35); display:flex; justify-content:center; align-items:center; z-index: 100; }
@@ -37,10 +38,14 @@
         
         .port-badge { font-size:11px; background:#e0e0e0; padding:2px 6px; border-radius:4px; margin-left:8px; }
         .manual-badge { background:#ffe0b0; }
-        .auto-badge { background:#c0e0ff; }
+        .active-badge { background:#c0e0ff; }
+        .checking-badge { background:#fff3e0; color:#f57c00; }
         
         .loading { text-align:center; padding:20px; color:#666; }
         .error { color:#dc3545; background:#ffebee; padding:10px; border-radius:8px; }
+        
+        .quick-add { display:flex; gap:5px; flex-wrap:wrap; margin:10px 0; }
+        .quick-add-btn { background:#e0e0e0; color:#333; padding:5px 10px; border-radius:4px; font-size:12px; }
     </style>
 </head>
 <body>
@@ -75,8 +80,24 @@
     <div class="card">
         <h3>Add Port</h3>
         <input id="newport" type="number" placeholder="Enter port number (e.g., 3000, 8080)">
+        
+        <div class="quick-add">
+            <span style="font-size:12px; color:#666;">Quick add:</span>
+            <button class="quick-add-btn" onclick="quickAddPort(3000)">3000</button>
+            <button class="quick-add-btn" onclick="quickAddPort(8080)">8080</button>
+            <button class="quick-add-btn" onclick="quickAddPort(5000)">5000</button>
+            <button class="quick-add-btn" onclick="quickAddPort(8000)">8000</button>
+            <button class="quick-add-btn" onclick="quickAddPort(4200)">4200</button>
+        </div>
+        
         <button onclick="addPort()">Add Port to List</button>
-        <p style="font-size:12px; color:#666; margin-top:8px;">Ports are saved locally. Green ports are active/running.</p>
+        <button onclick="checkAllPorts()" style="background:#ff9800;">🔍 Check All Ports</button>
+        
+        <p style="font-size:12px; color:#666; margin-top:8px;">
+            • Green ports are accessible/running<br>
+            • Click "Check" to test if port is accessible<br>
+            • Ports are saved locally
+        </p>
     </div>
 
     <div class="card">
@@ -89,6 +110,7 @@
     let currentCodespace = null;
     let currentCodespaceData = null;
     let refreshInterval = null;
+    let checkingPorts = new Set();
 
     function token() { return localStorage.getItem("gh_token"); }
     function openTokenPopup() { document.getElementById("tokenPopup").style.display="flex"; }
@@ -104,13 +126,13 @@
         if(!token()) { openTokenPopup(); return; }
         await loadCodespaces();
         
-        // Auto refresh every 10 seconds
+        // Auto refresh every 30 seconds
         if (refreshInterval) clearInterval(refreshInterval);
         refreshInterval = setInterval(() => {
             if (document.getElementById("codespaces").value) {
-                loadPorts(true);
+                checkAllPorts();
             }
-        }, 10000);
+        }, 30000);
     }
 
     async function loadCodespaces() {
@@ -232,7 +254,7 @@
                     if (data.state === "Available" || data.state === "running") {
                         clearInterval(checkInterval);
                         await loadCodespaceDetails();
-                        await loadPorts();
+                        await checkAllPorts();
                         alert("Codespace is now running!");
                     }
                 } catch(e) {
@@ -280,99 +302,150 @@
         return JSON.parse(localStorage.getItem("ports_" + cs) || "[]");
     }
 
-    async function loadPorts(silent = false) {
+    function savePorts(ports) {
+        const cs = document.getElementById("codespaces").value;
+        if(cs) {
+            localStorage.setItem("ports_" + cs, JSON.stringify(ports));
+        }
+    }
+
+    async function checkPortAccessibility(port) {
+        const cs = document.getElementById("codespaces").value;
+        if (!cs) return false;
+        
+        // Try multiple URL formats
+        const urls = [
+            `https://${cs}-${port}.preview.app.github.dev`,
+            `https://${port}-${cs}.app.github.dev`,
+            `https://${cs}-${port}.githubpreview.dev`
+        ];
+        
+        for (const url of urls) {
+            try {
+                // Use a simple fetch with no-cors to just check if the server responds
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
+                
+                const response = await fetch(url, { 
+                    method: 'HEAD',
+                    mode: 'no-cors',
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                // With no-cors, we can't read status, but if it doesn't throw, it might be accessible
+                // Also try a simple image load as backup
+                return await new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => resolve(true);
+                    img.onerror = () => {
+                        // If image fails but fetch didn't throw, maybe it's still accessible
+                        resolve(true);
+                    };
+                    img.src = url + '/favicon.ico?' + Date.now();
+                    setTimeout(() => resolve(false), 2000);
+                });
+                
+            } catch (e) {
+                console.log(`Port ${port} not accessible at ${url}`);
+            }
+        }
+        
+        // Try one more approach - check if we can load a tiny resource
+        try {
+            const testUrl = `https://${cs}-${port}.preview.app.github.dev/robots.txt`;
+            const response = await fetch(testUrl, { mode: 'no-cors' });
+            return true; // If we get here, it might be accessible
+        } catch {
+            return false;
+        }
+    }
+
+    async function checkAllPorts() {
+        const cs = document.getElementById("codespaces").value;
+        if(!cs) return;
+        
+        const saved = getSavedPorts();
+        if (saved.length === 0) {
+            await loadPorts();
+            return;
+        }
+        
+        // Mark all as checking
+        checkingPorts.clear();
+        saved.forEach(p => checkingPorts.add(p));
+        await loadPorts();
+        
+        // Check each port
+        const accessiblePorts = [];
+        for (const port of saved) {
+            const isAccessible = await checkPortAccessibility(port);
+            if (isAccessible) {
+                accessiblePorts.push(port);
+            }
+            checkingPorts.delete(port);
+            await loadPorts();
+        }
+        
+        // Save accessible ports in session
+        sessionStorage.setItem("accessible_" + cs, JSON.stringify(accessiblePorts));
+        await loadPorts();
+    }
+
+    async function checkSinglePort(port) {
+        const cs = document.getElementById("codespaces").value;
+        if(!cs) return;
+        
+        checkingPorts.add(port);
+        await loadPorts();
+        
+        const isAccessible = await checkPortAccessibility(port);
+        
+        // Update accessible ports list
+        let accessible = JSON.parse(sessionStorage.getItem("accessible_" + cs) || "[]");
+        if (isAccessible) {
+            if (!accessible.includes(port)) {
+                accessible.push(port);
+            }
+        } else {
+            accessible = accessible.filter(p => p !== port);
+        }
+        sessionStorage.setItem("accessible_" + cs, JSON.stringify(accessible));
+        
+        checkingPorts.delete(port);
+        await loadPorts();
+    }
+
+    function getAccessiblePorts() {
+        const cs = document.getElementById("codespaces").value;
+        if(!cs) return [];
+        return JSON.parse(sessionStorage.getItem("accessible_" + cs) || "[]");
+    }
+
+    async function loadPorts() {
         const cs = document.getElementById("codespaces").value;
         if(!cs) return;
 
         const div = document.getElementById("ports");
-        if (!silent) {
-            div.innerHTML = "<div class='loading'>Loading ports...</div>";
-        }
-
-        let activePorts = [];
-        let portDetails = {};
-
-        // Only try to fetch ports if codespace is running
-        if (currentCodespaceData && (currentCodespaceData.state === "Available" || currentCodespaceData.state === "running")) {
-            try {
-                console.log("Fetching ports for:", cs);
-                
-                // Try multiple API endpoints
-                const endpoints = [
-                    `https://api.github.com/user/codespaces/${cs}/ports`,
-                    `https://api.github.com/codespaces/${cs}/ports`
-                ];
-                
-                for (const endpoint of endpoints) {
-                    try {
-                        const res = await fetch(endpoint, {
-                            headers: { 
-                                Authorization: "Bearer " + token(), 
-                                Accept: "application/vnd.github+json"
-                            }
-                        });
-                        
-                        if (res.ok) {
-                            const data = await res.json();
-                            console.log("Ports data from", endpoint, ":", data);
-                            
-                            // Handle different response formats
-                            if (Array.isArray(data)) {
-                                data.forEach(p => {
-                                    const portNum = p.port || p.number;
-                                    if (portNum) {
-                                        activePorts.push(portNum);
-                                        portDetails[portNum] = { 
-                                            vis: p.visibility || "private",
-                                            url: p.url || `https://${cs}-${portNum}.preview.app.github.dev`
-                                        };
-                                    }
-                                });
-                                break; // Success, stop trying other endpoints
-                            } else if (data.ports && Array.isArray(data.ports)) {
-                                data.ports.forEach(p => {
-                                    const portNum = p.port || p.number;
-                                    if (portNum) {
-                                        activePorts.push(portNum);
-                                        portDetails[portNum] = { 
-                                            vis: p.visibility || "private",
-                                            url: p.url || `https://${cs}-${portNum}.preview.app.github.dev`
-                                        };
-                                    }
-                                });
-                                break;
-                            }
-                        }
-                    } catch (e) {
-                        console.log("Endpoint failed:", endpoint, e);
-                    }
-                }
-                
-            } catch(e) { 
-                console.log("Port API Error:", e); 
-            }
-        }
-
-        // Get saved ports from localStorage
+        
         const saved = getSavedPorts();
+        const accessible = getAccessiblePorts();
         
-        // Combine active and saved ports (active ones are automatically included)
-        const allPorts = [...new Set([...activePorts, ...saved])].sort((a,b) => a-b);
-        
-        if (allPorts.length === 0) {
-            div.innerHTML = "<div class='warning'>No ports found. Add a port above or start your application in the codespace.</div>";
+        if (saved.length === 0) {
+            div.innerHTML = "<div class='warning'>No ports added yet. Add a port above or click 'Check All Ports' to scan.</div>";
             return;
         }
 
         div.innerHTML = "";
 
-        allPorts.forEach(port => {
-            const isActive = activePorts.includes(port);
-            const isSaved = saved.includes(port);
-            const detail = portDetails[port] || { vis: "private" };
+        for (const port of saved) {
+            const isAccessible = accessible.includes(port);
+            const isChecking = checkingPorts.has(port);
             
-            let statusClass = isActive ? 'running' : 'stopped';
-            let statusText = isActive ? 'Active' : 'Not Active';
+            let statusClass = isChecking ? 'checking' : (isAccessible ? 'running' : 'stopped');
+            let statusText = isChecking ? 'Checking...' : (isAccessible ? 'Accessible' : 'Not Accessible');
+            let statusDot = isChecking ? '◌' : '●';
             
             // Create port entry
             const row = document.createElement("div");
@@ -383,13 +456,14 @@
             statusDiv.innerHTML = `
                 <div class="portTitle">
                     Port ${port}
-                    ${isSaved ? '<span class="port-badge manual-badge">Saved</span>' : ''}
-                    ${isActive ? '<span class="port-badge auto-badge">Active</span>' : ''}
+                    <span class="port-badge ${isAccessible ? 'active-badge' : 'manual-badge'}">
+                        ${isAccessible ? 'Active' : 'Saved'}
+                    </span>
+                    ${isChecking ? '<span class="port-badge checking-badge">Checking...</span>' : ''}
                 </div>
                 <div class="status-text">
-                    <span class="status-dot ${statusClass}">●</span> 
+                    <span class="status-dot ${statusClass}">${statusDot}</span> 
                     ${statusText}
-                    ${isActive ? ` • ${detail.vis}` : ''}
                 </div>
             `;
             
@@ -397,18 +471,20 @@
             const actionsDiv = document.createElement("div");
             actionsDiv.className = "actions";
             
-            if (isActive) {
+            if (isAccessible) {
                 const openBtn = document.createElement("button");
                 openBtn.className = "openBtn";
                 openBtn.innerHTML = "🌐 Open";
                 openBtn.onclick = () => openPort(port);
                 actionsDiv.appendChild(openBtn);
-                
-                const visBtn = document.createElement("button");
-                visBtn.innerHTML = detail.vis === 'public' ? 'Make Private' : 'Make Public';
-                visBtn.onclick = () => togglePort(port, detail.vis);
-                actionsDiv.appendChild(visBtn);
             }
+            
+            const checkBtn = document.createElement("button");
+            checkBtn.className = "checkBtn";
+            checkBtn.innerHTML = isChecking ? "⏳" : "🔍 Check";
+            checkBtn.disabled = isChecking;
+            checkBtn.onclick = () => checkSinglePort(port);
+            actionsDiv.appendChild(checkBtn);
             
             const deleteBtn = document.createElement("button");
             deleteBtn.className = "deleteBtn";
@@ -419,49 +495,26 @@
             row.appendChild(statusDiv);
             row.appendChild(actionsDiv);
             
-            // Add double-click to refresh for this port
-            row.ondblclick = () => {
-                loadPorts();
-            };
-            
             div.appendChild(row);
-        });
-        
-        // Add refresh indicator
-        if (!silent) {
-            const refreshDiv = document.createElement("div");
-            refreshDiv.style.textAlign = "center";
-            refreshDiv.style.marginTop = "10px";
-            refreshDiv.style.fontSize = "12px";
-            refreshDiv.style.color = "#999";
-            refreshDiv.innerHTML = "Double-click any port to refresh • Auto-refresh every 10s";
-            div.appendChild(refreshDiv);
         }
+        
+        // Add summary
+        const summary = document.createElement("div");
+        summary.style.marginTop = "15px";
+        summary.style.padding = "10px";
+        summary.style.background = "#f8f9fa";
+        summary.style.borderRadius = "8px";
+        summary.style.fontSize = "13px";
+        summary.innerHTML = `
+            <strong>Summary:</strong> ${accessible.length}/${saved.length} ports accessible<br>
+            <small>Click 🔍 to check individual ports • Auto-refresh every 30s</small>
+        `;
+        div.appendChild(summary);
     }
 
-    async function togglePort(port, currentVis) {
-        const cs = document.getElementById("codespaces").value;
-        let newVis = currentVis === "public" ? "private" : "public";
-        
-        try {
-            const res = await fetch(`https://api.github.com/user/codespaces/${cs}/ports/${port}`, {
-                method: "PATCH",
-                headers: { 
-                    Authorization: "Bearer " + token(), 
-                    Accept: "application/vnd.github+json",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ visibility: newVis })
-            });
-            
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            
-            // Wait a bit and refresh
-            setTimeout(() => loadPorts(), 500);
-            
-        } catch(e) {
-            alert("Error changing port visibility: " + e.message);
-        }
+    function quickAddPort(port) {
+        document.getElementById("newport").value = port;
+        addPort();
     }
 
     function addPort() {
@@ -480,9 +533,9 @@
         let list = getSavedPorts();
         if(!list.includes(port)) {
             list.push(port);
-            localStorage.setItem("ports_" + cs, JSON.stringify(list));
+            savePorts(list);
             document.getElementById("newport").value = "";
-            loadPorts();
+            checkSinglePort(port); // Auto-check the new port
         } else {
             alert("Port already in list");
         }
@@ -492,21 +545,19 @@
         if(!confirm("Remove port " + port + " from list?")) return;
         const cs = document.getElementById("codespaces").value;
         let list = getSavedPorts().filter(p => p != port);
-        localStorage.setItem("ports_" + cs, JSON.stringify(list));
+        savePorts(list);
+        
+        // Also remove from accessible
+        let accessible = getAccessiblePorts().filter(p => p != port);
+        sessionStorage.setItem("accessible_" + cs, JSON.stringify(accessible));
+        
         loadPorts();
     }
 
     function openPort(port) {
         const cs = document.getElementById("codespaces").value;
-        // Try multiple URL formats
-        const urls = [
-            `https://${cs}-${port}.preview.app.github.dev`,
-            `https://${port}-${cs}.app.github.dev`,
-            `https://${cs}-${port}.githubpreview.dev`
-        ];
-        
-        // Try the first one, if it fails user can try others
-        window.open(urls[0], '_blank');
+        // Use the most reliable URL format
+        window.open(`https://${cs}-${port}.preview.app.github.dev`, '_blank');
     }
 
     // Clean up on page unload
