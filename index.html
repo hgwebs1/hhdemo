@@ -2,169 +2,520 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>CSManager Pro</title>
+    <title>CSManager</title>
     <style>
         body { margin:0; font-family:system-ui; background:#f5f3ee; display:flex; justify-content:center; color:#333; }
         .container { width:95%; max-width:720px; margin-top:40px; }
         h1 { text-align:center; color:#198a63; margin-bottom:20px; }
         .card { background:white; border-radius:14px; padding:20px; margin-bottom:18px; box-shadow:0 8px 25px rgba(0,0,0,0.08); }
         input, select { width:100%; padding:11px; margin-top:10px; margin-bottom:12px; border-radius:8px; border:1px solid #ddd; font-size:15px; box-sizing: border-box; }
-        button { background:#20b36b; border:none; padding:10px 16px; border-radius:8px; color:white; font-weight:600; cursor:pointer; }
+        button { background:#20b36b; border:none; padding:10px 16px; border-radius:8px; color:white; font-weight:600; cursor:pointer; margin-right:8px; }
+        button:hover { opacity:.9; }
+        button:disabled { opacity:0.5; cursor:not-allowed; }
         
         .port { display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid #eee; }
-        .portTitle { font-size:16px; font-weight:700; display: flex; align-items: center; gap: 5px; }
-        .cs-name { color: #888; font-size: 12px; font-weight: 400; }
+        .portTitle { font-size:16px; font-weight:700; }
+        .cs-tag { color: #888; font-size: 13px; font-weight: normal; margin-left: 5px; }
         
-        .status-line { font-size:13px; color:#666; margin-top:4px; display: flex; align-items: center; gap: 6px; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #ccc; }
-        .dot.active { background: #20b36b; box-shadow: 0 0 5px #20b36b; }
+        .status-dot { font-size: 12px; margin-right: 4px; }
+        .running { color: #20b36b; }
+        .stopped { color: #bbb; }
         
-        .actions { display: flex; gap: 8px; }
-        .btn-sm { font-size:13px; padding:6px 12px; }
-        .btn-web { background:#eee; color:#000; font-size: 16px; }
+        .status-text { font-size:13px; color:#777; margin-top:4px; display: flex; align-items: center; }
+        .actions button { font-size:13px; padding:7px 10px; margin-left:6px; }
+        .openBtn { background:#2196F3; }
+        .deleteBtn { background:#dc3545; }
         
-        .tokenIcon { position:fixed; top:12px; left:12px; cursor:pointer; background:white; padding:8px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:10; }
-        #tokenPopup { position:fixed; inset:0; background:rgba(0,0,0,0.4); display:none; justify-content:center; align-items:center; z-index:100; }
-        .popup { background:white; padding:25px; border-radius:15px; width:85%; max-width:350px; }
+        .tokenIcon { position:fixed; top:12px; left:12px; font-size:20px; cursor:pointer; background:white; padding:6px 10px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+        #tokenPopup { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.35); display:flex; justify-content:center; align-items:center; z-index: 100; }
+        .popup { background:white; padding:24px; border-radius:14px; width:90%; max-width:380px; }
+        
+        .codespace-status { display:flex; align-items:center; margin:10px 0; padding:10px; background:#f8f9fa; border-radius:8px; }
+        .warning { color:#f57c00; background:#fff3e0; padding:10px; border-radius:8px; margin:10px 0; }
+        .success { color:#20b36b; background:#e8f5e9; padding:10px; border-radius:8px; margin:10px 0; }
+        .flex { display:flex; align-items:center; gap:10px; }
+        
+        .port-badge { font-size:11px; background:#e0e0e0; padding:2px 6px; border-radius:4px; margin-left:8px; }
+        .manual-badge { background:#ffe0b0; }
+        .auto-badge { background:#c0e0ff; }
+        
+        .loading { text-align:center; padding:20px; color:#666; }
+        .error { color:#dc3545; background:#ffebee; padding:10px; border-radius:8px; }
     </style>
 </head>
 <body>
 
-<div class="tokenIcon" onclick="openTokenPopup()">⚙️</div>
+<div class="tokenIcon" onclick="openTokenPopup()">⚙</div>
 
-<div id="tokenPopup" onclick="closePopup()">
+<div id="tokenPopup" style="display:none;" onclick="closePopup(event)">
     <div class="popup" onclick="event.stopPropagation()">
         <h3>GitHub Token</h3>
-        <input id="tokenInput" type="password" placeholder="ghp_xxxxxxxxxxxx">
-        <button onclick="saveToken()" style="width:100%">Save & Connect</button>
+        <input id="tokenInput" placeholder="Paste token">
+        <p style="font-size:12px; color:#666;">Token needs codespace, repo permissions</p>
+        <button onclick="saveToken()">Save Token</button>
     </div>
 </div>
 
 <div class="container">
     <h1>CSManager</h1>
-    
     <div class="card">
-        <label>Select Codespace</label>
-        <select id="csList" onchange="loadPorts()"></select>
-        <button onclick="loadCodespaces()">🔄 Refresh List</button>
+        <div class="flex">
+            <select id="codespaces" style="flex:1;" onchange="onCodespaceChange()"></select>
+            <button onclick="loadCodespaces()">🔄</button>
+        </div>
+        
+        <div id="codespaceStatus" style="display:none;" class="codespace-status">
+            <span class="status-dot" id="statusDot">●</span>
+            <span id="statusText"></span>
+            <button id="startCodespaceBtn" class="startBtn" onclick="startCodespace()" style="margin-left:auto; background:#2196F3;">Start</button>
+            <button id="stopCodespaceBtn" class="stopBtn" onclick="stopCodespace()" style="background:#f44336;">Stop</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Add Port</h3>
+        <input id="newport" type="number" placeholder="Enter port number (e.g., 3000, 8080)">
+        <button onclick="addPort()">Add Port to List</button>
+        <p style="font-size:12px; color:#666; margin-top:8px;">Ports are saved locally. Green ports are active/running.</p>
     </div>
 
     <div class="card">
         <h3>Ports</h3>
-        <div id="portContainer">Select a codespace to see ports</div>
+        <div id="ports"></div>
     </div>
 </div>
 
 <script>
-    const GITHUB_API = "https://api.github.com";
+    let currentCodespace = null;
+    let currentCodespaceData = null;
+    let refreshInterval = null;
 
-    function getToken() { return localStorage.getItem("gh_token"); }
+    function token() { return localStorage.getItem("gh_token"); }
     function openTokenPopup() { document.getElementById("tokenPopup").style.display="flex"; }
-    function closePopup() { document.getElementById("tokenPopup").style.display="none"; }
-
+    function closePopup(e) { if(e.target.id === "tokenPopup") document.getElementById("tokenPopup").style.display="none"; }
+    
     function saveToken() {
-        const val = document.getElementById("tokenInput").value;
-        if(val) {
-            localStorage.setItem("gh_token", val);
-            closePopup();
-            loadCodespaces();
-        }
+        localStorage.setItem("gh_token", document.getElementById("tokenInput").value);
+        document.getElementById("tokenPopup").style.display="none";
+        init();
     }
 
-    async function ghFetch(endpoint, options = {}) {
-        const res = await fetch(`${GITHUB_API}${endpoint}`, {
-            ...options,
-            headers: {
-                "Authorization": `Bearer ${getToken()}`,
-                "Accept": "application/vnd.github+json",
-                ...options.headers
+    async function init() {
+        if(!token()) { openTokenPopup(); return; }
+        await loadCodespaces();
+        
+        // Auto refresh every 10 seconds
+        if (refreshInterval) clearInterval(refreshInterval);
+        refreshInterval = setInterval(() => {
+            if (document.getElementById("codespaces").value) {
+                loadPorts(true);
             }
-        });
-        if (res.status === 401) { alert("Invalid Token!"); openTokenPopup(); return null; }
-        return res.json();
+        }, 10000);
     }
 
     async function loadCodespaces() {
-        if(!getToken()) return openTokenPopup();
-        const data = await ghFetch("/user/codespaces");
-        const sel = document.getElementById("csList");
-        sel.innerHTML = "";
+        try {
+            const res = await fetch("https://api.github.com/user/codespaces", {
+                headers: { 
+                    Authorization: "Bearer " + token(), 
+                    Accept: "application/vnd.github+json"
+                }
+            });
+            
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            
+            const data = await res.json();
+            const sel = document.getElementById("codespaces");
+            sel.innerHTML = "";
+            
+            if(data.codespaces && data.codespaces.length > 0) {
+                data.codespaces.forEach(cs => {
+                    let o = document.createElement("option");
+                    o.value = cs.name;
+                    o.textContent = `${cs.name} (${cs.state})`;
+                    sel.appendChild(o);
+                });
+                await onCodespaceChange();
+            } else {
+                sel.innerHTML = '<option value="">No codespaces found</option>';
+            }
+        } catch(e) { 
+            alert("Error loading codespaces: " + e.message); 
+            console.error(e);
+        }
+    }
+
+    async function onCodespaceChange() {
+        await loadCodespaceDetails();
+        await loadPorts();
+    }
+
+    async function loadCodespaceDetails() {
+        const cs = document.getElementById("codespaces").value;
+        if(!cs) return;
+
+        try {
+            const res = await fetch(`https://api.github.com/user/codespaces/${cs}`, {
+                headers: { 
+                    Authorization: "Bearer " + token(), 
+                    Accept: "application/vnd.github+json"
+                }
+            });
+            
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            
+            currentCodespaceData = await res.json();
+            currentCodespace = cs;
+            
+            updateCodespaceStatus();
+        } catch(e) { 
+            console.error("Error loading codespace details:", e);
+        }
+    }
+
+    function updateCodespaceStatus() {
+        const statusDiv = document.getElementById("codespaceStatus");
+        const statusDot = document.getElementById("statusDot");
+        const statusText = document.getElementById("statusText");
+        const startBtn = document.getElementById("startCodespaceBtn");
+        const stopBtn = document.getElementById("stopCodespaceBtn");
+
+        if (currentCodespaceData) {
+            statusDiv.style.display = "flex";
+            const state = currentCodespaceData.state;
+            
+            if (state === "Available" || state === "running") {
+                statusDot.className = "status-dot running";
+                statusText.textContent = "Codespace is running";
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+            } else if (state === "Queued" || state === "starting") {
+                statusDot.className = "status-dot";
+                statusDot.style.color = "#f57c00";
+                statusText.textContent = "Codespace is starting...";
+                startBtn.disabled = true;
+                stopBtn.disabled = true;
+            } else {
+                statusDot.className = "status-dot stopped";
+                statusText.textContent = "Codespace is stopped";
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+            }
+        }
+    }
+
+    async function startCodespace() {
+        const cs = document.getElementById("codespaces").value;
+        if (!cs) return;
+
+        try {
+            const res = await fetch(`https://api.github.com/user/codespaces/${cs}/start`, {
+                method: "POST",
+                headers: { 
+                    Authorization: "Bearer " + token(), 
+                    Accept: "application/vnd.github+json"
+                }
+            });
+
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+            alert("Codespace starting... It may take a minute.");
+            
+            // Poll for status
+            const checkInterval = setInterval(async () => {
+                try {
+                    const checkRes = await fetch(`https://api.github.com/user/codespaces/${cs}`, {
+                        headers: { Authorization: "Bearer " + token(), Accept: "application/vnd.github+json" }
+                    });
+                    const data = await checkRes.json();
+                    
+                    if (data.state === "Available" || data.state === "running") {
+                        clearInterval(checkInterval);
+                        await loadCodespaceDetails();
+                        await loadPorts();
+                        alert("Codespace is now running!");
+                    }
+                } catch(e) {
+                    console.error("Error checking status:", e);
+                }
+            }, 5000);
+
+        } catch(e) { 
+            alert("Error starting codespace: " + e.message);
+            console.error(e);
+        }
+    }
+
+    async function stopCodespace() {
+        const cs = document.getElementById("codespaces").value;
+        if (!cs) return;
+        if (!confirm("Stop this codespace?")) return;
+
+        try {
+            const res = await fetch(`https://api.github.com/user/codespaces/${cs}/stop`, {
+                method: "POST",
+                headers: { 
+                    Authorization: "Bearer " + token(), 
+                    Accept: "application/vnd.github+json"
+                }
+            });
+
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+            alert("Codespace stopping...");
+            setTimeout(async () => {
+                await loadCodespaceDetails();
+                await loadPorts();
+            }, 3000);
+
+        } catch(e) { 
+            alert("Error stopping codespace: " + e.message);
+            console.error(e);
+        }
+    }
+
+    function getSavedPorts() {
+        const cs = document.getElementById("codespaces").value;
+        if(!cs) return [];
+        return JSON.parse(localStorage.getItem("ports_" + cs) || "[]");
+    }
+
+    async function loadPorts(silent = false) {
+        const cs = document.getElementById("codespaces").value;
+        if(!cs) return;
+
+        const div = document.getElementById("ports");
+        if (!silent) {
+            div.innerHTML = "<div class='loading'>Loading ports...</div>";
+        }
+
+        let activePorts = [];
+        let portDetails = {};
+
+        // Only try to fetch ports if codespace is running
+        if (currentCodespaceData && (currentCodespaceData.state === "Available" || currentCodespaceData.state === "running")) {
+            try {
+                console.log("Fetching ports for:", cs);
+                
+                // Try multiple API endpoints
+                const endpoints = [
+                    `https://api.github.com/user/codespaces/${cs}/ports`,
+                    `https://api.github.com/codespaces/${cs}/ports`
+                ];
+                
+                for (const endpoint of endpoints) {
+                    try {
+                        const res = await fetch(endpoint, {
+                            headers: { 
+                                Authorization: "Bearer " + token(), 
+                                Accept: "application/vnd.github+json"
+                            }
+                        });
+                        
+                        if (res.ok) {
+                            const data = await res.json();
+                            console.log("Ports data from", endpoint, ":", data);
+                            
+                            // Handle different response formats
+                            if (Array.isArray(data)) {
+                                data.forEach(p => {
+                                    const portNum = p.port || p.number;
+                                    if (portNum) {
+                                        activePorts.push(portNum);
+                                        portDetails[portNum] = { 
+                                            vis: p.visibility || "private",
+                                            url: p.url || `https://${cs}-${portNum}.preview.app.github.dev`
+                                        };
+                                    }
+                                });
+                                break; // Success, stop trying other endpoints
+                            } else if (data.ports && Array.isArray(data.ports)) {
+                                data.ports.forEach(p => {
+                                    const portNum = p.port || p.number;
+                                    if (portNum) {
+                                        activePorts.push(portNum);
+                                        portDetails[portNum] = { 
+                                            vis: p.visibility || "private",
+                                            url: p.url || `https://${cs}-${portNum}.preview.app.github.dev`
+                                        };
+                                    }
+                                });
+                                break;
+                            }
+                        }
+                    } catch (e) {
+                        console.log("Endpoint failed:", endpoint, e);
+                    }
+                }
+                
+            } catch(e) { 
+                console.log("Port API Error:", e); 
+            }
+        }
+
+        // Get saved ports from localStorage
+        const saved = getSavedPorts();
         
-        if(data && data.codespaces) {
-            data.codespaces.forEach(cs => {
-                const opt = document.createElement("option");
-                opt.value = cs.name;
-                opt.textContent = cs.name;
-                sel.appendChild(opt);
-            });
-            loadPorts();
+        // Combine active and saved ports (active ones are automatically included)
+        const allPorts = [...new Set([...activePorts, ...saved])].sort((a,b) => a-b);
+        
+        if (allPorts.length === 0) {
+            div.innerHTML = "<div class='warning'>No ports found. Add a port above or start your application in the codespace.</div>";
+            return;
         }
-    }
 
-    async function loadPorts() {
-        const csName = document.getElementById("csList").value;
-        const container = document.getElementById("portContainer");
-        if(!csName) return;
+        div.innerHTML = "";
 
-        container.innerHTML = "Fetching active ports...";
-
-        // API se real ports mangwaye
-        const data = await ghFetch(`/user/codespaces/${csName}/ports`);
-        container.innerHTML = "";
-
-        if(data && data.ports && data.ports.length > 0) {
-            data.ports.forEach(p => {
-                const isPublic = p.visibility === "public";
-                const row = document.createElement("div");
-                row.className = "port";
-                row.innerHTML = `
-                    <div>
-                        <div class="portTitle">
-                            Port ${p.port} <span class="cs-name">(${csName})</span>
-                        </div>
-                        <div class="status-line">
-                            <span class="dot active"></span>
-                            Running • ${p.visibility}
-                        </div>
-                    </div>
-                    <div class="actions">
-                        <button class="btn-sm btn-web" onclick="window.open('${p.html_url}')">🌐</button>
-                        <button class="btn-sm" 
-                                style="background:${isPublic ? '#f44336' : '#2196F3'}"
-                                onclick="updateVisibility('${csName}', ${p.port}, '${p.visibility}')">
-                            ${isPublic ? 'Lock' : 'Unlock'}
-                        </button>
-                    </div>
-                `;
-                container.appendChild(row);
-            });
-        } else {
-            container.innerHTML = "<div style='color:#888'>No active ports found for this codespace.</div>";
-        }
-    }
-
-    async function updateVisibility(csName, port, currentVis) {
-        const newVis = currentVis === "public" ? "private" : "public";
-        const ok = confirm(`Change Port ${port} to ${newVis}?`);
-        if(!ok) return;
-
-        const res = await ghFetch(`/user/codespaces/${csName}/ports/${port}`, {
-            method: "PATCH",
-            body: JSON.stringify({ visibility: newVis })
+        allPorts.forEach(port => {
+            const isActive = activePorts.includes(port);
+            const isSaved = saved.includes(port);
+            const detail = portDetails[port] || { vis: "private" };
+            
+            let statusClass = isActive ? 'running' : 'stopped';
+            let statusText = isActive ? 'Active' : 'Not Active';
+            
+            // Create port entry
+            const row = document.createElement("div");
+            row.className = "port";
+            
+            // Status section
+            const statusDiv = document.createElement("div");
+            statusDiv.innerHTML = `
+                <div class="portTitle">
+                    Port ${port}
+                    ${isSaved ? '<span class="port-badge manual-badge">Saved</span>' : ''}
+                    ${isActive ? '<span class="port-badge auto-badge">Active</span>' : ''}
+                </div>
+                <div class="status-text">
+                    <span class="status-dot ${statusClass}">●</span> 
+                    ${statusText}
+                    ${isActive ? ` • ${detail.vis}` : ''}
+                </div>
+            `;
+            
+            // Actions section
+            const actionsDiv = document.createElement("div");
+            actionsDiv.className = "actions";
+            
+            if (isActive) {
+                const openBtn = document.createElement("button");
+                openBtn.className = "openBtn";
+                openBtn.innerHTML = "🌐 Open";
+                openBtn.onclick = () => openPort(port);
+                actionsDiv.appendChild(openBtn);
+                
+                const visBtn = document.createElement("button");
+                visBtn.innerHTML = detail.vis === 'public' ? 'Make Private' : 'Make Public';
+                visBtn.onclick = () => togglePort(port, detail.vis);
+                actionsDiv.appendChild(visBtn);
+            }
+            
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "deleteBtn";
+            deleteBtn.innerHTML = "🗑️";
+            deleteBtn.onclick = () => deletePort(port);
+            actionsDiv.appendChild(deleteBtn);
+            
+            row.appendChild(statusDiv);
+            row.appendChild(actionsDiv);
+            
+            // Add double-click to refresh for this port
+            row.ondblclick = () => {
+                loadPorts();
+            };
+            
+            div.appendChild(row);
         });
-
-        if(res) {
-            loadPorts(); // Refresh list after update
+        
+        // Add refresh indicator
+        if (!silent) {
+            const refreshDiv = document.createElement("div");
+            refreshDiv.style.textAlign = "center";
+            refreshDiv.style.marginTop = "10px";
+            refreshDiv.style.fontSize = "12px";
+            refreshDiv.style.color = "#999";
+            refreshDiv.innerHTML = "Double-click any port to refresh • Auto-refresh every 10s";
+            div.appendChild(refreshDiv);
         }
     }
 
-    // Auto-init
-    if(getToken()) {
-        loadCodespaces();
-    } else {
-        openTokenPopup();
+    async function togglePort(port, currentVis) {
+        const cs = document.getElementById("codespaces").value;
+        let newVis = currentVis === "public" ? "private" : "public";
+        
+        try {
+            const res = await fetch(`https://api.github.com/user/codespaces/${cs}/ports/${port}`, {
+                method: "PATCH",
+                headers: { 
+                    Authorization: "Bearer " + token(), 
+                    Accept: "application/vnd.github+json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ visibility: newVis })
+            });
+            
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            
+            // Wait a bit and refresh
+            setTimeout(() => loadPorts(), 500);
+            
+        } catch(e) {
+            alert("Error changing port visibility: " + e.message);
+        }
     }
-</script>
 
+    function addPort() {
+        const port = parseInt(document.getElementById("newport").value);
+        if(!port || port < 1 || port > 65535) {
+            alert("Please enter a valid port number (1-65535)");
+            return;
+        }
+        
+        const cs = document.getElementById("codespaces").value;
+        if(!cs) {
+            alert("Please select a codespace first");
+            return;
+        }
+        
+        let list = getSavedPorts();
+        if(!list.includes(port)) {
+            list.push(port);
+            localStorage.setItem("ports_" + cs, JSON.stringify(list));
+            document.getElementById("newport").value = "";
+            loadPorts();
+        } else {
+            alert("Port already in list");
+        }
+    }
+
+    function deletePort(port) {
+        if(!confirm("Remove port " + port + " from list?")) return;
+        const cs = document.getElementById("codespaces").value;
+        let list = getSavedPorts().filter(p => p != port);
+        localStorage.setItem("ports_" + cs, JSON.stringify(list));
+        loadPorts();
+    }
+
+    function openPort(port) {
+        const cs = document.getElementById("codespaces").value;
+        // Try multiple URL formats
+        const urls = [
+            `https://${cs}-${port}.preview.app.github.dev`,
+            `https://${port}-${cs}.app.github.dev`,
+            `https://${cs}-${port}.githubpreview.dev`
+        ];
+        
+        // Try the first one, if it fails user can try others
+        window.open(urls[0], '_blank');
+    }
+
+    // Clean up on page unload
+    window.onunload = function() {
+        if (refreshInterval) clearInterval(refreshInterval);
+    };
+
+    // Initialize
+    init();
+</script>
 </body>
 </html>
