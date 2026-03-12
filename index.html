@@ -1,156 +1,169 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Netlify Name Check + Deploy</title>
-<script src="https://cdn.tailwindcss.com"></script>
-
-<style>
-body { background:#010409; color:#e6edf3; font-family:Segoe UI,sans-serif }
-.glass { background:rgba(10,15,28,.95); border:1px solid rgba(255,255,255,.08); backdrop-filter:blur(14px) }
-input,select { background:#0d1117!important; border:1px solid #30363d!important; color:#c9d1d9!important }
-</style>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>CSManager Pro</title>
+    <style>
+        body { margin:0; font-family:system-ui; background:#f5f3ee; display:flex; justify-content:center; color:#333; }
+        .container { width:95%; max-width:720px; margin-top:40px; }
+        h1 { text-align:center; color:#198a63; margin-bottom:20px; }
+        .card { background:white; border-radius:14px; padding:20px; margin-bottom:18px; box-shadow:0 8px 25px rgba(0,0,0,0.08); }
+        input, select { width:100%; padding:11px; margin-top:10px; margin-bottom:12px; border-radius:8px; border:1px solid #ddd; font-size:15px; box-sizing: border-box; }
+        button { background:#20b36b; border:none; padding:10px 16px; border-radius:8px; color:white; font-weight:600; cursor:pointer; }
+        
+        .port { display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid #eee; }
+        .portTitle { font-size:16px; font-weight:700; display: flex; align-items: center; gap: 5px; }
+        .cs-name { color: #888; font-size: 12px; font-weight: 400; }
+        
+        .status-line { font-size:13px; color:#666; margin-top:4px; display: flex; align-items: center; gap: 6px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #ccc; }
+        .dot.active { background: #20b36b; box-shadow: 0 0 5px #20b36b; }
+        
+        .actions { display: flex; gap: 8px; }
+        .btn-sm { font-size:13px; padding:6px 12px; }
+        .btn-web { background:#eee; color:#000; font-size: 16px; }
+        
+        .tokenIcon { position:fixed; top:12px; left:12px; cursor:pointer; background:white; padding:8px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:10; }
+        #tokenPopup { position:fixed; inset:0; background:rgba(0,0,0,0.4); display:none; justify-content:center; align-items:center; z-index:100; }
+        .popup { background:white; padding:25px; border-radius:15px; width:85%; max-width:350px; }
+    </style>
 </head>
+<body>
 
-<body class="p-6 md:p-10">
+<div class="tokenIcon" onclick="openTokenPopup()">⚙️</div>
 
-<div class="max-w-5xl mx-auto space-y-8">
-
-<!-- ================= NAME CHECK BOX ================= -->
-
-<div class="glass p-6 rounded-2xl">
-<h2 class="text-sm font-bold text-blue-400 mb-3 uppercase">Check Site Name</h2>
-
-<div class="flex gap-2">
-<input id="checkName" placeholder="my-awesome-site" class="flex-1 p-3 rounded-xl text-sm">
-<button onclick="checkOnly()" class="px-5 bg-blue-600 rounded-xl text-xs font-bold">
-CHECK
-</button>
+<div id="tokenPopup" onclick="closePopup()">
+    <div class="popup" onclick="event.stopPropagation()">
+        <h3>GitHub Token</h3>
+        <input id="tokenInput" type="password" placeholder="ghp_xxxxxxxxxxxx">
+        <button onclick="saveToken()" style="width:100%">Save & Connect</button>
+    </div>
 </div>
 
-<p id="checkResult" class="text-xs mt-3"></p>
+<div class="container">
+    <h1>CSManager</h1>
+    
+    <div class="card">
+        <label>Select Codespace</label>
+        <select id="csList" onchange="loadPorts()"></select>
+        <button onclick="loadCodespaces()">🔄 Refresh List</button>
+    </div>
 
-<p class="text-[10px] text-gray-500 mt-2">
-ℹ This check does NOT reserve the name. Final availability is confirmed during deployment.
-</p>
-</div>
-
-<!-- ================= DEPLOY SECTION ================= -->
-
-<div class="glass p-8 rounded-3xl">
-<h2 class="text-lg font-bold text-blue-400 mb-6">Create & Deploy Site</h2>
-
-<div class="space-y-4">
-
-<div>
-<label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">
-Site Name
-</label>
-<input id="siteName" class="w-full p-3 rounded-xl text-sm" placeholder="my-awesome-site">
-</div>
-
-<div>
-<label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">
-GitHub Repository (optional)
-</label>
-<input id="repo" class="w-full p-3 rounded-xl text-sm" placeholder="username/repo">
-</div>
-
-<div>
-<label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">
-Branch (optional)
-</label>
-<input id="branch" class="w-full p-3 rounded-xl text-sm" placeholder="main">
-</div>
-
-<button onclick="deploySite()" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-2xl font-bold text-xs tracking-widest mt-4">
-DEPLOY
-</button>
-
-<p id="deployStatus" class="text-xs mt-4"></p>
-
-</div>
-</div>
-
+    <div class="card">
+        <h3>Ports</h3>
+        <div id="portContainer">Select a codespace to see ports</div>
+    </div>
 </div>
 
 <script>
-const N_TOKEN = localStorage.getItem("NETLIFY_TOKEN");
+    const GITHUB_API = "https://api.github.com";
 
-/* ================= NAME CHECK (SAFE & HONEST) ================= */
+    function getToken() { return localStorage.getItem("gh_token"); }
+    function openTokenPopup() { document.getElementById("tokenPopup").style.display="flex"; }
+    function closePopup() { document.getElementById("tokenPopup").style.display="none"; }
 
-function checkOnly(){
-    const name = checkName.value.trim();
-    const res = document.getElementById("checkResult");
-
-    if(!/^[a-z0-9-]{3,}$/.test(name)){
-        res.innerText = "❌ Invalid format (use a–z, 0–9, hyphen, min 3 chars)";
-        res.className = "text-red-500 text-xs";
-        return;
+    function saveToken() {
+        const val = document.getElementById("tokenInput").value;
+        if(val) {
+            localStorage.setItem("gh_token", val);
+            closePopup();
+            loadCodespaces();
+        }
     }
 
-    res.innerText = "✔ Format valid — availability will be checked during deployment";
-    res.className = "text-yellow-400 text-xs";
-}
-
-/* ================= DEPLOY (REAL CHECK HERE) ================= */
-
-async function deploySite(){
-    const name = siteName.value.trim();
-    const repo = repo.value.trim();
-    const branch = branch.value.trim() || "main";
-    const status = document.getElementById("deployStatus");
-
-    if(!name){
-        status.innerText = "❌ Site name required";
-        status.className = "text-red-500";
-        return;
+    async function ghFetch(endpoint, options = {}) {
+        const res = await fetch(`${GITHUB_API}${endpoint}`, {
+            ...options,
+            headers: {
+                "Authorization": `Bearer ${getToken()}`,
+                "Accept": "application/vnd.github+json",
+                ...options.headers
+            }
+        });
+        if (res.status === 401) { alert("Invalid Token!"); openTokenPopup(); return null; }
+        return res.json();
     }
 
-    status.innerText = "⏳ Creating site…";
-    status.className = "text-yellow-400";
-
-    let body = { name };
-
-    if(repo){
-        body.repo = {
-            provider: "github",
-            repo: repo,
-            branch: branch
-        };
+    async function loadCodespaces() {
+        if(!getToken()) return openTokenPopup();
+        const data = await ghFetch("/user/codespaces");
+        const sel = document.getElementById("csList");
+        sel.innerHTML = "";
+        
+        if(data && data.codespaces) {
+            data.codespaces.forEach(cs => {
+                const opt = document.createElement("option");
+                opt.value = cs.name;
+                opt.textContent = cs.name;
+                sel.appendChild(opt);
+            });
+            loadPorts();
+        }
     }
 
-    try{
-        const res = await fetch("https://api.netlify.com/api/v1/sites",{
-            method:"POST",
-            headers:{
-                Authorization:`Bearer ${N_TOKEN}`,
-                "Content-Type":"application/json"
-            },
-            body: JSON.stringify(body)
+    async function loadPorts() {
+        const csName = document.getElementById("csList").value;
+        const container = document.getElementById("portContainer");
+        if(!csName) return;
+
+        container.innerHTML = "Fetching active ports...";
+
+        // API se real ports mangwaye
+        const data = await ghFetch(`/user/codespaces/${csName}/ports`);
+        container.innerHTML = "";
+
+        if(data && data.ports && data.ports.length > 0) {
+            data.ports.forEach(p => {
+                const isPublic = p.visibility === "public";
+                const row = document.createElement("div");
+                row.className = "port";
+                row.innerHTML = `
+                    <div>
+                        <div class="portTitle">
+                            Port ${p.port} <span class="cs-name">(${csName})</span>
+                        </div>
+                        <div class="status-line">
+                            <span class="dot active"></span>
+                            Running • ${p.visibility}
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-sm btn-web" onclick="window.open('${p.html_url}')">🌐</button>
+                        <button class="btn-sm" 
+                                style="background:${isPublic ? '#f44336' : '#2196F3'}"
+                                onclick="updateVisibility('${csName}', ${p.port}, '${p.visibility}')">
+                            ${isPublic ? 'Lock' : 'Unlock'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        } else {
+            container.innerHTML = "<div style='color:#888'>No active ports found for this codespace.</div>";
+        }
+    }
+
+    async function updateVisibility(csName, port, currentVis) {
+        const newVis = currentVis === "public" ? "private" : "public";
+        const ok = confirm(`Change Port ${port} to ${newVis}?`);
+        if(!ok) return;
+
+        const res = await ghFetch(`/user/codespaces/${csName}/ports/${port}`, {
+            method: "PATCH",
+            body: JSON.stringify({ visibility: newVis })
         });
 
-        if(res.status === 422){
-            status.innerText = "❌ Name already taken. Try another.";
-            status.className = "text-red-500";
-            return;
+        if(res) {
+            loadPorts(); // Refresh list after update
         }
-
-        if(res.ok){
-            const data = await res.json();
-            status.innerText = `✅ Site created: ${data.name}.netlify.app`;
-            status.className = "text-green-500";
-        } else {
-            status.innerText = "❌ Failed to create site";
-            status.className = "text-red-500";
-        }
-
-    }catch(err){
-        status.innerText = "❌ Network / API error";
-        status.className = "text-red-500";
     }
-}
+
+    // Auto-init
+    if(getToken()) {
+        loadCodespaces();
+    } else {
+        openTokenPopup();
+    }
 </script>
 
 </body>
