@@ -1,572 +1,706 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>CSManager</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Master Guide - Practically Seekhein</title>
+    <!-- Google Fonts for better typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { margin:0; font-family:system-ui; background:#f5f3ee; display:flex; justify-content:center; color:#333; }
-        .container { width:95%; max-width:720px; margin-top:40px; }
-        h1 { text-align:center; color:#198a63; margin-bottom:20px; }
-        .card { background:white; border-radius:14px; padding:20px; margin-bottom:18px; box-shadow:0 8px 25px rgba(0,0,0,0.08); }
-        input, select { width:100%; padding:11px; margin-top:10px; margin-bottom:12px; border-radius:8px; border:1px solid #ddd; font-size:15px; box-sizing: border-box; }
-        button { background:#20b36b; border:none; padding:10px 16px; border-radius:8px; color:white; font-weight:600; cursor:pointer; margin-right:8px; }
-        button:hover { opacity:.9; }
-        button:disabled { opacity:0.5; cursor:not-allowed; }
+        /* ==========================================================================
+           1. RESET & BASE
+           ========================================================================== */
+        :root {
+            --bg-body: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --border-color: #e2e8f0;
+            --card-bg: #ffffff;
+            --code-bg: #0f172a;
+            --code-text: #e2e8f0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        .port { display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid #eee; }
-        .portTitle { font-size:16px; font-weight:700; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ==========================================================================
+           2. HEADER (Chhota aur Modern)
+           ========================================================================== */
+        .navbar {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: none; /* Mobile par hide */
+        }
+
+        @media (min-width: 640px) {
+            .nav-desc { display: block; }
+        }
+
+        /* ==========================================================================
+           3. MAIN CONTAINER & HERO
+           ========================================================================== */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero-section h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            color: #0f172a;
+        }
+
+        .hero-section p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ==========================================================================
+           4. ACCORDION (Interactive Categories)
+           ========================================================================== */
+        .accordion-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .accordion-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .accordion-item:hover {
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+        }
+
+        .accordion-header {
+            width: 100%;
+            padding: 1.5rem 2rem;
+            background: transparent;
+            border: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .category-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .category-icon {
+            font-size: 1.5rem;
+            background: #eff6ff;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .toggle-icon {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+
+        /* Accordion Body */
+        .accordion-body {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.4s ease-in-out;
+            background-color: #fafaf9; /* Halka cream shade */
+        }
+
+        /* Active State */
+        .accordion-item.active .accordion-body {
+            max-height: 3000px; /* Bada number taki code fit ho jaye */
+            opacity: 1;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .accordion-item.active .toggle-icon {
+            transform: rotate(180deg);
+            color: var(--primary);
+        }
+
+        .accordion-item.active .accordion-header {
+            background-color: #f8fafc;
+        }
+
+        /* ==========================================================================
+           5. CONTENT LAYOUT (Grid System)
+           ========================================================================== */
+        .content-padding {
+            padding: 2rem;
+        }
+
+        .topic-description {
+            font-size: 1.05rem;
+            color: var(--text-main);
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary);
+            padding-left: 1rem;
+            background: #eff6ff;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 992px) {
+            .grid-container {
+                grid-template-columns: 1fr 1fr; /* PC par 50-50% width */
+            }
+        }
+
+        .panel-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Code Block Styling */
+        .code-panel pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
         
-        .status-dot { font-size: 12px; margin-right: 4px; }
-        .running { color: #20b36b; }
-        .stopped { color: #bbb; }
-        .checking { color: #f57c00; }
+        /* Syntax highlighting simple colors */
+        .tag { color: #f43f5e; } /* Pink/Red for tags */
+        .attr { color: #a78bfa; } /* Purple for attributes */
+        .val { color: #a3e635; } /* Green for values */
+        .comment { color: #64748b; font-style: italic; }
+
+        /* Output Block Styling */
+        .output-panel {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        /* ==========================================================================
+           6. CUSTOM STYLES FOR OUTPUT RENDER (Acha Dikhne Ke Liye)
+           ========================================================================== */
+        .render-box h1 { font-size: 2rem; color: #111827; margin-bottom: 0.5rem; }
+        .render-box h2 { font-size: 1.5rem; color: #374151; margin-bottom: 0.5rem; margin-top: 1rem; }
+        .render-box p { margin-bottom: 1rem; color: #4b5563; }
         
-        .status-text { font-size:13px; color:#777; margin-top:4px; display: flex; align-items: center; }
-        .actions button { font-size:13px; padding:7px 10px; margin-left:6px; }
-        .openBtn { background:#2196F3; }
-        .deleteBtn { background:#dc3545; }
-        .checkBtn { background:#ff9800; }
+        .render-box b, .render-box strong { font-weight: 700; color: #111827; }
+        .render-box i, .render-box em { font-style: italic; color: #4b5563; }
+        .render-box u { text-decoration: underline; text-decoration-color: var(--primary); text-underline-offset: 3px; }
+        .render-box mark { background-color: #fef08a; padding: 0.2em 0.4em; border-radius: 3px; }
         
-        .tokenIcon { position:fixed; top:12px; left:12px; font-size:20px; cursor:pointer; background:white; padding:6px 10px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
-        #tokenPopup { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.35); display:flex; justify-content:center; align-items:center; z-index: 100; }
-        .popup { background:white; padding:24px; border-radius:14px; width:90%; max-width:380px; }
+        .render-box blockquote { border-left: 4px solid #cbd5e1; padding-left: 1rem; margin: 1rem 0; color: #64748b; font-style: italic; }
         
-        .codespace-status { display:flex; align-items:center; margin:10px 0; padding:10px; background:#f8f9fa; border-radius:8px; }
-        .warning { color:#f57c00; background:#fff3e0; padding:10px; border-radius:8px; margin:10px 0; }
-        .success { color:#20b36b; background:#e8f5e9; padding:10px; border-radius:8px; margin:10px 0; }
-        .flex { display:flex; align-items:center; gap:10px; }
+        .render-box a { color: var(--primary); text-decoration: none; font-weight: 500; }
+        .render-box a:hover { text-decoration: underline; }
         
-        .port-badge { font-size:11px; background:#e0e0e0; padding:2px 6px; border-radius:4px; margin-left:8px; }
-        .manual-badge { background:#ffe0b0; }
-        .active-badge { background:#c0e0ff; }
-        .checking-badge { background:#fff3e0; color:#f57c00; }
+        .render-box img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); display: block; margin: 1rem 0; }
         
-        .loading { text-align:center; padding:20px; color:#666; }
-        .error { color:#dc3545; background:#ffebee; padding:10px; border-radius:8px; }
-        
-        .quick-add { display:flex; gap:5px; flex-wrap:wrap; margin:10px 0; }
-        .quick-add-btn { background:#e0e0e0; color:#333; padding:5px 10px; border-radius:4px; font-size:12px; }
+        .render-box ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; color: #4b5563; }
+        .render-box ol { list-style-type: decimal; margin-left: 1.5rem; margin-bottom: 1rem; color: #4b5563; }
+        .render-box li { margin-bottom: 0.25rem; }
+
+        /* Form Rendering */
+        .render-form { display: flex; flex-direction: column; gap: 1rem; background: #f8fafc; padding: 1.5rem; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .form-group { display: flex; flex-direction: column; gap: 0.25rem; }
+        .render-form label { font-weight: 500; font-size: 0.9rem; color: #334155; }
+        .render-form input, .render-form select, .render-form textarea { width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.95rem; }
+        .render-form input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .render-form button { background: var(--primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s; align-self: flex-start; }
+        .render-form button:hover { background: var(--primary-hover); }
+
+        /* Table Rendering */
+        .render-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .render-table th, .render-table td { border: 1px solid #e2e8f0; padding: 0.75rem 1rem; text-align: left; }
+        .render-table th { background-color: #f1f5f9; font-weight: 600; color: #334155; }
+        .render-table tr:nth-child(even) { background-color: #f8fafc; }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
     </style>
 </head>
 <body>
 
-<div class="tokenIcon" onclick="openTokenPopup()">⚙</div>
-
-<div id="tokenPopup" style="display:none;" onclick="closePopup(event)">
-    <div class="popup" onclick="event.stopPropagation()">
-        <h3>GitHub Token</h3>
-        <input id="tokenInput" placeholder="Paste token">
-        <p style="font-size:12px; color:#666;">Token needs codespace, repo permissions</p>
-        <button onclick="saveToken()">Save Token</button>
-    </div>
-</div>
-
-<div class="container">
-    <h1>CSManager</h1>
-    <div class="card">
-        <div class="flex">
-            <select id="codespaces" style="flex:1;" onchange="onCodespaceChange()"></select>
-            <button onclick="loadCodespaces()">🔄</button>
+    <!-- 1. Chhota aur Compact Header -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
+            HTML Master
         </div>
+        <div class="nav-desc">Zero to Hero Practical Guide</div>
+    </nav>
+
+    <div class="container">
         
-        <div id="codespaceStatus" style="display:none;" class="codespace-status">
-            <span class="status-dot" id="statusDot">●</span>
-            <span id="statusText"></span>
-            <button id="startCodespaceBtn" class="startBtn" onclick="startCodespace()" style="margin-left:auto; background:#2196F3;">Start</button>
-            <button id="stopCodespaceBtn" class="stopBtn" onclick="stopCodespace()" style="background:#f44336;">Stop</button>
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1>HTML Seekhne Ka Sabse Aasan Tarika</h1>
+            <p>Niche di gayi categories ko kholiye (expand karein). Har topic me real-world example aur uska code diya gaya hai taaki aap turant samajh sakein.</p>
         </div>
-    </div>
 
-    <div class="card">
-        <h3>Add Port</h3>
-        <input id="newport" type="number" placeholder="Enter port number (e.g., 3000, 8080)">
-        
-        <div class="quick-add">
-            <span style="font-size:12px; color:#666;">Quick add:</span>
-            <button class="quick-add-btn" onclick="quickAddPort(3000)">3000</button>
-            <button class="quick-add-btn" onclick="quickAddPort(8080)">8080</button>
-            <button class="quick-add-btn" onclick="quickAddPort(5000)">5000</button>
-            <button class="quick-add-btn" onclick="quickAddPort(8000)">8000</button>
-            <button class="quick-add-btn" onclick="quickAddPort(4200)">4200</button>
-        </div>
-        
-        <button onclick="addPort()">Add Port to List</button>
-        <button onclick="checkAllPorts()" style="background:#ff9800;">🔍 Check All Ports</button>
-        
-        <p style="font-size:12px; color:#666; margin-top:8px;">
-            • Green ports are accessible/running<br>
-            • Click "Check" to test if port is accessible<br>
-            • Ports are saved locally
-        </p>
-    </div>
+        <!-- Accordion List -->
+        <div class="accordion-wrapper">
 
-    <div class="card">
-        <h3>Ports</h3>
-        <div id="ports"></div>
-    </div>
-</div>
-
-<script>
-    let currentCodespace = null;
-    let currentCodespaceData = null;
-    let refreshInterval = null;
-    let checkingPorts = new Set();
-
-    function token() { return localStorage.getItem("gh_token"); }
-    function openTokenPopup() { document.getElementById("tokenPopup").style.display="flex"; }
-    function closePopup(e) { if(e.target.id === "tokenPopup") document.getElementById("tokenPopup").style.display="none"; }
-    
-    function saveToken() {
-        localStorage.setItem("gh_token", document.getElementById("tokenInput").value);
-        document.getElementById("tokenPopup").style.display="none";
-        init();
-    }
-
-    async function init() {
-        if(!token()) { openTokenPopup(); return; }
-        await loadCodespaces();
-        
-        // Auto refresh every 30 seconds
-        if (refreshInterval) clearInterval(refreshInterval);
-        refreshInterval = setInterval(() => {
-            if (document.getElementById("codespaces").value) {
-                checkAllPorts();
-            }
-        }, 30000);
-    }
-
-    async function loadCodespaces() {
-        try {
-            const res = await fetch("https://api.github.com/user/codespaces", {
-                headers: { 
-                    Authorization: "Bearer " + token(), 
-                    Accept: "application/vnd.github+json"
-                }
-            });
-            
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            
-            const data = await res.json();
-            const sel = document.getElementById("codespaces");
-            sel.innerHTML = "";
-            
-            if(data.codespaces && data.codespaces.length > 0) {
-                data.codespaces.forEach(cs => {
-                    let o = document.createElement("option");
-                    o.value = cs.name;
-                    o.textContent = `${cs.name} (${cs.state})`;
-                    sel.appendChild(o);
-                });
-                await onCodespaceChange();
-            } else {
-                sel.innerHTML = '<option value="">No codespaces found</option>';
-            }
-        } catch(e) { 
-            alert("Error loading codespaces: " + e.message); 
-            console.error(e);
-        }
-    }
-
-    async function onCodespaceChange() {
-        await loadCodespaceDetails();
-        await loadPorts();
-    }
-
-    async function loadCodespaceDetails() {
-        const cs = document.getElementById("codespaces").value;
-        if(!cs) return;
-
-        try {
-            const res = await fetch(`https://api.github.com/user/codespaces/${cs}`, {
-                headers: { 
-                    Authorization: "Bearer " + token(), 
-                    Accept: "application/vnd.github+json"
-                }
-            });
-            
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            
-            currentCodespaceData = await res.json();
-            currentCodespace = cs;
-            
-            updateCodespaceStatus();
-        } catch(e) { 
-            console.error("Error loading codespace details:", e);
-        }
-    }
-
-    function updateCodespaceStatus() {
-        const statusDiv = document.getElementById("codespaceStatus");
-        const statusDot = document.getElementById("statusDot");
-        const statusText = document.getElementById("statusText");
-        const startBtn = document.getElementById("startCodespaceBtn");
-        const stopBtn = document.getElementById("stopCodespaceBtn");
-
-        if (currentCodespaceData) {
-            statusDiv.style.display = "flex";
-            const state = currentCodespaceData.state;
-            
-            if (state === "Available" || state === "running") {
-                statusDot.className = "status-dot running";
-                statusText.textContent = "Codespace is running";
-                startBtn.disabled = true;
-                stopBtn.disabled = false;
-            } else if (state === "Queued" || state === "starting") {
-                statusDot.className = "status-dot";
-                statusDot.style.color = "#f57c00";
-                statusText.textContent = "Codespace is starting...";
-                startBtn.disabled = true;
-                stopBtn.disabled = true;
-            } else {
-                statusDot.className = "status-dot stopped";
-                statusText.textContent = "Codespace is stopped";
-                startBtn.disabled = false;
-                stopBtn.disabled = true;
-            }
-        }
-    }
-
-    async function startCodespace() {
-        const cs = document.getElementById("codespaces").value;
-        if (!cs) return;
-
-        try {
-            const res = await fetch(`https://api.github.com/user/codespaces/${cs}/start`, {
-                method: "POST",
-                headers: { 
-                    Authorization: "Bearer " + token(), 
-                    Accept: "application/vnd.github+json"
-                }
-            });
-
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-
-            alert("Codespace starting... It may take a minute.");
-            
-            // Poll for status
-            const checkInterval = setInterval(async () => {
-                try {
-                    const checkRes = await fetch(`https://api.github.com/user/codespaces/${cs}`, {
-                        headers: { Authorization: "Bearer " + token(), Accept: "application/vnd.github+json" }
-                    });
-                    const data = await checkRes.json();
-                    
-                    if (data.state === "Available" || data.state === "running") {
-                        clearInterval(checkInterval);
-                        await loadCodespaceDetails();
-                        await checkAllPorts();
-                        alert("Codespace is now running!");
-                    }
-                } catch(e) {
-                    console.error("Error checking status:", e);
-                }
-            }, 5000);
-
-        } catch(e) { 
-            alert("Error starting codespace: " + e.message);
-            console.error(e);
-        }
-    }
-
-    async function stopCodespace() {
-        const cs = document.getElementById("codespaces").value;
-        if (!cs) return;
-        if (!confirm("Stop this codespace?")) return;
-
-        try {
-            const res = await fetch(`https://api.github.com/user/codespaces/${cs}/stop`, {
-                method: "POST",
-                headers: { 
-                    Authorization: "Bearer " + token(), 
-                    Accept: "application/vnd.github+json"
-                }
-            });
-
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-
-            alert("Codespace stopping...");
-            setTimeout(async () => {
-                await loadCodespaceDetails();
-                await loadPorts();
-            }, 3000);
-
-        } catch(e) { 
-            alert("Error stopping codespace: " + e.message);
-            console.error(e);
-        }
-    }
-
-    function getSavedPorts() {
-        const cs = document.getElementById("codespaces").value;
-        if(!cs) return [];
-        return JSON.parse(localStorage.getItem("ports_" + cs) || "[]");
-    }
-
-    function savePorts(ports) {
-        const cs = document.getElementById("codespaces").value;
-        if(cs) {
-            localStorage.setItem("ports_" + cs, JSON.stringify(ports));
-        }
-    }
-
-    async function checkPortAccessibility(port) {
-        const cs = document.getElementById("codespaces").value;
-        if (!cs) return false;
-        
-        // Try multiple URL formats
-        const urls = [
-            `https://${cs}-${port}.preview.app.github.dev`,
-            `https://${port}-${cs}.app.github.dev`,
-            `https://${cs}-${port}.githubpreview.dev`
-        ];
-        
-        for (const url of urls) {
-            try {
-                // Use a simple fetch with no-cors to just check if the server responds
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3000);
-                
-                const response = await fetch(url, { 
-                    method: 'HEAD',
-                    mode: 'no-cors',
-                    signal: controller.signal
-                });
-                
-                clearTimeout(timeoutId);
-                
-                // With no-cors, we can't read status, but if it doesn't throw, it might be accessible
-                // Also try a simple image load as backup
-                return await new Promise((resolve) => {
-                    const img = new Image();
-                    img.onload = () => resolve(true);
-                    img.onerror = () => {
-                        // If image fails but fetch didn't throw, maybe it's still accessible
-                        resolve(true);
-                    };
-                    img.src = url + '/favicon.ico?' + Date.now();
-                    setTimeout(() => resolve(false), 2000);
-                });
-                
-            } catch (e) {
-                console.log(`Port ${port} not accessible at ${url}`);
-            }
-        }
-        
-        // Try one more approach - check if we can load a tiny resource
-        try {
-            const testUrl = `https://${cs}-${port}.preview.app.github.dev/robots.txt`;
-            const response = await fetch(testUrl, { mode: 'no-cors' });
-            return true; // If we get here, it might be accessible
-        } catch {
-            return false;
-        }
-    }
-
-    async function checkAllPorts() {
-        const cs = document.getElementById("codespaces").value;
-        if(!cs) return;
-        
-        const saved = getSavedPorts();
-        if (saved.length === 0) {
-            await loadPorts();
-            return;
-        }
-        
-        // Mark all as checking
-        checkingPorts.clear();
-        saved.forEach(p => checkingPorts.add(p));
-        await loadPorts();
-        
-        // Check each port
-        const accessiblePorts = [];
-        for (const port of saved) {
-            const isAccessible = await checkPortAccessibility(port);
-            if (isAccessible) {
-                accessiblePorts.push(port);
-            }
-            checkingPorts.delete(port);
-            await loadPorts();
-        }
-        
-        // Save accessible ports in session
-        sessionStorage.setItem("accessible_" + cs, JSON.stringify(accessiblePorts));
-        await loadPorts();
-    }
-
-    async function checkSinglePort(port) {
-        const cs = document.getElementById("codespaces").value;
-        if(!cs) return;
-        
-        checkingPorts.add(port);
-        await loadPorts();
-        
-        const isAccessible = await checkPortAccessibility(port);
-        
-        // Update accessible ports list
-        let accessible = JSON.parse(sessionStorage.getItem("accessible_" + cs) || "[]");
-        if (isAccessible) {
-            if (!accessible.includes(port)) {
-                accessible.push(port);
-            }
-        } else {
-            accessible = accessible.filter(p => p !== port);
-        }
-        sessionStorage.setItem("accessible_" + cs, JSON.stringify(accessible));
-        
-        checkingPorts.delete(port);
-        await loadPorts();
-    }
-
-    function getAccessiblePorts() {
-        const cs = document.getElementById("codespaces").value;
-        if(!cs) return [];
-        return JSON.parse(sessionStorage.getItem("accessible_" + cs) || "[]");
-    }
-
-    async function loadPorts() {
-        const cs = document.getElementById("codespaces").value;
-        if(!cs) return;
-
-        const div = document.getElementById("ports");
-        
-        const saved = getSavedPorts();
-        const accessible = getAccessiblePorts();
-        
-        if (saved.length === 0) {
-            div.innerHTML = "<div class='warning'>No ports added yet. Add a port above or click 'Check All Ports' to scan.</div>";
-            return;
-        }
-
-        div.innerHTML = "";
-
-        for (const port of saved) {
-            const isAccessible = accessible.includes(port);
-            const isChecking = checkingPorts.has(port);
-            
-            let statusClass = isChecking ? 'checking' : (isAccessible ? 'running' : 'stopped');
-            let statusText = isChecking ? 'Checking...' : (isAccessible ? 'Accessible' : 'Not Accessible');
-            let statusDot = isChecking ? '◌' : '●';
-            
-            // Create port entry
-            const row = document.createElement("div");
-            row.className = "port";
-            
-            // Status section
-            const statusDiv = document.createElement("div");
-            statusDiv.innerHTML = `
-                <div class="portTitle">
-                    Port ${port}
-                    <span class="port-badge ${isAccessible ? 'active-badge' : 'manual-badge'}">
-                        ${isAccessible ? 'Active' : 'Saved'}
+            <!-- Category 1: Basic Structure -->
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    <span class="category-title">
+                        <span class="category-icon">🏗️</span>
+                        1. Basic Structure (Dhancha Banayein)
                     </span>
-                    ${isChecking ? '<span class="port-badge checking-badge">Checking...</span>' : ''}
+                    <span class="toggle-icon">▼</span>
+                </button>
+                <div class="accordion-body">
+                    <div class="content-padding">
+                        <div class="topic-description">
+                            <b>HTML Page ka mool dhancha:</b> Kisi bhi website ki shuruaat Headings (Titles) aur Paragraphs (Detail text) se hoti hai. <code>&lt;h1&gt;</code> sabse badi heading hoti hai, aur <code>&lt;p&gt;</code> me hum aam lines likhte hain.
+                        </div>
+
+                        <div class="grid-container">
+                            <!-- Code Area -->
+                            <div class="code-panel">
+                                <div class="panel-title">👨‍💻 Code Dekhein</div>
+                                <pre><code><span class="comment">&lt;!-- Main Title (Sirf ek page par ek hona chahiye) --&gt;</span>
+<span class="tag">&lt;h1&gt;</span>Mera Pehla Blog Post<span class="tag">&lt;/h1&gt;</span>
+
+<span class="comment">&lt;!-- Sub-heading (Section title ke liye) --&gt;</span>
+<span class="tag">&lt;h2&gt;</span>HTML Kya Hai?<span class="tag">&lt;/h2&gt;</span>
+
+<span class="comment">&lt;!-- Normal Text --&gt;</span>
+<span class="tag">&lt;p&gt;</span>HTML ka matlab HyperText Markup Language hai. Yeh kisi bhi website ka 
+base ya skeleton (haddiyo ka dhancha) banane ke kaam aata hai.<span class="tag">&lt;/p&gt;</span>
+
+<span class="tag">&lt;h3&gt;</span>Iski Zarurat Kyun Hai?<span class="tag">&lt;/h3&gt;</span>
+<span class="tag">&lt;p&gt;</span>Bina HTML ke hum browser ko yeh nahi bata sakte ki kon si line heading hai 
+aur kon si line paragraph hai.<span class="tag">&lt;/p&gt;</span></code></pre>
+                            </div>
+                            
+                            <!-- Output Area -->
+                            <div class="output-panel">
+                                <div class="panel-title">👁️ Asal Me Kaisa Dikhega</div>
+                                <div class="render-box">
+                                    <h1>Mera Pehla Blog Post</h1>
+                                    <h2>HTML Kya Hai?</h2>
+                                    <p>HTML ka matlab HyperText Markup Language hai. Yeh kisi bhi website ka base ya skeleton (haddiyo ka dhancha) banane ke kaam aata hai.</p>
+                                    <h3 style="font-size: 1.2rem; color: #374151; margin-top: 1rem;">Iski Zarurat Kyun Hai?</h3>
+                                    <p>Bina HTML ke hum browser ko yeh nahi bata sakte ki kon si line heading hai aur kon si line paragraph hai.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="status-text">
-                    <span class="status-dot ${statusClass}">${statusDot}</span> 
-                    ${statusText}
+            </div>
+
+            <!-- Category 2: Text Formatting -->
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    <span class="category-title">
+                        <span class="category-icon">✍️</span>
+                        2. Text Formatting (Shabdon ko sajana)
+                    </span>
+                    <span class="toggle-icon">▼</span>
+                </button>
+                <div class="accordion-body">
+                    <div class="content-padding">
+                        <div class="topic-description">
+                            <b>Shabdon par zor daalna:</b> Normal text me agar aapko kisi word ko mota (Bold), tircha (Italic) ya uspe highlight karna ho, toh in special tags ka istemal hota hai.
+                        </div>
+
+                        <div class="grid-container">
+                            <div class="code-panel">
+                                <div class="panel-title">👨‍💻 Code Dekhein</div>
+                                <pre><code><span class="tag">&lt;p&gt;</span>
+  Yeh ek normal sentence hai jisme humne ek shabd ko 
+  <span class="tag">&lt;b&gt;</span>Mota (Bold)<span class="tag">&lt;/b&gt;</span> kiya hai.
+<span class="tag">&lt;/p&gt;</span>
+
+<span class="tag">&lt;p&gt;</span>
+  Kisine sach kaha hai: <span class="tag">&lt;br&gt;</span> <span class="comment">&lt;!-- br tag line todne ke liye --&gt;</span>
+  <span class="tag">&lt;i&gt;</span>"Koshish karne walon ki kabhi haar nahi hoti."<span class="tag">&lt;/i&gt;</span>
+<span class="tag">&lt;/p&gt;</span>
+
+<span class="tag">&lt;p&gt;</span>
+  Is document me <span class="tag">&lt;u&gt;</span>important line ko underline<span class="tag">&lt;/u&gt;</span> kiya gaya hai.
+  Aap kisi offer ko <span class="tag">&lt;mark&gt;</span>High-light (Yellow backgroud)<span class="tag">&lt;/mark&gt;</span> bhi kar sakte ho.
+<span class="tag">&lt;/p&gt;</span>
+
+<span class="comment">&lt;!-- Blockquote dusro ki kahi baat dikhane ke liye --&gt;</span>
+<span class="tag">&lt;blockquote&gt;</span>Yeh ek quote box hai, jo articles me accha lagta hai.<span class="tag">&lt;/blockquote&gt;</span></code></pre>
+                            </div>
+                            
+                            <div class="output-panel">
+                                <div class="panel-title">👁️ Asal Me Kaisa Dikhega</div>
+                                <div class="render-box">
+                                    <p>Yeh ek normal sentence hai jisme humne ek shabd ko <b>Mota (Bold)</b> kiya hai.</p>
+                                    <p>Kisine sach kaha hai: <br> <i>"Koshish karne walon ki kabhi haar nahi hoti."</i></p>
+                                    <p>Is document me <u>important line ko underline</u> kiya gaya hai. Aap kisi offer ko <mark>High-light (Yellow background)</mark> bhi kar sakte ho.</p>
+                                    <blockquote>Yeh ek quote box hai, jo articles me accha lagta hai.</blockquote>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            `;
-            
-            // Actions section
-            const actionsDiv = document.createElement("div");
-            actionsDiv.className = "actions";
-            
-            if (isAccessible) {
-                const openBtn = document.createElement("button");
-                openBtn.className = "openBtn";
-                openBtn.innerHTML = "🌐 Open";
-                openBtn.onclick = () => openPort(port);
-                actionsDiv.appendChild(openBtn);
-            }
-            
-            const checkBtn = document.createElement("button");
-            checkBtn.className = "checkBtn";
-            checkBtn.innerHTML = isChecking ? "⏳" : "🔍 Check";
-            checkBtn.disabled = isChecking;
-            checkBtn.onclick = () => checkSinglePort(port);
-            actionsDiv.appendChild(checkBtn);
-            
-            const deleteBtn = document.createElement("button");
-            deleteBtn.className = "deleteBtn";
-            deleteBtn.innerHTML = "🗑️";
-            deleteBtn.onclick = () => deletePort(port);
-            actionsDiv.appendChild(deleteBtn);
-            
-            row.appendChild(statusDiv);
-            row.appendChild(actionsDiv);
-            
-            div.appendChild(row);
-        }
-        
-        // Add summary
-        const summary = document.createElement("div");
-        summary.style.marginTop = "15px";
-        summary.style.padding = "10px";
-        summary.style.background = "#f8f9fa";
-        summary.style.borderRadius = "8px";
-        summary.style.fontSize = "13px";
-        summary.innerHTML = `
-            <strong>Summary:</strong> ${accessible.length}/${saved.length} ports accessible<br>
-            <small>Click 🔍 to check individual ports • Auto-refresh every 30s</small>
-        `;
-        div.appendChild(summary);
-    }
+            </div>
 
-    function quickAddPort(port) {
-        document.getElementById("newport").value = port;
-        addPort();
-    }
+            <!-- Category 3: Links & Media -->
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    <span class="category-title">
+                        <span class="category-icon">🔗</span>
+                        3. Links aur Images (Jodna aur Dikhana)
+                    </span>
+                    <span class="toggle-icon">▼</span>
+                </button>
+                <div class="accordion-body">
+                    <div class="content-padding">
+                        <div class="topic-description">
+                            <b>Internet ka main hissa:</b> <code>&lt;a&gt;</code> (Anchor) tag se hum ek page se dusre page ka link banate hain. Aur <code>&lt;img&gt;</code> tag se page par photo lagayi jaati hai.
+                        </div>
 
-    function addPort() {
-        const port = parseInt(document.getElementById("newport").value);
-        if(!port || port < 1 || port > 65535) {
-            alert("Please enter a valid port number (1-65535)");
-            return;
-        }
-        
-        const cs = document.getElementById("codespaces").value;
-        if(!cs) {
-            alert("Please select a codespace first");
-            return;
-        }
-        
-        let list = getSavedPorts();
-        if(!list.includes(port)) {
-            list.push(port);
-            savePorts(list);
-            document.getElementById("newport").value = "";
-            checkSinglePort(port); // Auto-check the new port
-        } else {
-            alert("Port already in list");
-        }
-    }
+                        <div class="grid-container">
+                            <div class="code-panel">
+                                <div class="panel-title">👨‍💻 Code Dekhein</div>
+                                <pre><code><span class="comment">&lt;!-- Anchor tag (Link). href attribute me URL dete hain --&gt;</span>
+<span class="tag">&lt;p&gt;</span>
+  Zada jankari ke liye humari 
+  <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="val">"https://google.com"</span> <span class="attr">target</span>=<span class="val">"_blank"</span><span class="tag">&gt;</span>Website par jayein<span class="tag">&lt;/a&gt;</span>.
+  <span class="comment">&lt;!-- target="_blank" link ko naye tab me kholta hai --&gt;</span>
+<span class="tag">&lt;/p&gt;</span>
 
-    function deletePort(port) {
-        if(!confirm("Remove port " + port + " from list?")) return;
-        const cs = document.getElementById("codespaces").value;
-        let list = getSavedPorts().filter(p => p != port);
-        savePorts(list);
-        
-        // Also remove from accessible
-        let accessible = getAccessiblePorts().filter(p => p != port);
-        sessionStorage.setItem("accessible_" + cs, JSON.stringify(accessible));
-        
-        loadPorts();
-    }
+<span class="tag">&lt;h3&gt;</span>Meri Pasandeeda Photo<span class="tag">&lt;/h3&gt;</span>
+<span class="comment">&lt;!-- Image tag ka koi closing tag nahi hota.
+     src me image ka path ya URL hota hai. --&gt;</span>
+<span class="tag">&lt;img</span> 
+  <span class="attr">src</span>=<span class="val">"https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=500&q=80"</span> 
+  <span class="attr">alt</span>=<span class="val">"Laptop par coding karta hua"</span> 
+  <span class="attr">width</span>=<span class="val">"100%"</span>
+<span class="tag">&gt;</span>
+<span class="tag">&lt;p&gt;</span><span class="tag">&lt;small&gt;</span>(Upar ek image dikhayi gayi hai)<span class="tag">&lt;/small&gt;</span><span class="tag">&lt;/p&gt;</span></code></pre>
+                            </div>
+                            
+                            <div class="output-panel">
+                                <div class="panel-title">👁️ Asal Me Kaisa Dikhega</div>
+                                <div class="render-box">
+                                    <p>Zada jankari ke liye humari <a href="#" onclick="event.preventDefault(); alert('Yeh link Google naye tab me kholega!');">Website par jayein</a>.</p>
+                                    <h3 style="font-size: 1.2rem; color: #374151; margin-top: 1rem; margin-bottom: 0.5rem;">Meri Pasandeeda Photo</h3>
+                                    <!-- A real placeholder image of coding -->
+                                    <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=500&q=80" alt="Laptop par coding karta hua">
+                                    <p><small>(Upar ek image dikhayi gayi hai)</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    function openPort(port) {
-        const cs = document.getElementById("codespaces").value;
-        // Use the most reliable URL format
-        window.open(`https://${cs}-${port}.preview.app.github.dev`, '_blank');
-    }
+            <!-- Category 4: Lists -->
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    <span class="category-title">
+                        <span class="category-icon">📝</span>
+                        4. Lists (Sahi Tarike Se List Banana)
+                    </span>
+                    <span class="toggle-icon">▼</span>
+                </button>
+                <div class="accordion-body">
+                    <div class="content-padding">
+                        <div class="topic-description">
+                            <b>Points me baat rakhna:</b> Bina number wali list ke liye <code>&lt;ul&gt;</code> (Unordered List) aur number wali list ke liye <code>&lt;ol&gt;</code> (Ordered List) ka use hota hai. Item jodhne ke liye <code>&lt;li&gt;</code> tag lagate hain.
+                        </div>
 
-    // Clean up on page unload
-    window.onunload = function() {
-        if (refreshInterval) clearInterval(refreshInterval);
-    };
+                        <div class="grid-container">
+                            <div class="code-panel">
+                                <div class="panel-title">👨‍💻 Code Dekhein</div>
+                                <pre><code><span class="tag">&lt;h3&gt;</span>Cake Banane Ke Ingredients (Bina Number):<span class="tag">&lt;/h3&gt;</span>
+<span class="tag">&lt;ul&gt;</span>
+  <span class="tag">&lt;li&gt;</span>2 cup Maida (Flour)<span class="tag">&lt;/li&gt;</span>
+  <span class="tag">&lt;li&gt;</span>1 cup Cheeni (Sugar)<span class="tag">&lt;/li&gt;</span>
+  <span class="tag">&lt;li&gt;</span>Aadha cup Doodh (Milk)<span class="tag">&lt;/li&gt;</span>
+<span class="tag">&lt;/ul&gt;</span>
 
-    // Initialize
-    init();
-</script>
+<span class="tag">&lt;h3&gt;</span>Cake Banane Ki Vidhi (Steps in Numbers):<span class="tag">&lt;/h3&gt;</span>
+<span class="tag">&lt;ol&gt;</span>
+  <span class="tag">&lt;li&gt;</span>Sabse pehle oven ko garam karein.<span class="tag">&lt;/li&gt;</span>
+  <span class="tag">&lt;li&gt;</span>Saari samagri ko ek bowl me mix karein.<span class="tag">&lt;/li&gt;</span>
+  <span class="tag">&lt;li&gt;</span>Oven me 30 minute tak pakayein.<span class="tag">&lt;/li&gt;</span>
+<span class="tag">&lt;/ol&gt;</span></code></pre>
+                            </div>
+                            
+                            <div class="output-panel">
+                                <div class="panel-title">👁️ Asal Me Kaisa Dikhega</div>
+                                <div class="render-box">
+                                    <h3 style="font-size: 1.1rem; color: #111827; margin-bottom: 0.5rem;">Cake Banane Ke Ingredients (Bina Number):</h3>
+                                    <ul>
+                                        <li>2 cup Maida (Flour)</li>
+                                        <li>1 cup Cheeni (Sugar)</li>
+                                        <li>Aadha cup Doodh (Milk)</li>
+                                    </ul>
+
+                                    <h3 style="font-size: 1.1rem; color: #111827; margin-top: 1.5rem; margin-bottom: 0.5rem;">Cake Banane Ki Vidhi (Steps in Numbers):</h3>
+                                    <ol>
+                                        <li>Sabse pehle oven ko garam karein.</li>
+                                        <li>Saari samagri ko ek bowl me mix karein.</li>
+                                        <li>Oven me 30 minute tak pakayein.</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category 5: Forms (Advanced) -->
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    <span class="category-title">
+                        <span class="category-icon">✉️</span>
+                        5. Forms (User Se Data Lena)
+                    </span>
+                    <span class="toggle-icon">▼</span>
+                </button>
+                <div class="accordion-body">
+                    <div class="content-padding">
+                        <div class="topic-description">
+                            <b>Contact ya Login Form:</b> <code>&lt;form&gt;</code> ke andar hum <code>&lt;input&gt;</code>, <code>&lt;select&gt;</code> aur <code>&lt;button&gt;</code> lagate hain taaki user apna naam, email ya password bhar sake.
+                        </div>
+
+                        <div class="grid-container">
+                            <div class="code-panel">
+                                <div class="panel-title">👨‍💻 Code Dekhein</div>
+                                <pre><code><span class="tag">&lt;form</span> <span class="attr">action</span>=<span class="val">"/submit"</span><span class="tag">&gt;</span>
+  <span class="comment">&lt;!-- Text Input --&gt;</span>
+  <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="val">"name"</span><span class="tag">&gt;</span>Aapka Pura Naam:<span class="tag">&lt;/label&gt;</span>
+  <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="val">"text"</span> <span class="attr">id</span>=<span class="val">"name"</span> <span class="attr">placeholder</span>=<span class="val">"Jaise: Rahul Kumar"</span> <span class="attr">required</span><span class="tag">&gt;</span>
+
+  <span class="comment">&lt;!-- Email Input --&gt;</span>
+  <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="val">"email"</span><span class="tag">&gt;</span>Email Address:<span class="tag">&lt;/label&gt;</span>
+  <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="val">"email"</span> <span class="attr">id</span>=<span class="val">"email"</span> <span class="attr">placeholder</span>=<span class="val">"abc@example.com"</span><span class="tag">&gt;</span>
+
+  <span class="comment">&lt;!-- Dropdown (Select) --&gt;</span>
+  <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="val">"course"</span><span class="tag">&gt;</span>Course Chunein:<span class="tag">&lt;/label&gt;</span>
+  <span class="tag">&lt;select</span> <span class="attr">id</span>=<span class="val">"course"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;option</span> <span class="attr">value</span>=<span class="val">"html"</span><span class="tag">&gt;</span>HTML Sikhe<span class="tag">&lt;/option&gt;</span>
+    <span class="tag">&lt;option</span> <span class="attr">value</span>=<span class="val">"css"</span><span class="tag">&gt;</span>CSS Sikhe<span class="tag">&lt;/option&gt;</span>
+  <span class="tag">&lt;/select&gt;</span>
+
+  <span class="comment">&lt;!-- Submit Button --&gt;</span>
+  <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="val">"submit"</span><span class="tag">&gt;</span>Form Jama Karein<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/form&gt;</span></code></pre>
+                            </div>
+                            
+                            <div class="output-panel">
+                                <div class="panel-title">👁️ Asal Me Kaisa Dikhega</div>
+                                <!-- Is form class me acchi styling lagayi hai uper CSS me -->
+                                <form class="render-form" onsubmit="event.preventDefault(); alert('Badhai Ho! Aapka form submit ho gaya.');">
+                                    <div class="form-group">
+                                        <label for="demo-name">Aapka Pura Naam:</label>
+                                        <input type="text" id="demo-name" placeholder="Jaise: Rahul Kumar" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="demo-email">Email Address:</label>
+                                        <input type="email" id="demo-email" placeholder="abc@example.com" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="demo-course">Course Chunein:</label>
+                                        <select id="demo-course">
+                                            <option value="html">HTML Sikhe</option>
+                                            <option value="css">CSS Sikhe</option>
+                                            <option value="js">JavaScript Sikhe</option>
+                                        </select>
+                                    </div>
+
+                                    <button type="submit">Form Jama Karein</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category 6: Tables -->
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    <span class="category-title">
+                        <span class="category-icon">📊</span>
+                        6. Tables (Data in Rows & Columns)
+                    </span>
+                    <span class="toggle-icon">▼</span>
+                </button>
+                <div class="accordion-body">
+                    <div class="content-padding">
+                        <div class="topic-description">
+                            <b>Data ko Excel format me dikhana:</b> <code>&lt;table&gt;</code> ke andar hum <code>&lt;tr&gt;</code> (Table Row) aur <code>&lt;td&gt;</code> (Table Data) ka use karke box format me data show karte hain.
+                        </div>
+
+                        <div class="grid-container">
+                            <div class="code-panel">
+                                <div class="panel-title">👨‍💻 Code Dekhein</div>
+                                <pre><code><span class="tag">&lt;table</span> <span class="attr">border</span>=<span class="val">"1"</span><span class="tag">&gt;</span>
+  <span class="comment">&lt;!-- Table Header (Upar ki main line) --&gt;</span>
+  <span class="tag">&lt;tr&gt;</span>
+    <span class="tag">&lt;th&gt;</span>Roll No.<span class="tag">&lt;/th&gt;</span>
+    <span class="tag">&lt;th&gt;</span>Student ka Naam<span class="tag">&lt;/th&gt;</span>
+    <span class="tag">&lt;th&gt;</span>Marks<span class="tag">&lt;/th&gt;</span>
+  <span class="tag">&lt;/tr&gt;</span>
+  
+  <span class="comment">&lt;!-- Pehli Row (Data) --&gt;</span>
+  <span class="tag">&lt;tr&gt;</span>
+    <span class="tag">&lt;td&gt;</span>101<span class="tag">&lt;/td&gt;</span>
+    <span class="tag">&lt;td&gt;</span>Aman Sharma<span class="tag">&lt;/td&gt;</span>
+    <span class="tag">&lt;td&gt;</span>85%<span class="tag">&lt;/td&gt;</span>
+  <span class="tag">&lt;/tr&gt;</span>
+  
+  <span class="comment">&lt;!-- Dusri Row (Data) --&gt;</span>
+  <span class="tag">&lt;tr&gt;</span>
+    <span class="tag">&lt;td&gt;</span>102<span class="tag">&lt;/td&gt;</span>
+    <span class="tag">&lt;td&gt;</span>Priya Singh<span class="tag">&lt;/td&gt;</span>
+    <span class="tag">&lt;td&gt;</span>92%<span class="tag">&lt;/td&gt;</span>
+  <span class="tag">&lt;/tr&gt;</span>
+<span class="tag">&lt;/table&gt;</span></code></pre>
+                            </div>
+                            
+                            <div class="output-panel" style="overflow-x: auto;">
+                                <div class="panel-title">👁️ Asal Me Kaisa Dikhega</div>
+                                <table class="render-table">
+                                    <tr>
+                                        <th>Roll No.</th>
+                                        <th>Student ka Naam</th>
+                                        <th>Marks</th>
+                                    </tr>
+                                    <tr>
+                                        <td>101</td>
+                                        <td>Aman Sharma</td>
+                                        <td>85%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>102</td>
+                                        <td>Priya Singh</td>
+                                        <td>92%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>103</td>
+                                        <td>Vikram Jadhav</td>
+                                        <td>78%</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- End of Accordion -->
+
+    </div> <!-- End of Container -->
+
+    <footer>
+        &copy; 2026 HTML Master Guide. Khubsurat Vanilla CSS ke sath banayi gayi hai. <br>
+        <span style="font-size: 0.8rem; opacity: 0.7;">Clicking logic made purely with JavaScript without freezing the browser.</span>
+    </footer>
+
+    <!-- JavaScript - Bug-free, Smooth and Simple -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+
+            accordionHeaders.forEach((header, index) => {
+                header.addEventListener('click', () => {
+                    // Jisme click hua hai uske parent div (accordion-item) ko pakdo
+                    const parentItem = header.parentElement;
+
+                    // Toggle active class (Ye CSS se animation trigger karega)
+                    parentItem.classList.toggle('active');
+                });
+
+                // Pehla list item default khula rakhein
+                if(index === 0) {
+                    header.parentElement.classList.add('active');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
