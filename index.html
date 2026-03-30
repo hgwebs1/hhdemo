@@ -3,24 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Master Guide - Practically Seekhein</title>
-    <!-- Google Fonts for better typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>CSS Ultimate Masterclass - 18 Systems</title>
+    <!-- Fonts for premium look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     
     <style>
         /* ==========================================================================
-           1. RESET & BASE
+           RESET & CSS VARIABLES
            ========================================================================== */
         :root {
+            --primary: #db2777; /* Pink/Magenta theme for CSS */
+            --primary-dark: #be185d;
             --bg-body: #f8fafc;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --border-color: #e2e8f0;
-            --card-bg: #ffffff;
-            --code-bg: #0f172a;
-            --code-text: #e2e8f0;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border: #cbd5e1;
+            --code-bg: #1e293b;
+            --code-text: #f8fafc;
+            
+            /* Syntax Highlighting Colors */
+            --syn-sel: #fb7185;   /* Selector */
+            --syn-prop: #38bdf8;  /* Property */
+            --syn-val: #a3e635;   /* Value */
+            --syn-com: #64748b;   /* Comment */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -30,675 +36,616 @@
             background-color: var(--bg-body);
             color: var(--text-main);
             line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
         }
 
         /* ==========================================================================
-           2. HEADER (Chhota aur Modern)
+           DYNAMIC SHRINKING HEADER
            ========================================================================== */
-        .navbar {
-            background-color: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 2rem;
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
 
-        .nav-brand {
-            font-size: 1.5rem;
-            font-weight: 700;
+        .header.scrolled {
+            padding: 0.75rem 2rem;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
             color: var(--primary);
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            transition: font-size 0.4s ease;
         }
 
-        .nav-desc {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            display: none; /* Mobile par hide */
-        }
-
-        @media (min-width: 640px) {
-            .nav-desc { display: block; }
-        }
+        .header.scrolled .logo { font-size: 1.4rem; }
+        
+        .tagline { font-weight: 600; color: var(--text-muted); font-size: 0.95rem; }
+        @media (max-width: 640px) { .tagline { display: none; } }
 
         /* ==========================================================================
-           3. MAIN CONTAINER & HERO
+           HERO SECTION
            ========================================================================== */
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
 
-        .hero-section {
+        .hero {
             text-align: center;
             margin-bottom: 3rem;
+            background: linear-gradient(135deg, #fdf2f8 0%, #f1f5f9 100%);
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            border: 1px solid #fbcfe8;
         }
 
-        .hero-section h1 {
-            font-size: 2.2rem;
-            margin-bottom: 0.5rem;
-            color: #0f172a;
-        }
-
-        .hero-section p {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
+        .hero h1 { font-size: 2.5rem; color: #1e293b; margin-bottom: 1rem; }
+        .hero p { font-size: 1.1rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 1.5rem; }
+        .rule-box { background: var(--surface); display: inline-block; padding: 1rem 2rem; border-radius: 8px; border-left: 5px solid var(--primary); font-weight: 600; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
 
         /* ==========================================================================
-           4. ACCORDION (Interactive Categories)
+           ACCORDION SYSTEM
            ========================================================================== */
-        .accordion-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-        }
+        .accordion { display: flex; flex-direction: column; gap: 1rem; }
 
-        .accordion-item {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
+        .acc-item {
+            background: var(--surface);
             border-radius: 12px;
+            border: 1px solid var(--border);
             overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
             transition: box-shadow 0.3s ease;
         }
 
-        .accordion-item:hover {
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
-        }
+        .acc-item:hover { box-shadow: 0 8px 12px rgba(0,0,0,0.05); }
 
-        .accordion-header {
+        .acc-header {
             width: 100%;
-            padding: 1.5rem 2rem;
+            padding: 1.25rem 1.5rem;
             background: transparent;
             border: none;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            text-align: left;
-            font-family: inherit;
-        }
-
-        .category-title {
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1.15rem;
+            font-weight: 700;
             color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+            font-family: inherit;
+            text-align: left;
         }
 
-        .category-icon {
-            font-size: 1.5rem;
-            background: #eff6ff;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-        }
+        .acc-icon { font-size: 1.2rem; color: var(--text-muted); transition: transform 0.4s ease; }
+        
+        .acc-item.active .acc-header { background: #fdf2f8; color: var(--primary-dark); border-bottom: 1px solid #fbcfe8; }
+        .acc-item.active .acc-icon { transform: rotate(180deg); color: var(--primary); }
 
-        .toggle-icon {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            transition: transform 0.3s ease;
-        }
-
-        /* Accordion Body */
-        .accordion-body {
+        .acc-content {
             max-height: 0;
             opacity: 0;
             overflow: hidden;
-            transition: all 0.4s ease-in-out;
-            background-color: #fafaf9; /* Halka cream shade */
+            transition: all 0.5s ease-in-out;
+            background: #fafaf9;
         }
 
-        /* Active State */
-        .accordion-item.active .accordion-body {
-            max-height: 3000px; /* Bada number taki code fit ho jaye */
+        .acc-item.active .acc-content {
+            max-height: 5000px; /* Safe limit for content */
             opacity: 1;
-            border-top: 1px solid var(--border-color);
         }
 
-        .accordion-item.active .toggle-icon {
-            transform: rotate(180deg);
-            color: var(--primary);
-        }
-
-        .accordion-item.active .accordion-header {
-            background-color: #f8fafc;
-        }
+        .acc-body { padding: 1.5rem; }
+        
+        .info-pill { background: #e2e8f0; color: #334155; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-right: 0.5rem; display: inline-block; margin-bottom: 0.5rem; }
 
         /* ==========================================================================
-           5. CONTENT LAYOUT (Grid System)
+           CODE & OUTPUT GRID
            ========================================================================== */
-        .content-padding {
-            padding: 2rem;
-        }
-
-        .topic-description {
-            font-size: 1.05rem;
-            color: var(--text-main);
-            margin-bottom: 2rem;
-            border-left: 4px solid var(--primary);
-            padding-left: 1rem;
-            background: #eff6ff;
-            padding: 1rem;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .grid-container {
+        .split-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 2rem;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
         }
+        @media (min-width: 992px) { .split-grid { grid-template-columns: 1fr 1fr; } }
 
-        @media (min-width: 992px) {
-            .grid-container {
-                grid-template-columns: 1fr 1fr; /* PC par 50-50% width */
-            }
-        }
+        .panel-title { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
 
-        .panel-title {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* Code Block Styling */
-        .code-panel pre {
-            background-color: var(--code-bg);
-            color: var(--code-text);
-            padding: 1.5rem;
-            border-radius: 8px;
-            overflow-x: auto;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        /* Code Block */
+        pre {
+            background: var(--code-bg); color: var(--code-text);
+            padding: 1.25rem; border-radius: 8px; overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6;
         }
         
-        /* Syntax highlighting simple colors */
-        .tag { color: #f43f5e; } /* Pink/Red for tags */
-        .attr { color: #a78bfa; } /* Purple for attributes */
-        .val { color: #a3e635; } /* Green for values */
-        .comment { color: #64748b; font-style: italic; }
+        .s-sel { color: var(--syn-sel); }
+        .s-prop { color: var(--syn-prop); }
+        .s-val { color: var(--syn-val); }
+        .s-com { color: var(--syn-com); font-style: italic; }
 
-        /* Output Block Styling */
-        .output-panel {
-            background-color: #ffffff;
-            border: 1px solid var(--border-color);
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        /* Live Output Block */
+        .output-box {
+            background: var(--surface); border: 1px solid var(--border);
+            padding: 1.5rem; border-radius: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            position: relative; overflow: hidden;
         }
 
-        /* ==========================================================================
-           6. CUSTOM STYLES FOR OUTPUT RENDER (Acha Dikhne Ke Liye)
-           ========================================================================== */
-        .render-box h1 { font-size: 2rem; color: #111827; margin-bottom: 0.5rem; }
-        .render-box h2 { font-size: 1.5rem; color: #374151; margin-bottom: 0.5rem; margin-top: 1rem; }
-        .render-box p { margin-bottom: 1rem; color: #4b5563; }
+        /* Demo Custom Styles inside output */
+        .demo-box { background: #38bdf8; color: white; padding: 1rem; text-align: center; border-radius: 8px; font-weight: bold; }
+        .demo-card { border: 2px solid #e2e8f0; padding: 1rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 300px; }
         
-        .render-box b, .render-box strong { font-weight: 700; color: #111827; }
-        .render-box i, .render-box em { font-style: italic; color: #4b5563; }
-        .render-box u { text-decoration: underline; text-decoration-color: var(--primary); text-underline-offset: 3px; }
-        .render-box mark { background-color: #fef08a; padding: 0.2em 0.4em; border-radius: 3px; }
-        
-        .render-box blockquote { border-left: 4px solid #cbd5e1; padding-left: 1rem; margin: 1rem 0; color: #64748b; font-style: italic; }
-        
-        .render-box a { color: var(--primary); text-decoration: none; font-weight: 500; }
-        .render-box a:hover { text-decoration: underline; }
-        
-        .render-box img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); display: block; margin: 1rem 0; }
-        
-        .render-box ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; color: #4b5563; }
-        .render-box ol { list-style-type: decimal; margin-left: 1.5rem; margin-bottom: 1rem; color: #4b5563; }
-        .render-box li { margin-bottom: 0.25rem; }
+        /* Flex & Grid Demo */
+        .flex-demo { display: flex; gap: 10px; justify-content: space-between; background: #f1f5f9; padding: 10px; border-radius: 8px; }
+        .grid-demo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #f1f5f9; padding: 10px; border-radius: 8px; }
+        .fg-item { background: var(--primary); color: white; padding: 10px; text-align: center; border-radius: 4px; font-weight: bold; }
 
-        /* Form Rendering */
-        .render-form { display: flex; flex-direction: column; gap: 1rem; background: #f8fafc; padding: 1.5rem; border-radius: 8px; border: 1px solid #e2e8f0; }
-        .form-group { display: flex; flex-direction: column; gap: 0.25rem; }
-        .render-form label { font-weight: 500; font-size: 0.9rem; color: #334155; }
-        .render-form input, .render-form select, .render-form textarea { width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.95rem; }
-        .render-form input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        .render-form button { background: var(--primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s; align-self: flex-start; }
-        .render-form button:hover { background: var(--primary-hover); }
+        /* Animation Demo */
+        .anim-box { width: 60px; height: 60px; background: #10b981; border-radius: 8px; animation: bounce 2s infinite; margin: 20px auto; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-30px) rotate(45deg); background: #3b82f6; } }
 
-        /* Table Rendering */
-        .render-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        .render-table th, .render-table td { border: 1px solid #e2e8f0; padding: 0.75rem 1rem; text-align: left; }
-        .render-table th { background-color: #f1f5f9; font-weight: 600; color: #334155; }
-        .render-table tr:nth-child(even) { background-color: #f8fafc; }
-
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-top: 2rem;
-            border-top: 1px solid var(--border-color);
-        }
     </style>
 </head>
 <body>
 
-    <!-- 1. Chhota aur Compact Header -->
-    <nav class="navbar">
-        <div class="nav-brand">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
-            HTML Master
+    <!-- Sticky Shrinking Header -->
+    <header class="header" id="main-header">
+        <div class="logo">
+            <span style="color: #1e293b;">{ }</span> CSS Master
         </div>
-        <div class="nav-desc">Zero to Hero Practical Guide</div>
-    </nav>
+        <div class="tagline">The Complete 18-Point System</div>
+    </header>
 
     <div class="container">
         
-        <!-- Hero Section -->
-        <div class="hero-section">
-            <h1>HTML Seekhne Ka Sabse Aasan Tarika</h1>
-            <p>Niche di gayi categories ko kholiye (expand karein). Har topic me real-world example aur uska code diya gaya hai taaki aap turant samajh sakein.</p>
+        <!-- Hero -->
+        <div class="hero">
+            <h1>Complete CSS System</h1>
+            <p>Aapki di gayi saari 18 categories: Core, Selectors, Flexbox, Variables, Specificity aur bahut kuch is guide me shamil hai.</p>
+            <div class="rule-box">
+                🔥 FINAL RULE: CSS ka system sirf 3 cheezon par tikka hai:<br>
+                <span style="color: var(--primary);">Selector</span> { <span style="color: #0284c7;">Property</span>: <span style="color: #16a34a;">Value</span>; }
+            </div>
         </div>
 
-        <!-- Accordion List -->
-        <div class="accordion-wrapper">
+        <!-- Accordion Container -->
+        <div class="accordion">
 
-            <!-- Category 1: Basic Structure -->
-            <div class="accordion-item">
-                <button class="accordion-header">
-                    <span class="category-title">
-                        <span class="category-icon">🏗️</span>
-                        1. Basic Structure (Dhancha Banayein)
-                    </span>
-                    <span class="toggle-icon">▼</span>
+            <!-- Topic 1: Core, Selectors & Comments -->
+            <div class="acc-item active">
+                <button class="acc-header">
+                    🧩 Points 1, 2 & 18: Core System, Selectors & Comments
+                    <span class="acc-icon">▼</span>
                 </button>
-                <div class="accordion-body">
-                    <div class="content-padding">
-                        <div class="topic-description">
-                            <b>HTML Page ka mool dhancha:</b> Kisi bhi website ki shuruaat Headings (Titles) aur Paragraphs (Detail text) se hoti hai. <code>&lt;h1&gt;</code> sabse badi heading hoti hai, aur <code>&lt;p&gt;</code> me hum aam lines likhte hain.
-                        </div>
-
-                        <div class="grid-container">
-                            <!-- Code Area -->
-                            <div class="code-panel">
+                <div class="acc-content">
+                    <div class="acc-body">
+                        <div class="info-pill">1. CSS Core</div>
+                        <div class="info-pill">2. Selectors (10-12 Types)</div>
+                        <div class="info-pill">18. Comments</div>
+                        <p style="margin-top: 10px;">CSS me <code>Selector</code> decide karta hai ki design kahan lagega. Isme Basic (*, div, .class, #id), Combinators (>, +), Attribute ([type="text"]) aur Pseudo classes (:hover, ::before) aate hain.</p>
+                        
+                        <div class="split-grid">
+                            <div>
                                 <div class="panel-title">👨‍💻 Code Dekhein</div>
-                                <pre><code><span class="comment">&lt;!-- Main Title (Sirf ek page par ek hona chahiye) --&gt;</span>
-<span class="tag">&lt;h1&gt;</span>Mera Pehla Blog Post<span class="tag">&lt;/h1&gt;</span>
+                                <pre><code><span class="s-com">/* 18. Yeh CSS ka Comment hai */</span>
 
-<span class="comment">&lt;!-- Sub-heading (Section title ke liye) --&gt;</span>
-<span class="tag">&lt;h2&gt;</span>HTML Kya Hai?<span class="tag">&lt;/h2&gt;</span>
+<span class="s-com">/* 1. Core System: Selector { Property: Value; } */</span>
+<span class="s-sel">.demo-card</span> {
+  <span class="s-prop">background-color</span>: <span class="s-val">#f8fafc</span>;
+}
 
-<span class="comment">&lt;!-- Normal Text --&gt;</span>
-<span class="tag">&lt;p&gt;</span>HTML ka matlab HyperText Markup Language hai. Yeh kisi bhi website ka 
-base ya skeleton (haddiyo ka dhancha) banane ke kaam aata hai.<span class="tag">&lt;/p&gt;</span>
+<span class="s-com">/* 2. Pseudo-class Selector (:hover) */</span>
+<span class="s-sel">.demo-btn:hover</span> {
+  <span class="s-prop">background-color</span>: <span class="s-val">#db2777</span>;
+  <span class="s-prop">color</span>: <span class="s-val">white</span>;
+}
 
-<span class="tag">&lt;h3&gt;</span>Iski Zarurat Kyun Hai?<span class="tag">&lt;/h3&gt;</span>
-<span class="tag">&lt;p&gt;</span>Bina HTML ke hum browser ko yeh nahi bata sakte ki kon si line heading hai 
-aur kon si line paragraph hai.<span class="tag">&lt;/p&gt;</span></code></pre>
+<span class="s-com">/* 2. Attribute Selector */</span>
+<span class="s-sel">input[type="text"]</span> {
+  <span class="s-prop">border</span>: <span class="s-val">2px solid blue</span>;
+}</code></pre>
                             </div>
-                            
-                            <!-- Output Area -->
-                            <div class="output-panel">
-                                <div class="panel-title">👁️ Asal Me Kaisa Dikhega</div>
-                                <div class="render-box">
-                                    <h1>Mera Pehla Blog Post</h1>
-                                    <h2>HTML Kya Hai?</h2>
-                                    <p>HTML ka matlab HyperText Markup Language hai. Yeh kisi bhi website ka base ya skeleton (haddiyo ka dhancha) banane ke kaam aata hai.</p>
-                                    <h3 style="font-size: 1.2rem; color: #374151; margin-top: 1rem;">Iski Zarurat Kyun Hai?</h3>
-                                    <p>Bina HTML ke hum browser ko yeh nahi bata sakte ki kon si line heading hai aur kon si line paragraph hai.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Category 2: Text Formatting -->
-            <div class="accordion-item">
-                <button class="accordion-header">
-                    <span class="category-title">
-                        <span class="category-icon">✍️</span>
-                        2. Text Formatting (Shabdon ko sajana)
-                    </span>
-                    <span class="toggle-icon">▼</span>
-                </button>
-                <div class="accordion-body">
-                    <div class="content-padding">
-                        <div class="topic-description">
-                            <b>Shabdon par zor daalna:</b> Normal text me agar aapko kisi word ko mota (Bold), tircha (Italic) ya uspe highlight karna ho, toh in special tags ka istemal hota hai.
-                        </div>
-
-                        <div class="grid-container">
-                            <div class="code-panel">
-                                <div class="panel-title">👨‍💻 Code Dekhein</div>
-                                <pre><code><span class="tag">&lt;p&gt;</span>
-  Yeh ek normal sentence hai jisme humne ek shabd ko 
-  <span class="tag">&lt;b&gt;</span>Mota (Bold)<span class="tag">&lt;/b&gt;</span> kiya hai.
-<span class="tag">&lt;/p&gt;</span>
-
-<span class="tag">&lt;p&gt;</span>
-  Kisine sach kaha hai: <span class="tag">&lt;br&gt;</span> <span class="comment">&lt;!-- br tag line todne ke liye --&gt;</span>
-  <span class="tag">&lt;i&gt;</span>"Koshish karne walon ki kabhi haar nahi hoti."<span class="tag">&lt;/i&gt;</span>
-<span class="tag">&lt;/p&gt;</span>
-
-<span class="tag">&lt;p&gt;</span>
-  Is document me <span class="tag">&lt;u&gt;</span>important line ko underline<span class="tag">&lt;/u&gt;</span> kiya gaya hai.
-  Aap kisi offer ko <span class="tag">&lt;mark&gt;</span>High-light (Yellow backgroud)<span class="tag">&lt;/mark&gt;</span> bhi kar sakte ho.
-<span class="tag">&lt;/p&gt;</span>
-
-<span class="comment">&lt;!-- Blockquote dusro ki kahi baat dikhane ke liye --&gt;</span>
-<span class="tag">&lt;blockquote&gt;</span>Yeh ek quote box hai, jo articles me accha lagta hai.<span class="tag">&lt;/blockquote&gt;</span></code></pre>
-                            </div>
-                            
-                            <div class="output-panel">
-                                <div class="panel-title">👁️ Asal Me Kaisa Dikhega</div>
-                                <div class="render-box">
-                                    <p>Yeh ek normal sentence hai jisme humne ek shabd ko <b>Mota (Bold)</b> kiya hai.</p>
-                                    <p>Kisine sach kaha hai: <br> <i>"Koshish karne walon ki kabhi haar nahi hoti."</i></p>
-                                    <p>Is document me <u>important line ko underline</u> kiya gaya hai. Aap kisi offer ko <mark>High-light (Yellow background)</mark> bhi kar sakte ho.</p>
-                                    <blockquote>Yeh ek quote box hai, jo articles me accha lagta hai.</blockquote>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Category 3: Links & Media -->
-            <div class="accordion-item">
-                <button class="accordion-header">
-                    <span class="category-title">
-                        <span class="category-icon">🔗</span>
-                        3. Links aur Images (Jodna aur Dikhana)
-                    </span>
-                    <span class="toggle-icon">▼</span>
-                </button>
-                <div class="accordion-body">
-                    <div class="content-padding">
-                        <div class="topic-description">
-                            <b>Internet ka main hissa:</b> <code>&lt;a&gt;</code> (Anchor) tag se hum ek page se dusre page ka link banate hain. Aur <code>&lt;img&gt;</code> tag se page par photo lagayi jaati hai.
-                        </div>
-
-                        <div class="grid-container">
-                            <div class="code-panel">
-                                <div class="panel-title">👨‍💻 Code Dekhein</div>
-                                <pre><code><span class="comment">&lt;!-- Anchor tag (Link). href attribute me URL dete hain --&gt;</span>
-<span class="tag">&lt;p&gt;</span>
-  Zada jankari ke liye humari 
-  <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="val">"https://google.com"</span> <span class="attr">target</span>=<span class="val">"_blank"</span><span class="tag">&gt;</span>Website par jayein<span class="tag">&lt;/a&gt;</span>.
-  <span class="comment">&lt;!-- target="_blank" link ko naye tab me kholta hai --&gt;</span>
-<span class="tag">&lt;/p&gt;</span>
-
-<span class="tag">&lt;h3&gt;</span>Meri Pasandeeda Photo<span class="tag">&lt;/h3&gt;</span>
-<span class="comment">&lt;!-- Image tag ka koi closing tag nahi hota.
-     src me image ka path ya URL hota hai. --&gt;</span>
-<span class="tag">&lt;img</span> 
-  <span class="attr">src</span>=<span class="val">"https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=500&q=80"</span> 
-  <span class="attr">alt</span>=<span class="val">"Laptop par coding karta hua"</span> 
-  <span class="attr">width</span>=<span class="val">"100%"</span>
-<span class="tag">&gt;</span>
-<span class="tag">&lt;p&gt;</span><span class="tag">&lt;small&gt;</span>(Upar ek image dikhayi gayi hai)<span class="tag">&lt;/small&gt;</span><span class="tag">&lt;/p&gt;</span></code></pre>
-                            </div>
-                            
-                            <div class="output-panel">
-                                <div class="panel-title">👁️ Asal Me Kaisa Dikhega</div>
-                                <div class="render-box">
-                                    <p>Zada jankari ke liye humari <a href="#" onclick="event.preventDefault(); alert('Yeh link Google naye tab me kholega!');">Website par jayein</a>.</p>
-                                    <h3 style="font-size: 1.2rem; color: #374151; margin-top: 1rem; margin-bottom: 0.5rem;">Meri Pasandeeda Photo</h3>
-                                    <!-- A real placeholder image of coding -->
-                                    <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=500&q=80" alt="Laptop par coding karta hua">
-                                    <p><small>(Upar ek image dikhayi gayi hai)</small></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Category 4: Lists -->
-            <div class="accordion-item">
-                <button class="accordion-header">
-                    <span class="category-title">
-                        <span class="category-icon">📝</span>
-                        4. Lists (Sahi Tarike Se List Banana)
-                    </span>
-                    <span class="toggle-icon">▼</span>
-                </button>
-                <div class="accordion-body">
-                    <div class="content-padding">
-                        <div class="topic-description">
-                            <b>Points me baat rakhna:</b> Bina number wali list ke liye <code>&lt;ul&gt;</code> (Unordered List) aur number wali list ke liye <code>&lt;ol&gt;</code> (Ordered List) ka use hota hai. Item jodhne ke liye <code>&lt;li&gt;</code> tag lagate hain.
-                        </div>
-
-                        <div class="grid-container">
-                            <div class="code-panel">
-                                <div class="panel-title">👨‍💻 Code Dekhein</div>
-                                <pre><code><span class="tag">&lt;h3&gt;</span>Cake Banane Ke Ingredients (Bina Number):<span class="tag">&lt;/h3&gt;</span>
-<span class="tag">&lt;ul&gt;</span>
-  <span class="tag">&lt;li&gt;</span>2 cup Maida (Flour)<span class="tag">&lt;/li&gt;</span>
-  <span class="tag">&lt;li&gt;</span>1 cup Cheeni (Sugar)<span class="tag">&lt;/li&gt;</span>
-  <span class="tag">&lt;li&gt;</span>Aadha cup Doodh (Milk)<span class="tag">&lt;/li&gt;</span>
-<span class="tag">&lt;/ul&gt;</span>
-
-<span class="tag">&lt;h3&gt;</span>Cake Banane Ki Vidhi (Steps in Numbers):<span class="tag">&lt;/h3&gt;</span>
-<span class="tag">&lt;ol&gt;</span>
-  <span class="tag">&lt;li&gt;</span>Sabse pehle oven ko garam karein.<span class="tag">&lt;/li&gt;</span>
-  <span class="tag">&lt;li&gt;</span>Saari samagri ko ek bowl me mix karein.<span class="tag">&lt;/li&gt;</span>
-  <span class="tag">&lt;li&gt;</span>Oven me 30 minute tak pakayein.<span class="tag">&lt;/li&gt;</span>
-<span class="tag">&lt;/ol&gt;</span></code></pre>
-                            </div>
-                            
-                            <div class="output-panel">
-                                <div class="panel-title">👁️ Asal Me Kaisa Dikhega</div>
-                                <div class="render-box">
-                                    <h3 style="font-size: 1.1rem; color: #111827; margin-bottom: 0.5rem;">Cake Banane Ke Ingredients (Bina Number):</h3>
-                                    <ul>
-                                        <li>2 cup Maida (Flour)</li>
-                                        <li>1 cup Cheeni (Sugar)</li>
-                                        <li>Aadha cup Doodh (Milk)</li>
-                                    </ul>
-
-                                    <h3 style="font-size: 1.1rem; color: #111827; margin-top: 1.5rem; margin-bottom: 0.5rem;">Cake Banane Ki Vidhi (Steps in Numbers):</h3>
-                                    <ol>
-                                        <li>Sabse pehle oven ko garam karein.</li>
-                                        <li>Saari samagri ko ek bowl me mix karein.</li>
-                                        <li>Oven me 30 minute tak pakayein.</li>
-                                    </ol>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Category 5: Forms (Advanced) -->
-            <div class="accordion-item">
-                <button class="accordion-header">
-                    <span class="category-title">
-                        <span class="category-icon">✉️</span>
-                        5. Forms (User Se Data Lena)
-                    </span>
-                    <span class="toggle-icon">▼</span>
-                </button>
-                <div class="accordion-body">
-                    <div class="content-padding">
-                        <div class="topic-description">
-                            <b>Contact ya Login Form:</b> <code>&lt;form&gt;</code> ke andar hum <code>&lt;input&gt;</code>, <code>&lt;select&gt;</code> aur <code>&lt;button&gt;</code> lagate hain taaki user apna naam, email ya password bhar sake.
-                        </div>
-
-                        <div class="grid-container">
-                            <div class="code-panel">
-                                <div class="panel-title">👨‍💻 Code Dekhein</div>
-                                <pre><code><span class="tag">&lt;form</span> <span class="attr">action</span>=<span class="val">"/submit"</span><span class="tag">&gt;</span>
-  <span class="comment">&lt;!-- Text Input --&gt;</span>
-  <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="val">"name"</span><span class="tag">&gt;</span>Aapka Pura Naam:<span class="tag">&lt;/label&gt;</span>
-  <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="val">"text"</span> <span class="attr">id</span>=<span class="val">"name"</span> <span class="attr">placeholder</span>=<span class="val">"Jaise: Rahul Kumar"</span> <span class="attr">required</span><span class="tag">&gt;</span>
-
-  <span class="comment">&lt;!-- Email Input --&gt;</span>
-  <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="val">"email"</span><span class="tag">&gt;</span>Email Address:<span class="tag">&lt;/label&gt;</span>
-  <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="val">"email"</span> <span class="attr">id</span>=<span class="val">"email"</span> <span class="attr">placeholder</span>=<span class="val">"abc@example.com"</span><span class="tag">&gt;</span>
-
-  <span class="comment">&lt;!-- Dropdown (Select) --&gt;</span>
-  <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="val">"course"</span><span class="tag">&gt;</span>Course Chunein:<span class="tag">&lt;/label&gt;</span>
-  <span class="tag">&lt;select</span> <span class="attr">id</span>=<span class="val">"course"</span><span class="tag">&gt;</span>
-    <span class="tag">&lt;option</span> <span class="attr">value</span>=<span class="val">"html"</span><span class="tag">&gt;</span>HTML Sikhe<span class="tag">&lt;/option&gt;</span>
-    <span class="tag">&lt;option</span> <span class="attr">value</span>=<span class="val">"css"</span><span class="tag">&gt;</span>CSS Sikhe<span class="tag">&lt;/option&gt;</span>
-  <span class="tag">&lt;/select&gt;</span>
-
-  <span class="comment">&lt;!-- Submit Button --&gt;</span>
-  <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="val">"submit"</span><span class="tag">&gt;</span>Form Jama Karein<span class="tag">&lt;/button&gt;</span>
-<span class="tag">&lt;/form&gt;</span></code></pre>
-                            </div>
-                            
-                            <div class="output-panel">
-                                <div class="panel-title">👁️ Asal Me Kaisa Dikhega</div>
-                                <!-- Is form class me acchi styling lagayi hai uper CSS me -->
-                                <form class="render-form" onsubmit="event.preventDefault(); alert('Badhai Ho! Aapka form submit ho gaya.');">
-                                    <div class="form-group">
-                                        <label for="demo-name">Aapka Pura Naam:</label>
-                                        <input type="text" id="demo-name" placeholder="Jaise: Rahul Kumar" required>
+                            <div>
+                                <div class="panel-title">👁️ Live Output</div>
+                                <div class="output-box">
+                                    <div class="demo-card" style="background:#f8fafc; margin:0 auto; text-align:center;">
+                                        <h3 style="margin-bottom: 10px;">User Card</h3>
+                                        <input type="text" placeholder="Attribute Selector" style="border: 2px solid blue; padding: 5px; width: 100%; margin-bottom:10px; border-radius:4px; outline:none;">
+                                        <button class="demo-btn" style="padding: 8px 16px; border: 1px solid #db2777; border-radius: 4px; cursor:pointer; font-weight:bold; transition: 0.3s; background: transparent; color: #db2777;" onmouseover="this.style.background='#db2777'; this.style.color='white';" onmouseout="this.style.background='transparent'; this.style.color='#db2777';">Hover Me!</button>
                                     </div>
-
-                                    <div class="form-group">
-                                        <label for="demo-email">Email Address:</label>
-                                        <input type="email" id="demo-email" placeholder="abc@example.com" required>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="demo-course">Course Chunein:</label>
-                                        <select id="demo-course">
-                                            <option value="html">HTML Sikhe</option>
-                                            <option value="css">CSS Sikhe</option>
-                                            <option value="js">JavaScript Sikhe</option>
-                                        </select>
-                                    </div>
-
-                                    <button type="submit">Form Jama Karein</button>
-                                </form>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Category 6: Tables -->
-            <div class="accordion-item">
-                <button class="accordion-header">
-                    <span class="category-title">
-                        <span class="category-icon">📊</span>
-                        6. Tables (Data in Rows & Columns)
-                    </span>
-                    <span class="toggle-icon">▼</span>
+            <!-- Topic 2: Box Model, Typography & Shorthands -->
+            <div class="acc-item">
+                <button class="acc-header">
+                    📦 Points 3.4-3.7 & 13: Box Model, Typography & Shorthands
+                    <span class="acc-icon">▼</span>
                 </button>
-                <div class="accordion-body">
-                    <div class="content-padding">
-                        <div class="topic-description">
-                            <b>Data ko Excel format me dikhana:</b> <code>&lt;table&gt;</code> ke andar hum <code>&lt;tr&gt;</code> (Table Row) aur <code>&lt;td&gt;</code> (Table Data) ka use karke box format me data show karte hain.
-                        </div>
-
-                        <div class="grid-container">
-                            <div class="code-panel">
+                <div class="acc-content">
+                    <div class="acc-body">
+                        <div class="info-pill">3.4 Box Model</div>
+                        <div class="info-pill">3.5 Typography</div>
+                        <div class="info-pill">3.6 Background</div>
+                        <div class="info-pill">13. Shorthand Properties</div>
+                        <p style="margin-top: 10px;">Har element ek box hota hai (Margin, Border, Padding, Content). Hum Text (color, font-size) aur Backgrounds ko bhi design kar sakte hain. Shorthand property se code chhota ho jata hai (e.g., <code>margin: 10px 20px;</code>).</p>
+                        
+                        <div class="split-grid">
+                            <div>
                                 <div class="panel-title">👨‍💻 Code Dekhein</div>
-                                <pre><code><span class="tag">&lt;table</span> <span class="attr">border</span>=<span class="val">"1"</span><span class="tag">&gt;</span>
-  <span class="comment">&lt;!-- Table Header (Upar ki main line) --&gt;</span>
-  <span class="tag">&lt;tr&gt;</span>
-    <span class="tag">&lt;th&gt;</span>Roll No.<span class="tag">&lt;/th&gt;</span>
-    <span class="tag">&lt;th&gt;</span>Student ka Naam<span class="tag">&lt;/th&gt;</span>
-    <span class="tag">&lt;th&gt;</span>Marks<span class="tag">&lt;/th&gt;</span>
-  <span class="tag">&lt;/tr&gt;</span>
+                                <pre><code><span class="s-sel">.box-model-demo</span> {
+  <span class="s-com">/* 3.4 Box Model */</span>
+  <span class="s-prop">width</span>: <span class="s-val">100%</span>;
+  <span class="s-prop">box-sizing</span>: <span class="s-val">border-box</span>;
   
-  <span class="comment">&lt;!-- Pehli Row (Data) --&gt;</span>
-  <span class="tag">&lt;tr&gt;</span>
-    <span class="tag">&lt;td&gt;</span>101<span class="tag">&lt;/td&gt;</span>
-    <span class="tag">&lt;td&gt;</span>Aman Sharma<span class="tag">&lt;/td&gt;</span>
-    <span class="tag">&lt;td&gt;</span>85%<span class="tag">&lt;/td&gt;</span>
-  <span class="tag">&lt;/tr&gt;</span>
+  <span class="s-com">/* 13. Shorthand (Margin, Padding, Border) */</span>
+  <span class="s-prop">padding</span>: <span class="s-val">20px 15px</span>;
+  <span class="s-prop">border</span>: <span class="s-val">3px dashed #db2777</span>;
   
-  <span class="comment">&lt;!-- Dusri Row (Data) --&gt;</span>
-  <span class="tag">&lt;tr&gt;</span>
-    <span class="tag">&lt;td&gt;</span>102<span class="tag">&lt;/td&gt;</span>
-    <span class="tag">&lt;td&gt;</span>Priya Singh<span class="tag">&lt;/td&gt;</span>
-    <span class="tag">&lt;td&gt;</span>92%<span class="tag">&lt;/td&gt;</span>
-  <span class="tag">&lt;/tr&gt;</span>
-<span class="tag">&lt;/table&gt;</span></code></pre>
+  <span class="s-com">/* 3.5 Typography */</span>
+  <span class="s-prop">font-family</span>: <span class="s-val">Arial, sans-serif</span>;
+  <span class="s-prop">text-align</span>: <span class="s-val">center</span>;
+  <span class="s-prop">letter-spacing</span>: <span class="s-val">2px</span>;
+  <span class="s-prop">text-transform</span>: <span class="s-val">uppercase</span>;
+
+  <span class="s-com">/* 3.6 Background & 3.7 Effects */</span>
+  <span class="s-prop">background</span>: <span class="s-val">linear-gradient(90deg, #ffe4e6, #e0f2fe)</span>;
+  <span class="s-prop">border-radius</span>: <span class="s-val">10px</span>;
+  <span class="s-prop">box-shadow</span>: <span class="s-val">0 5px 15px rgba(0,0,0,0.1)</span>;
+}</code></pre>
                             </div>
-                            
-                            <div class="output-panel" style="overflow-x: auto;">
-                                <div class="panel-title">👁️ Asal Me Kaisa Dikhega</div>
-                                <table class="render-table">
-                                    <tr>
-                                        <th>Roll No.</th>
-                                        <th>Student ka Naam</th>
-                                        <th>Marks</th>
-                                    </tr>
-                                    <tr>
-                                        <td>101</td>
-                                        <td>Aman Sharma</td>
-                                        <td>85%</td>
-                                    </tr>
-                                    <tr>
-                                        <td>102</td>
-                                        <td>Priya Singh</td>
-                                        <td>92%</td>
-                                    </tr>
-                                    <tr>
-                                        <td>103</td>
-                                        <td>Vikram Jadhav</td>
-                                        <td>78%</td>
-                                    </tr>
-                                </table>
+                            <div>
+                                <div class="panel-title">👁️ Live Output</div>
+                                <div class="output-box">
+                                    <div style="width: 100%; box-sizing: border-box; padding: 20px 15px; border: 3px dashed #db2777; font-family: Arial, sans-serif; text-align: center; letter-spacing: 2px; text-transform: uppercase; background: linear-gradient(90deg, #ffe4e6, #e0f2fe); border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); font-weight: bold; color: #1e293b;">
+                                        Box Model & Typography Magic
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-        </div> <!-- End of Accordion -->
+            <!-- Topic 3: Layouts, Display & Position -->
+            <div class="acc-item">
+                <button class="acc-header">
+                    📐 Points 3.1, 7-10: Display, Position, Overflow & Z-Index
+                    <span class="acc-icon">▼</span>
+                </button>
+                <div class="acc-content">
+                    <div class="acc-body">
+                        <div class="info-pill">3.1 Layouts</div>
+                        <div class="info-pill">7. Display Types</div>
+                        <div class="info-pill">8. Position</div>
+                        <div class="info-pill">9. Overflow</div>
+                        <div class="info-pill">10. Z-Index System</div>
+                        <p style="margin-top: 10px;">Display (block, inline) element ka nature tay karta hai. Position (relative, absolute, fixed, sticky) uski jagah. Z-index (layer) aur Overflow (scroll/hidden) bahar nikalne wale content ko control karte hain.</p>
+                        
+                        <div class="split-grid">
+                            <div>
+                                <div class="panel-title">👨‍💻 Code Dekhein</div>
+                                <pre><code><span class="s-sel">.container</span> {
+  <span class="s-prop">width</span>: <span class="s-val">100%</span>;
+  <span class="s-prop">height</span>: <span class="s-val">150px</span>;
+  <span class="s-prop">border</span>: <span class="s-val">2px solid #ccc</span>;
+  
+  <span class="s-com">/* 9. Overflow Type */</span>
+  <span class="s-prop">overflow</span>: <span class="s-val">scroll</span>;
+  
+  <span class="s-com">/* 8. Position Type */</span>
+  <span class="s-prop">position</span>: <span class="s-val">relative</span>;
+}
 
-    </div> <!-- End of Container -->
+<span class="s-sel">.floating-badge</span> {
+  <span class="s-prop">position</span>: <span class="s-val">absolute</span>;
+  <span class="s-prop">top</span>: <span class="s-val">10px</span>;
+  <span class="s-prop">right</span>: <span class="s-val">10px</span>;
+  <span class="s-com">/* 10. Z-index System */</span>
+  <span class="s-prop">z-index</span>: <span class="s-val">999</span>;
+  <span class="s-com">/* 7. Display Type */</span>
+  <span class="s-prop">display</span>: <span class="s-val">inline-block</span>;
+}</code></pre>
+                            </div>
+                            <div>
+                                <div class="panel-title">👁️ Live Output</div>
+                                <div class="output-box" style="padding: 0;">
+                                    <div style="width: 100%; height: 150px; background: #f8fafc; border: 2px solid #cbd5e1; overflow: auto; position: relative; border-radius: 8px;">
+                                        <div style="position: absolute; top: 10px; right: 10px; z-index: 999; display: inline-block; background: #ef4444; color: white; padding: 4px 10px; font-size: 0.8rem; border-radius: 20px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">Absolute Badge</div>
+                                        <div style="padding: 20px;">
+                                            <p>Scroll karke dekhein...</p><br><p>Content bahar nikal raha tha isliye <b>overflow: scroll</b> lagaya.</p><br><p>Aur badge hamesha top-right me <b>absolute</b> position par rahega.</p><br><p>Iska <b>z-index</b> sabse upar hai.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <footer>
-        &copy; 2026 HTML Master Guide. Khubsurat Vanilla CSS ke sath banayi gayi hai. <br>
-        <span style="font-size: 0.8rem; opacity: 0.7;">Clicking logic made purely with JavaScript without freezing the browser.</span>
-    </footer>
+            <!-- Topic 4: Flexbox & Grid -->
+            <div class="acc-item">
+                <button class="acc-header">
+                    🚀 Points 3.2 & 3.3: Modern Layouts (Flexbox & Grid)
+                    <span class="acc-icon">▼</span>
+                </button>
+                <div class="acc-content">
+                    <div class="acc-body">
+                        <div class="info-pill">3.2 Flexbox</div>
+                        <div class="info-pill">3.3 Grid</div>
+                        <p style="margin-top: 10px;">Flexbox single line (Row/Column) alignment ke liye best hai. Jabki CSS Grid ek sath Rows aur Columns (2D layout) dono banane ke liye sabse powerful system hai.</p>
+                        
+                        <div class="split-grid">
+                            <div>
+                                <div class="panel-title">👨‍💻 Code Dekhein</div>
+                                <pre><code><span class="s-com">/* 3.2 FLEXBOX (1D Layout) */</span>
+<span class="s-sel">.flex-box</span> {
+  <span class="s-prop">display</span>: <span class="s-val">flex</span>;
+  <span class="s-prop">justify-content</span>: <span class="s-val">space-between</span>;
+  <span class="s-prop">align-items</span>: <span class="s-val">center</span>;
+  <span class="s-prop">gap</span>: <span class="s-val">10px</span>;
+}
 
-    <!-- JavaScript - Bug-free, Smooth and Simple -->
+<span class="s-com">/* 3.3 GRID (2D Layout) */</span>
+<span class="s-sel">.grid-box</span> {
+  <span class="s-prop">display</span>: <span class="s-val">grid</span>;
+  <span class="s-prop">grid-template-columns</span>: <span class="s-val">repeat(3, 1fr)</span>;
+  <span class="s-prop">gap</span>: <span class="s-val">10px</span>;
+}</code></pre>
+                            </div>
+                            <div>
+                                <div class="panel-title">👁️ Live Output</div>
+                                <div class="output-box">
+                                    <h4 style="margin-bottom: 5px; color:#475569;">Flexbox (Space-between)</h4>
+                                    <div class="flex-demo">
+                                        <div class="fg-item">Item 1</div>
+                                        <div class="fg-item" style="background: #3b82f6;">Item 2</div>
+                                        <div class="fg-item">Item 3</div>
+                                    </div>
+
+                                    <h4 style="margin-top: 15px; margin-bottom: 5px; color:#475569;">Grid (3 Columns - 1fr)</h4>
+                                    <div class="grid-demo">
+                                        <div class="fg-item">1</div>
+                                        <div class="fg-item">2</div>
+                                        <div class="fg-item">3</div>
+                                        <div class="fg-item">4</div>
+                                        <div class="fg-item" style="grid-column: span 2; background:#f59e0b;">Span 2 Cols</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Topic 5: Values, Units & Variables -->
+            <div class="acc-item">
+                <button class="acc-header">
+                    📏 Points 4, 11 & 3.10: Value Types, Units & Variables
+                    <span class="acc-icon">▼</span>
+                </button>
+                <div class="acc-content">
+                    <div class="acc-body">
+                        <div class="info-pill">4. Value Types</div>
+                        <div class="info-pill">11. Units System</div>
+                        <div class="info-pill">3.10 Custom Properties</div>
+                        <p style="margin-top: 10px;">CSS me 15+ value types hote hain (Colors: HEX, RGB; Units: px, %, em, vh). <b>Variables (--var)</b> CSS ka sabse powerful feature hai jo unlimited (open-ended) values store karne me madad karta hai.</p>
+                        
+                        <div class="split-grid">
+                            <div>
+                                <div class="panel-title">👨‍💻 Code Dekhein</div>
+                                <pre><code><span class="s-com">/* 3.10 Variables (Root me define karein) */</span>
+<span class="s-sel">:root</span> {
+  <span class="s-prop">--main-color</span>: <span class="s-val">#8b5cf6</span>; <span class="s-com">/* HEX Color */</span>
+  <span class="s-prop">--box-width</span>: <span class="s-val">80%</span>;   <span class="s-com">/* Relative Unit */</span>
+}
+
+<span class="s-sel">.custom-box</span> {
+  <span class="s-com">/* Variable ko use karna */</span>
+  <span class="s-prop">background-color</span>: <span class="s-val">var(--main-color)</span>;
+  
+  <span class="s-com">/* 11. Units (vw = viewport width) */</span>
+  <span class="s-prop">width</span>: <span class="s-val">var(--box-width)</span>;
+  <span class="s-prop">padding</span>: <span class="s-val">2rem</span>; <span class="s-com">/* Relative Unit */</span>
+  <span class="s-prop">border-radius</span>: <span class="s-val">10px</span>; <span class="s-com">/* Absolute Unit */</span>
+  <span class="s-prop">color</span>: <span class="s-val">rgba(255, 255, 255, 0.9)</span>; <span class="s-com">/* RGB Color */</span>
+}</code></pre>
+                            </div>
+                            <div>
+                                <div class="panel-title">👁️ Live Output</div>
+                                <div class="output-box">
+                                    <div style="background-color: #8b5cf6; width: 80%; padding: 2rem; border-radius: 10px; color: rgba(255,255,255,0.9); margin: 0 auto; text-align: center; font-weight: bold; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(139, 92, 246, 0.4);">
+                                        Styled using var(--main-color)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Topic 6: Functions, At-Rules & !important -->
+            <div class="acc-item">
+                <button class="acc-header">
+                    ⚙️ Points 5, 6, 3.9 & 14: Functions, At-Rules & !important
+                    <span class="acc-icon">▼</span>
+                </button>
+                <div class="acc-content">
+                    <div class="acc-body">
+                        <div class="info-pill">5. CSS Functions</div>
+                        <div class="info-pill">6. At-Rules</div>
+                        <div class="info-pill">3.9 Media Queries</div>
+                        <div class="info-pill">14. !important</div>
+                        <p style="margin-top: 10px;">CSS ab ek math engine bhi hai! <code>calc()</code> aur <code>clamp()</code> functions screen ke hisaab se calculation karte hain. <code>@media</code> At-rule website ko mobile-friendly banata hai. Aur <code>!important</code> rules override karne ke kaam aata hai.</p>
+                        
+                        <div class="split-grid">
+                            <div>
+                                <div class="panel-title">👨‍💻 Code Dekhein</div>
+                                <pre><code><span class="s-sel">.responsive-text</span> {
+  <span class="s-com">/* 5. Functions (clamp: min, ideal, max) */</span>
+  <span class="s-prop">font-size</span>: <span class="s-val">clamp(1rem, 2.5vw, 2rem)</span>;
+  
+  <span class="s-com">/* calc() function */</span>
+  <span class="s-prop">width</span>: <span class="s-val">calc(100% - 40px)</span>;
+}
+
+<span class="s-com">/* 6. At-Rules & 3.9 Media Query */</span>
+<span class="s-sel">@media (max-width: 768px)</span> {
+  <span class="s-sel">.responsive-text</span> {
+    <span class="s-com">/* 14. !important Rule */</span>
+    <span class="s-prop">color</span>: <span class="s-val">red !important</span>;
+  }
+}</code></pre>
+                            </div>
+                            <div>
+                                <div class="panel-title">👁️ Live Output</div>
+                                <div class="output-box">
+                                    <div style="width: calc(100% - 40px); margin: 0 auto; background: #e2e8f0; padding: 10px; border-radius: 6px; text-align: center;">
+                                        <p style="font-size: clamp(1rem, 2.5vw, 2rem); font-weight: bold; color: #334155; margin: 0;">Resize the screen!</p>
+                                        <p style="font-size: 0.85rem; margin-top: 5px;">Mera size <b>clamp()</b> function se screen ke hisaab se badlega, aur width <b>calc()</b> se 40px kam rahegi.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Topic 7: Specificity, Cascade & Inheritance -->
+            <div class="acc-item">
+                <button class="acc-header">
+                    🔄 Points 15, 16 & 17: Specificity, Cascade & Inheritance
+                    <span class="acc-icon">▼</span>
+                </button>
+                <div class="acc-content">
+                    <div class="acc-body">
+                        <div class="info-pill">15. Specificity System</div>
+                        <div class="info-pill">16. Cascade System</div>
+                        <div class="info-pill">17. Inheritance</div>
+                        <p style="margin-top: 10px;"><b>Specificity</b>: Inline > ID > Class > Element. <b>Cascade</b>: Agar power same hai, toh jo CSS baad me (niche) likhi hai wo jeetegi. <b>Inheritance</b>: Color parent se child me aata hai, par margin/padding nahi aata.</p>
+                        
+                        <div class="split-grid">
+                            <div>
+                                <div class="panel-title">👨‍💻 Code Dekhein</div>
+                                <pre><code><span class="s-com">/* 17. Inheritance Example */</span>
+<span class="s-sel">.parent</span> { <span class="s-prop">color</span>: <span class="s-val">blue</span>; }
+<span class="s-com">/* Child me bhi text blue ho jayega */</span>
+
+<span class="s-com">/* 16. Cascade Example */</span>
+<span class="s-sel">p</span> { <span class="s-prop">color</span>: <span class="s-val">red</span>; }
+<span class="s-sel">p</span> { <span class="s-prop">color</span>: <span class="s-val">green</span>; } <span class="s-com">/* Last rule wins (Green) */</span>
+
+<span class="s-com">/* 15. Specificity Example */</span>
+<span class="s-sel">#myId</span> { <span class="s-prop">color</span>: <span class="s-val">purple</span>; } <span class="s-com">/* ID ki power Class se jyada hai */</span>
+<span class="s-sel">.myClass</span> { <span class="s-prop">color</span>: <span class="s-val">orange</span>; }</code></pre>
+                            </div>
+                            <div>
+                                <div class="panel-title">👁️ Live Output</div>
+                                <div class="output-box">
+                                    <div style="color: blue; border: 1px solid #ccc; padding: 10px; border-radius: 4px;">
+                                        Parent (Blue Color)
+                                        <div style="margin-top: 10px; padding: 10px; background: #f8fafc; font-weight: bold;">
+                                            Main Child hu, maine Parent ka 'color' <b>Inherit</b> kiya hai.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Topic 8: Animations & Transform -->
+            <div class="acc-item">
+                <button class="acc-header">
+                    🎬 Point 3.8: Transform, Transition & Animation
+                    <span class="acc-icon">▼</span>
+                </button>
+                <div class="acc-content">
+                    <div class="acc-body">
+                        <div class="info-pill">3.8 Transform & Animation</div>
+                        <div class="info-pill">@keyframes (At-Rule)</div>
+                        <p style="margin-top: 10px;">CSS me motion dalne ke 3 tarike: <b>Transform</b> (rotate, scale karna), <b>Transition</b> (smooth hover effect), aur <b>Animation / @keyframes</b> (looping continuous motion).</p>
+                        
+                        <div class="split-grid">
+                            <div>
+                                <div class="panel-title">👨‍💻 Code Dekhein</div>
+                                <pre><code><span class="s-sel">.bouncing-ball</span> {
+  <span class="s-prop">width</span>: <span class="s-val">60px</span>; <span class="s-prop">height</span>: <span class="s-val">60px</span>;
+  <span class="s-prop">background</span>: <span class="s-val">#10b981</span>;
+  <span class="s-prop">border-radius</span>: <span class="s-val">10px</span>;
+  
+  <span class="s-com">/* Animation Property */</span>
+  <span class="s-prop">animation</span>: <span class="s-val">bounce 2s infinite</span>;
+}
+
+<span class="s-com">/* @keyframes rule */</span>
+<span class="s-sel">@keyframes bounce</span> {
+  <span class="s-val">0%, 100%</span> { <span class="s-prop">transform</span>: <span class="s-val">translateY(0)</span>; }
+  <span class="s-val">50%</span> { 
+    <span class="s-prop">transform</span>: <span class="s-val">translateY(-30px) rotate(45deg)</span>;
+    <span class="s-prop">background</span>: <span class="s-val">#3b82f6</span>; 
+  }
+}</code></pre>
+                            </div>
+                            <div>
+                                <div class="panel-title">👁️ Live Output</div>
+                                <div class="output-box" style="display: flex; justify-content: center; align-items: center; min-height: 150px;">
+                                    <div class="anim-box"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- End Accordion -->
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const accordionHeaders = document.querySelectorAll('.accordion-header');
-
-            accordionHeaders.forEach((header, index) => {
-                header.addEventListener('click', () => {
-                    // Jisme click hua hai uske parent div (accordion-item) ko pakdo
-                    const parentItem = header.parentElement;
-
-                    // Toggle active class (Ye CSS se animation trigger karega)
-                    parentItem.classList.toggle('active');
-                });
-
-                // Pehla list item default khula rakhein
-                if(index === 0) {
-                    header.parentElement.classList.add('active');
+            // 1. HEADER SHRINK EFFECT (Scroll Magic)
+            const header = document.getElementById('main-header');
+            
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 40) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
                 }
+            });
+
+            // 2. ACCORDION LOGIC (Pure CSS Height Transition)
+            const accHeaders = document.querySelectorAll('.acc-header');
+
+            accHeaders.forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const item = btn.parentElement;
+                    const isActive = item.classList.contains('active');
+
+                    // Pehle saare close karne ke liye (Optional, Abhi main isse open rakh raha hu taaki user compare kar sake)
+                    // document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('active'));
+
+                    if (!isActive) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
             });
         });
     </script>
