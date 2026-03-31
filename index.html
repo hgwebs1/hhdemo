@@ -74,13 +74,24 @@
         .settings-inner h4 { margin-bottom: 10px; font-size: 0.95rem; border-bottom: 2px solid #bfdbfe; padding-bottom: 5px; color: #1e40af;}
         .settings-inner label { display: block; margin-bottom: 8px; font-size: 0.9rem; cursor: pointer; font-weight: 500; }
 
-        /* --- Overlay for Sidebar --- */
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1999; }
-        .overlay.active { display: block; }
+        /* --- Overlay for Sidebar (Smooth Fade-in) --- */
+        .overlay { 
+            visibility: hidden; opacity: 0; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.5); z-index: 1999; 
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .overlay.active { visibility: visible; opacity: 1; }
 
-        /* --- Sidebar (Left) --- */
-        .sidebar { position: fixed; top: 0; left: -320px; width: 300px; height: 100%; background: white; z-index: 2000; transition: left 0.3s ease; box-shadow: 4px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
-        .sidebar.active { left: 0; }
+        /* --- Sidebar (Left - Smooth Transform Slide) --- */
+        .sidebar { 
+            position: fixed; top: 0; left: 0; width: 300px; height: 100%; 
+            background: white; z-index: 2000; 
+            transform: translateX(-320px); /* Hardware accelerated translation */
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth easing */
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; 
+        }
+        .sidebar.active { transform: translateX(0); }
         .sidebar-header { padding: 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;}
         .sidebar-header h2 { font-size: 1.4rem; color: #3b82f6; }
         body.dark-mode .sidebar-header h2 { color: #60a5fa; }
@@ -112,7 +123,6 @@
             display: flex; justify-content: flex-end; align-items: center; min-height: 40px;
         }
         
-        /* Normal Local Search Box */
         .local-search-box { 
             display: flex; align-items: center; background: white; border: 1px solid #d1d5db; 
             border-radius: 20px; padding: 4px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
@@ -122,9 +132,8 @@
         .local-search-box input { border: none; outline: none; padding: 6px 0; background: transparent; color: inherit; font-family: inherit; width: 100%;}
         .local-search-box button { background: none; border: none; cursor: pointer; color: #6b7280; font-size: 1rem; padding-left: 5px;}
         
-        /* Fixed Search Navigation Bar (Top Fix) */
         .search-nav-bar { 
-            display: none; align-items: center; justify-content: center; /* Details center mein rahenge */
+            display: none; align-items: center; justify-content: center; 
             background: white; border-bottom: 2px solid #3b82f6; 
             padding: 10px 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
             gap: 15px; font-size: 1rem; font-weight: 600; color: #1f2937;
@@ -136,7 +145,6 @@
         .search-nav-bar button:hover { background: #dbeafe; transform: scale(1.1);}
         body.dark-mode .search-nav-bar button:hover { background: #475569; }
         
-        /* Match Case Checkbox - Ekdum Left */
         .match-case-label {
             position: absolute; left: 15px;
             display: flex; align-items: center; gap: 6px;
@@ -144,7 +152,6 @@
         }
         .match-case-label input[type="checkbox"] { cursor: pointer; accent-color: #3b82f6; width: 16px; height: 16px;}
 
-        /* Cross icon - Ekdum Right kone par */
         .search-nav-bar #searchClearBtn { 
             background: #fee2e2; color: #ef4444; 
             position: absolute; right: 15px; 
@@ -388,22 +395,21 @@
         // --- 1. Initialization & State ---
         let isLiveUpdate = true;
         let isWrapped = false; 
-        let isCaseSensitive = false; // By default off
+        let isCaseSensitive = false;
 
-        // Sync Checkboxes
         const matchCaseLocal = document.getElementById('matchCaseLocal');
         const matchCaseGlobal = document.getElementById('matchCaseGlobal');
 
         matchCaseLocal.addEventListener('change', (e) => {
             isCaseSensitive = e.target.checked;
             matchCaseGlobal.checked = isCaseSensitive;
-            triggerLocalSearch(document.getElementById('localSearchInput').value); // Live update
+            triggerLocalSearch(document.getElementById('localSearchInput').value);
         });
 
         matchCaseGlobal.addEventListener('change', (e) => {
             isCaseSensitive = e.target.checked;
             matchCaseLocal.checked = isCaseSensitive;
-            triggerGlobalSearch(); // Live update
+            triggerGlobalSearch();
         });
 
         function initTheoryAndTitles() {
@@ -494,7 +500,6 @@
             query = query.trim();
             const activeTopic = document.querySelector('.topic-content.active');
             
-            // Restore Original HTML
             activeTopic.querySelectorAll('.acc-title, .theory-text').forEach(el => {
                 el.innerHTML = el.getAttribute('data-original-raw');
             });
