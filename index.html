@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coding Notebook</title>
     
+    <meta name="theme-color" content="#3b82f6" id="metaThemeColor">
+    
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/darcula.min.css">
@@ -24,7 +26,7 @@
         body.dark-mode .accordion-btn:hover { background-color: #334155; }
         body.dark-mode .accordion-item.active .accordion-btn { background-color: #1e293b; color: #94a3b8 !important; border-bottom: 1px solid #334155; }
         body.dark-mode .accordion-content { background-color: #0f172a; }
-        body.dark-mode .output-box { background: #1e293b; border: 2px solid #475569; color: #e5e7eb; }
+        body.dark-mode iframe.output-box { border: 2px solid #475569; }
         body.dark-mode h3 { color: #f3f4f6; }
         body.dark-mode .sidebar { background: #1e293b; border-right: 1px solid #334155; color: #e5e7eb; }
         body.dark-mode .sidebar-topic { color: #cbd5e1; }
@@ -34,16 +36,19 @@
         body.dark-mode .menu-item:hover { background: #334155; }
         body.dark-mode .settings-inner { background: #0f172a; border: 1px solid #334155; }
         body.dark-mode .settings-inner label, body.dark-mode .settings-inner h4 { color: #cbd5e1; }
-        body.dark-mode .settings-inner select { background-color: #374151; color: #f9fafb; border-color: #4b5563; } 
-        body.dark-mode .settings-inner select option { background-color: #1f2937; color: #f9fafb; }
         body.dark-mode .search-result-item { background: #334155; border-color: #475569; }
         body.dark-mode .match-case-label { color: #cbd5e1; }
 
-        /* --- Header (Perfectly Aligned) --- */
+        /* Settings Menu Dropdown UI Update */
+        .mode-selector-dropdown { width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; color: #374151; outline: none; cursor:pointer; background: #fff; }
+        body.dark-mode .mode-selector-dropdown { background-color: #374151; color: #f9fafb; border-color: #4b5563; }
+        body.dark-mode .mode-selector-dropdown option { background-color: #1f2937; color: #f9fafb; }
+
+        /* --- Header (Perfect Alignment) --- */
         .header { 
             background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); 
             color: white; 
-            padding: 0.8rem 1rem 0.6rem 1rem; 
+            padding: 0.8rem 1rem 0.5rem 1rem; 
             display: flex; 
             flex-direction: column;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
@@ -52,11 +57,15 @@
         .header-main-line {
             display: flex;
             justify-content: space-between;
-            align-items: center; /* Ekdum seedhi line me lane ke liye */
+            align-items: center; 
             width: 100%;
+            height: 40px; 
         }
+        .header-left, .header-right { width: 40px; display: flex; align-items: center; }
+        .header-right { justify-content: flex-end; }
+        
         .main-title { 
-            font-size: 1.6rem !important; /* Mobile me ek line me fit hone ke liye */
+            font-size: 1.45rem !important; 
             font-weight: 700 !important;
             line-height: 1; 
             margin: 0; 
@@ -65,22 +74,26 @@
             cursor: pointer;
             text-align: center;
             flex-grow: 1; 
+            transition: transform 0.2s;
         }
+        .main-title:hover { transform: scale(1.02); }
+        
         .header-badge-line {
             display: flex;
             justify-content: center;
             width: 100%;
-            margin-top: 5px; /* Title ke theek neeche */
+            margin-top: 4px; 
+            margin-bottom: 2px;
             cursor: pointer;
         }
         #modeDisplay {
             font-size: 0.65rem; 
             font-weight: 700; 
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             color: #fde047; 
             background-color: rgba(0, 0, 0, 0.25); 
-            padding: 3px 14px;
-            border-radius: 15px;
+            padding: 2px 10px;
+            border-radius: 12px;
             text-transform: uppercase;
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
             line-height: 1;
@@ -89,7 +102,7 @@
         .icon-btn:hover { transform: scale(1.1); }
 
         /* --- Three Dot Menu --- */
-        .more-menu-container { position: relative; display: flex; align-items: center; justify-content: flex-end;}
+        .more-menu-container { position: relative; }
         .more-menu-panel { display: none; position: absolute; top: 40px; right: 0; background: white; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); z-index: 1500; min-width: 220px; overflow: hidden; border: 1px solid #e5e7eb; color: #1f2937; text-align: left;}
         .more-menu-panel.active { display: block; }
         .menu-item { padding: 12px 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500; border-bottom: 1px solid #e5e7eb; transition: background 0.2s; }
@@ -159,20 +172,13 @@
         .search-match.active-match { background-color: #f97316 !important; color: white !important; box-shadow: none !important; }
         body.dark-mode .search-match.active-match { background-color: #ea580c !important; color: white !important; box-shadow: none !important; }
 
-        /* --- Container & Accordion (IMPORTANT! UI Protection from Tailwind) --- */
+        /* --- Container & Accordion --- */
         .container { max-width: 1100px; margin: 1rem auto; padding: 0 1rem; }
         .topic-content { display: none; }
         .topic-content.active { display: block; }
 
         .accordion-item { background: #fff; border-radius: 10px; margin-bottom: 1.2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
-        
-        /* Protection classes for UI text/fonts */
-        .accordion-btn { 
-            width: 100%; background: none; border: none; padding: 1.2rem 1.5rem; 
-            font-size: 1.15rem !important; font-weight: 600 !important; color: #1f2937 !important; 
-            text-align: left; cursor: pointer; display: flex; justify-content: space-between; 
-            align-items: center; transition: all 0.2s ease; font-family: 'Poppins', sans-serif !important; 
-        }
+        .accordion-btn { width: 100%; background: none; border: none; padding: 1.2rem 1.5rem; font-size: 1.15rem !important; font-weight: 600 !important; color: #1f2937 !important; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease; font-family: 'Poppins', sans-serif !important; }
         .accordion-btn:hover { background-color: #f3f4f6; }
         .acc-title { flex-grow: 1; padding-right: 15px; font-weight: 600 !important; color: inherit !important;}
         .icon { font-size: 1.2rem; transition: transform 0.2s ease; color: #6b7280; }
@@ -183,7 +189,7 @@
         .accordion-content { max-height: 0; opacity: 0; transition: all 0.3s ease-in-out; background-color: #ffffff; }
         .content-inner { padding: 1.5rem; }
 
-        /* --- Markdown Styling in Theory Text (UI Protection) --- */
+        /* --- Markdown Styling in Theory Text --- */
         .theory-text { margin-bottom: 1rem; color: #4b5563 !important; font-weight: 500 !important; line-height: 1.7 !important; font-size: 1rem !important; font-family: 'Poppins', sans-serif !important;}
         body.dark-mode .theory-text { color: #94a3b8 !important; }
         .theory-text p { margin-bottom: 0.8rem; display: inline; } 
@@ -207,18 +213,29 @@
         .run-btn { display: none; background: #10b981; color: white !important; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 0.95rem; font-weight: 600 !important; font-family: 'Poppins', sans-serif !important; }
         body.manual-mode .run-btn { display: flex; align-items: center; gap: 5px; }
 
-        .CodeMirror { border-radius: 8px; border: 2px solid #374151; font-family: 'Fira Code', monospace !important; font-size: 1.2rem !important; height: auto; min-height: 120px; padding: 8px 5px; }
-        .editor-textarea { width: 100%; min-height: 120px; border: 2px solid #374151; border-radius: 8px; padding: 12px; font-family: 'Fira Code', monospace !important; font-size: 1.2rem !important; background: #2b2b2b; color: #a9b7c6; resize: vertical; outline: none; line-height: 1.5; }
+        .CodeMirror { border-radius: 8px; border: 2px solid #374151; font-family: 'Fira Code', monospace !important; font-size: 1.2rem !important; height: auto; min-height: 150px; padding: 8px 5px; }
+        .editor-textarea { width: 100%; min-height: 150px; border: 2px solid #374151; border-radius: 8px; padding: 12px; font-family: 'Fira Code', monospace !important; font-size: 1.2rem !important; background: #2b2b2b; color: #a9b7c6; resize: vertical; outline: none; line-height: 1.5; }
         .editor-textarea.no-wrap { white-space: pre; overflow-x: auto; }
-        .output-box { background: #fff; border: 2px solid #93c5fd; padding: 1.5rem; border-radius: 8px; min-height: 120px; height: 100%; }
+        
+        /* Iframe styling for absolute isolation */
+        iframe.output-box { background: #fff; width: 100%; border: 2px solid #93c5fd; border-radius: 8px; padding: 0; min-height: 150px; height: 100%; display: block; }
     </style>
 </head>
 <body>
     
     <script>
+        function updateMetaThemeColor() {
+            const metaTheme = document.getElementById('metaThemeColor');
+            if(document.body.classList.contains('dark-mode')) {
+                metaTheme.setAttribute('content', '#121212');
+            } else {
+                metaTheme.setAttribute('content', '#3b82f6');
+            }
+        }
         if (localStorage.getItem('theme') === 'dark') {
             document.body.classList.add('dark-mode');
         }
+        updateMetaThemeColor();
     </script>
 
     <div class="overlay" id="overlay"></div>
@@ -245,36 +262,41 @@
 
     <header class="header">
         <div class="header-main-line">
-            <button class="icon-btn" id="menuBtn" title="Menu">&#9776;</button>
+            <div class="header-left">
+                <button class="icon-btn" id="menuBtn" title="Menu">&#9776;</button>
+            </div>
             
             <h1 class="main-title" onclick="resetToHome()" title="Click to go to Home">Coding Notebook</h1>
             
-            <div class="more-menu-container">
-                <button class="icon-btn" id="moreMenuBtn" title="More Options">&#8942;</button>
-                <div class="more-menu-panel" id="moreMenuPanel">
-                    <div class="menu-item" id="themeToggleBtn"><span>🌙</span> <span id="themeTitle">Dark Mode</span></div>
-                    <div class="menu-item" id="settingsToggleBtn"><span>⚙️</span> <span>Settings</span></div>
-                    <div class="settings-inner" id="settingsInner">
-                        <h4>Output Settings</h4>
-                        <label><input type="radio" name="previewMode" value="live" checked> ⚡ Live Update</label>
-                        <label><input type="radio" name="previewMode" value="manual"> ▶️ Update via Button</label>
-                        <hr style="margin: 10px 0; border: 0; border-top: 1px solid #e5e7eb;">
-                        <h4>Editor Settings</h4>
-                        <label><input type="checkbox" id="wrapToggle"> ↩️ Wrap Code Lines</label>
-                        
-                        <hr style="margin: 10px 0; border: 0; border-top: 1px solid #e5e7eb;">
-                        <h4>🌐 Website Mode</h4>
-                        <label>
-                            <select id="modeSelector" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; color: #374151; outline: none; cursor:pointer;">
-                                <option value="html">HTML Notebook</option>
-                                <option value="css">CSS Notebook</option>
-                                <option value="tailwind">Tailwind CSS</option>
-                            </select>
-                        </label>
+            <div class="header-right">
+                <div class="more-menu-container">
+                    <button class="icon-btn" id="moreMenuBtn" title="More Options">&#8942;</button>
+                    <div class="more-menu-panel" id="moreMenuPanel">
+                        <div class="menu-item" id="themeToggleBtn"><span>🌙</span> <span id="themeTitle">Dark Mode</span></div>
+                        <div class="menu-item" id="settingsToggleBtn"><span>⚙️</span> <span>Settings</span></div>
+                        <div class="settings-inner" id="settingsInner">
+                            <h4>Output Settings</h4>
+                            <label><input type="radio" name="previewMode" value="live" checked> ⚡ Live Update</label>
+                            <label><input type="radio" name="previewMode" value="manual"> ▶️ Update via Button</label>
+                            <hr style="margin: 10px 0; border: 0; border-top: 1px solid #e5e7eb;">
+                            <h4>Editor Settings</h4>
+                            <label><input type="checkbox" id="wrapToggle"> ↩️ Wrap Code Lines</label>
+                            
+                            <hr style="margin: 10px 0; border: 0; border-top: 1px solid #e5e7eb;">
+                            <h4>🌐 Website Mode</h4>
+                            <label>
+                                <select id="modeSelector" class="mode-selector-dropdown">
+                                    <option value="html">HTML Notebook</option>
+                                    <option value="css">CSS Notebook</option>
+                                    <option value="tailwind">Tailwind CSS</option>
+                                </select>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        
         <div class="header-badge-line" onclick="resetToHome()">
             <span id="modeDisplay">HTML</span>
         </div>
@@ -331,17 +353,6 @@
             localStorage.removeItem('lastTopic_' + currentMode);
             window.location.reload();
         };
-
-        // Inject Tailwind securely (Preflight False effectively isolates it)
-        if (currentMode === 'tailwind') {
-            const configScript = document.createElement('script');
-            configScript.innerHTML = "window.tailwind = { config: { corePlugins: { preflight: false } } };";
-            document.head.appendChild(configScript);
-
-            const twScript = document.createElement('script');
-            twScript.src = "https://cdn.tailwindcss.com";
-            document.head.appendChild(twScript);
-        }
 
         // Load correct data file
         const dataScript = document.createElement('script');
@@ -400,7 +411,7 @@
                                         </div>
                                         <div class="grid-item">
                                             <div class="output-header"><h3>👁️ Live Output:</h3></div>
-                                            <div class="output-box"></div>
+                                            <iframe class="output-box" frameborder="0"></iframe>
                                         </div>
                                     </div>
                                 </div>
@@ -420,11 +431,34 @@
 
             initTheoryAndTitles();
 
+            // Handle Output box isolation with iFrames
+            function updateIframeOutput(iframe, code) {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                const previewContainer = doc.getElementById('app-preview');
+                
+                if (previewContainer) {
+                    previewContainer.innerHTML = code;
+                } else {
+                    doc.open();
+                    let headHtml = `<style>body { margin: 0; padding: 15px; font-family: sans-serif; }</style>`;
+                    if (currentMode === 'tailwind') {
+                        headHtml += `<script src="https://cdn.tailwindcss.com"><\/script>`;
+                    }
+                    doc.write(`<!DOCTYPE html><html><head>${headHtml}</head><body><div id="app-preview">${code}</div></body></html>`);
+                    doc.close();
+                }
+            }
+
             document.querySelectorAll('.editor-textarea').forEach(textarea => {
                 const gridItem = textarea.closest('.grid-box');
                 if(!gridItem) return;
-                const outputBox = gridItem.querySelector('.output-box');
+                const outputIframe = gridItem.querySelector('iframe.output-box');
                 const runBtn = gridItem.querySelector('.run-btn');
+
+                const applyCode = () => {
+                    const code = textarea.cmInstance ? textarea.cmInstance.getValue() : textarea.value;
+                    updateIframeOutput(outputIframe, code);
+                };
 
                 if (typeof CodeMirror !== 'undefined') {
                     const editor = CodeMirror.fromTextArea(textarea, {
@@ -437,14 +471,13 @@
                     });
                     textarea.cmInstance = editor; 
                     
-                    outputBox.innerHTML = editor.getValue();
-                    editor.on("change", function() { if (isLiveUpdate) outputBox.innerHTML = editor.getValue(); });
-                    runBtn.addEventListener('click', function() { outputBox.innerHTML = editor.getValue(); });
+                    applyCode();
+                    editor.on("change", function() { if (isLiveUpdate) applyCode(); });
+                    runBtn.addEventListener('click', applyCode);
                 } else {
-                    outputBox.innerHTML = textarea.value;
-                    if(!isWrapped) textarea.classList.add('no-wrap');
-                    textarea.addEventListener('input', function() { if (isLiveUpdate) outputBox.innerHTML = textarea.value; });
-                    runBtn.addEventListener('click', function() { outputBox.innerHTML = textarea.value; });
+                    applyCode();
+                    textarea.addEventListener('input', function() { if (isLiveUpdate) applyCode(); });
+                    runBtn.addEventListener('click', applyCode);
                 }
             });
 
@@ -454,7 +487,6 @@
                 });
             });
 
-            // Topic State Persistence Loading
             const lastTopic = localStorage.getItem('lastTopic_' + currentMode);
             if (lastTopic && document.getElementById(lastTopic)) {
                 switchTopic(lastTopic);
@@ -496,15 +528,13 @@
             const words = rawMD.trim().split(/\s+/);
 
             if(words.length > 50) {
-                // Remove trailing punctuation from the 50th word to prevent "word. ...more"
                 let shortText = words.slice(0, 50).join(' ');
-                shortText = shortText.replace(/[.,;!?]+$/, ''); 
+                shortText = shortText.replace(/[.,;!?]+$/, ''); // Removes extra punctuation at the end
                 
-                // Add a single space before ...more
-                const shortMD = shortText + ' <a href="#" class="read-more-btn" onclick="toggleTheory(event, true)">...more</a>';
+                const shortMD = shortText + '... <a href="#" class="read-more-btn" onclick="toggleTheory(event, true)">Read more</a>';
                 const shortHTML = marked.parse(shortMD);
                 
-                const fullMD = rawMD + ' <a href="#" class="read-more-btn" onclick="toggleTheory(event, false)"> show less</a>';
+                const fullMD = rawMD + ' <a href="#" class="read-more-btn" onclick="toggleTheory(event, false)">Show less</a>';
                 const fullHTML = marked.parse(fullMD);
 
                 element.innerHTML = shortHTML;
@@ -694,7 +724,6 @@
             const newActiveTopic = document.getElementById(topicId);
             if(newActiveTopic) newActiveTopic.classList.add('active');
             
-            // Save state
             localStorage.setItem('lastTopic_' + currentMode, topicId);
             
             clearLocalSearch();
@@ -814,6 +843,7 @@
                 themeTitle.innerText = "Dark Mode";
                 iconSpan.innerText = "🌙";
             }
+            updateMetaThemeColor();
         });
 
         document.querySelectorAll('input[name="previewMode"]').forEach(radio => {
@@ -824,11 +854,11 @@
                     document.querySelectorAll('.editor-textarea').forEach(textarea => {
                         const gridItem = textarea.closest('.grid-box');
                         if(!gridItem) return;
-                        const outputBox = gridItem.querySelector('.output-box');
-                        if (textarea.nextSibling && textarea.nextSibling.CodeMirror) {
-                            outputBox.innerHTML = textarea.nextSibling.CodeMirror.getValue();
-                        } else {
-                            outputBox.innerHTML = textarea.value;
+                        const outputIframe = gridItem.querySelector('iframe.output-box');
+                        if (textarea.cmInstance) {
+                            const doc = outputIframe.contentDocument || outputIframe.contentWindow.document;
+                            const prev = doc.getElementById('app-preview');
+                            if(prev) prev.innerHTML = textarea.cmInstance.getValue();
                         }
                     });
                 } else {
