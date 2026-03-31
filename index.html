@@ -26,7 +26,7 @@
         body.dark-mode .accordion-btn:hover { background-color: #334155; }
         body.dark-mode .accordion-item.active .accordion-btn { background-color: #1e293b; color: #94a3b8; border-bottom: 1px solid #334155; }
         body.dark-mode .accordion-content { background-color: #0f172a; }
-        body.dark-mode .output-box { background: #1e293b; border: 2px solid #475569; color: #e5e7eb; }
+        body.dark-mode .nb-output-box { background: #1e293b; border: 2px solid #475569; color: #e5e7eb; }
         body.dark-mode h3 { color: #f3f4f6; }
         body.dark-mode .sidebar { background: #1e293b; border-right: 1px solid #334155; color: #e5e7eb; }
         body.dark-mode .sidebar-topic { color: #cbd5e1; }
@@ -106,7 +106,7 @@
         .more-menu-container { position: relative; }
         .more-menu-panel { display: none; position: absolute; top: 40px; right: 0; background: white; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); z-index: 1500; min-width: 220px; overflow: hidden; border: 1px solid #e5e7eb; color: #1f2937; text-align: left;}
         .more-menu-panel.active { display: block; }
-        .menu-item { padding: 12px 15px; display: flex; align-items: center; gap: 10px; font-size: 1.4rem; cursor: pointer; font-weight: 500; border-bottom: 1px solid #e5e7eb; transition: background 0.2s; }
+        .menu-item { padding: 12px 15px; display: flex; align-items: center; gap: 10px; font-size: 1.15rem; cursor: pointer; font-weight: 500; border-bottom: 1px solid #e5e7eb; transition: background 0.2s; }
         .menu-item:hover { background: #f3f4f6; }
         .settings-inner { display: none; padding: 15px; background: #f8fafc; border-top: 1px solid #e5e7eb; }
         .settings-inner.active { display: block; }
@@ -158,7 +158,7 @@
         .local-search-container { max-width: 1100px; margin: 15px auto 0; padding: 0 1rem; display: flex; justify-content: flex-end; align-items: center; min-height: 40px; }
         .local-search-box { display: flex; align-items: center; background: white; border: 1px solid #d1d5db; border-radius: 20px; padding: 4px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: 0.2s; width: 250px; }
         body.dark-mode .local-search-box { background: #1e293b; border-color: #475569; }
-        .local-search-box input { border: none; outline: none; padding: 6px 0; background: transparent; color: inherit; font-family: inherit; font-size: 1.1rem; width: 100%;}
+        .local-search-box input { border: none; outline: none; padding: 6px 0; background: transparent; color: inherit; font-family: inherit; font-size: 1.05rem; width: 100%;}
         .local-search-box button { background: none; border: none; cursor: pointer; color: #6b7280; font-size: 1.1rem; padding-left: 5px;}
         
         .search-nav-bar { display: none; align-items: center; justify-content: center; background: white; border-bottom: 2px solid #3b82f6; padding: 10px 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); gap: 15px; font-size: 1.1rem; font-weight: 600; color: #1f2937; position: fixed; top: 0; left: 0; right: 0; z-index: 9999; }
@@ -179,16 +179,17 @@
         .search-match.active-match { background-color: #f97316 !important; color: white !important; box-shadow: none !important; }
         body.dark-mode .search-match.active-match { background-color: #ea580c !important; color: white !important; box-shadow: none !important; }
 
-        /* --- Container & Accordion --- */
-        .container { max-width: 1100px; margin: 1rem auto; padding: 0 1rem; }
+        /* --- Container, Layout & Accordion --- */
+        /* Note: Renamed specific layout classes to prevent clashes with user CSS code */
+        .nb-container { max-width: 1100px; margin: 1rem auto; padding: 0 1rem; }
         .topic-content { display: none; }
         .topic-content.active { display: block; }
 
         .accordion-item { background: #fff; border-radius: 10px; margin-bottom: 1.2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
-        .accordion-btn { width: 100%; background: none; border: none; padding: 1.2rem 1.5rem; font-size: 1.25rem; font-weight: 600; color: #1f2937; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease; font-family: inherit; }
+        .accordion-btn { width: 100%; background: none; border: none; padding: 1.2rem 1.5rem; font-size: 1.15rem; font-weight: 600; color: #1f2937; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease; font-family: inherit; }
         .accordion-btn:hover { background-color: #f3f4f6; }
         .acc-title { flex-grow: 1; padding-right: 15px;}
-        .icon { font-size: 1.4rem; transition: transform 0.2s ease; color: #6b7280; }
+        .icon { font-size: 1.35rem; transition: transform 0.2s ease; color: #6b7280; }
         
         .accordion-item.active .accordion-content { max-height: 2500px; opacity: 1; }
         .accordion-item.active .icon { transform: rotate(180deg); color: #2563eb; }
@@ -199,33 +200,71 @@
         /* --- Markdown Styling in Theory Text --- */
         .theory-text { margin-bottom: 1rem; color: #4b5563; font-weight: 500; line-height: 1.7; font-size: 1.2rem;}
         body.dark-mode .theory-text { color: #94a3b8; }
-        .theory-text p { margin-bottom: 0.8rem; display: inline; font-size: 1.2rem;} 
+        .theory-text p { margin-bottom: 0.8rem; display: inline; } 
         .theory-text strong { color: #1f2937; font-weight: 700; }
         body.dark-mode .theory-text strong { color: #e5e7eb; }
-        .theory-text code { background: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 1.1rem; color: #ef4444; }
+        .theory-text code { background: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 1.05rem; color: #ef4444; }
         body.dark-mode .theory-text code { background: #374151; color: #fca5a5; }
-        .theory-text pre { background: #1f2937; color: #e5e7eb; padding: 10px; border-radius: 6px; overflow-x: auto; margin-bottom: 0.8rem; display: block; font-size: 1.2rem;}
-        .theory-text ul, .theory-text ol { margin-left: 1.5rem; margin-bottom: 0.8rem; display: block; font-size: 1.2rem;}
+        .theory-text pre { background: #1f2937; color: #e5e7eb; padding: 10px; border-radius: 6px; overflow-x: auto; margin-bottom: 0.8rem; display: block;}
+        .theory-text ul, .theory-text ol { margin-left: 1.5rem; margin-bottom: 0.8rem; display: block;}
         
         /* The native-looking Read More Button */
         .read-more-btn { color: #3b82f6; font-weight: 700; text-decoration: none; white-space: nowrap;}
         body.dark-mode .read-more-btn { color: #60a5fa; }
 
-        /* Grid & Editor */
-        .grid-box { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 0.5rem; }
-        @media (min-width: 768px) { .grid-box { flex-direction: row; } .grid-item { flex: 1; width: 50%; } }
-        .code-header, .output-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+        /* Grid & Editor Layout (Safe Names) */
+        .nb-grid-box { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 0.5rem; }
+        @media (min-width: 768px) { .nb-grid-box { flex-direction: row; } .nb-grid-item { flex: 1; width: 50%; } }
+        .nb-code-header, .nb-output-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
         h3 { font-size: 1.3rem; color: #111827; margin: 0; }
         
         .run-btn { display: none; background: #10b981; color: white; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 1.3rem; font-weight: 600; }
         body.manual-mode .run-btn { display: flex; align-items: center; gap: 5px; }
 
-        .CodeMirror { border-radius: 8px; border: 2px solid #374151; font-family: 'Fira Code', monospace !important; font-size: 1.3rem !important; height: auto; min-height: 120px; padding: 8px 5px; }
-        .editor-textarea { width: 100%; min-height: 120px; border: 2px solid #374151; border-radius: 8px; padding: 12px; font-family: 'Fira Code', monospace !important; font-size: 1.3rem !important; background: #2b2b2b; color: #a9b7c6; resize: vertical; outline: none; line-height: 1.5; }
+        /* Editor Styling (75vh Max Height, Scrollable, Left Aligned) */
+     .CodeMirror {
+    border-radius: 8px; 
+    border: 2px solid #374151; 
+    font-family: 'Fira Code', monospace !important; 
+    font-size: 1.35rem !important; 
+
+    height: auto !important;
+    min-height: 5vh;
+    max-height: 75vh;
+
+    overflow: hidden !important;
+}
+
+.CodeMirror-scroll {
+    height: auto !important;
+    max-height: 75vh;
+    overflow-y: auto !important;
+}
+        .editor-textarea { 
+            width: 100%; max-height: 75vh; border: 2px solid #374151; border-radius: 8px; 
+            padding: 12px; font-family: 'Fira Code', monospace !important; font-size: 1.35rem !important; 
+            background: #2b2b2b; color: #a9b7c6; resize: vertical; outline: none; line-height: 1.5; 
+            text-align: left !important; 
+        }
         .editor-textarea.no-wrap { white-space: pre; overflow-x: auto; }
-        .output-box { background: #fff; border: 2px solid #93c5fd; padding: 1.5rem; border-radius: 8px; min-height: 120px; height: 100%; }
+
+
+
+
         
-        .form-group { margin-bottom: 1rem; }
+        /* Preview Box Styling (Left Aligned) */
+        .nb-output-box { 
+            background: #fff; 
+            border: 2px solid #d1d5db; /* Neutral border instead of blue */
+            padding: 1.5rem; 
+            border-radius: 8px; 
+            height: auto; 
+            max-height: 75vh;
+            overflow-y: auto;
+            text-align: left !important; /* Neutralizes external center align */
+        }
+        
+        .form-group { margin-bottom: 1rem; text-align: left !important;}
         .form-group label { display: block; font-size: 1.1rem; margin-bottom: 0.3rem; font-weight: 500;}
         .form-group input { width: 100%; padding: 0.6rem; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; font-size: 1.05rem; }
         .btn { background: #3b82f6; color: #fff; border: none; padding: 0.6rem 1.4rem; border-radius: 6px; cursor: pointer; font-family: inherit; font-weight: 600; font-size: 1.05rem;}
@@ -330,7 +369,7 @@
         <button id="searchClearBtn" title="Clear Search">✖</button>
     </div>
 
-    <div class="container" id="mainContainer">
+    <div class="nb-container" id="mainContainer">
         </div>
 
     <script>
@@ -365,7 +404,7 @@
 
         window.resetToHome = function() {
             localStorage.removeItem('lastTopic_' + currentMode);
-            window.location.reload();
+            window.location.href = window.location.pathname + '?mode=' + currentMode;
         };
 
         // Load the appropriate Notebook Data File dynamically
@@ -422,14 +461,14 @@
                             <div class="accordion-content">
                                 <div class="content-inner">
                                     <div class="theory-text" data-raw-md="${encodeURIComponent(sec.theory)}" data-original-raw="${encodeURIComponent(fullParsedHTML)}"></div>
-                                    <div class="grid-box">
-                                        <div class="grid-item">
-                                            <div class="code-header"><h3>💻 Code:</h3><button class="run-btn">▶️ Run</button></div>
+                                    <div class="nb-grid-box">
+                                        <div class="nb-grid-item">
+                                            <div class="nb-code-header"><h3>💻 Code:</h3><button class="run-btn">▶️ Run</button></div>
                                             <textarea class="editor-textarea" spellcheck="false">${sec.code}</textarea>
                                         </div>
-                                        <div class="grid-item">
-                                            <div class="output-header"><h3>👁️ Live Output:</h3></div>
-                                            <div class="output-box"></div>
+                                        <div class="nb-grid-item">
+                                            <div class="nb-output-header"><h3>👁️ Live Output:</h3></div>
+                                            <div class="nb-output-box"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -450,20 +489,20 @@
             initTheoryAndTitles();
 
             document.querySelectorAll('.editor-textarea').forEach(textarea => {
-                const gridItem = textarea.closest('.grid-box');
+                const gridItem = textarea.closest('.nb-grid-box');
                 if(!gridItem) return;
-                const outputBox = gridItem.querySelector('.output-box');
+                const outputBox = gridItem.querySelector('.nb-output-box');
                 const runBtn = gridItem.querySelector('.run-btn');
 
                 if (typeof CodeMirror !== 'undefined') {
                     const editor = CodeMirror.fromTextArea(textarea, {
-                        mode: "htmlmixed", 
-                        theme: "darcula", 
-                        lineNumbers: false, 
-                        lineWrapping: isWrapped, 
-                        viewportMargin: Infinity,
-                        autoRefresh: true
-                    });
+    mode: "htmlmixed", 
+    theme: "darcula", 
+    lineNumbers: false, 
+    lineWrapping: isWrapped,
+    viewportMargin: Infinity, // ✅ MUST
+    autoRefresh: true
+});
                     textarea.cmInstance = editor; 
                     
                     outputBox.innerHTML = editor.getValue();
@@ -849,11 +888,11 @@
                 if(isLiveUpdate) {
                     document.body.classList.remove('manual-mode');
                     document.querySelectorAll('.editor-textarea').forEach(textarea => {
-                        const gridItem = textarea.closest('.grid-box');
+                        const gridItem = textarea.closest('.nb-grid-box');
                         if(!gridItem) return;
-                        const outputBox = gridItem.querySelector('.output-box');
-                        if (textarea.nextSibling && textarea.nextSibling.CodeMirror) {
-                            outputBox.innerHTML = textarea.nextSibling.CodeMirror.getValue();
+                        const outputBox = gridItem.querySelector('.nb-output-box');
+                        if (textarea.cmInstance) {
+                            outputBox.innerHTML = textarea.cmInstance.getValue();
                         } else {
                             outputBox.innerHTML = textarea.value;
                         }
