@@ -35,7 +35,6 @@
         body.dark-mode .settings-inner { background: #0f172a; border: 1px solid #334155; }
         body.dark-mode .settings-inner label, body.dark-mode .settings-inner h4 { color: #cbd5e1; }
         body.dark-mode .search-result-item { background: #334155; border-color: #475569; }
-        body.dark-mode .read-more-btn { color: #60a5fa; } 
         body.dark-mode .match-case-label { color: #cbd5e1; }
 
         /* --- Header --- */
@@ -56,11 +55,12 @@
         .settings-inner label { display: block; margin-bottom: 8px; font-size: 0.9rem; cursor: pointer; font-weight: 500; }
 
         /* --- Sidebar & Overlay --- */
-        .overlay { visibility: hidden; opacity: 0; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1999; transition: opacity 0.3s ease, visibility 0.3s ease; will-change: opacity; }
+        .overlay { visibility: hidden; opacity: 0; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1999; transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; will-change: opacity; }
         .overlay.active { visibility: visible; opacity: 1; }
         
-        .sidebar { position: fixed; top: 0; left: 0; width: 300px; height: 100%; background: white; z-index: 2000; transform: translate3d(-110%, 0, 0); transition: transform 0.3s ease; will-change: transform; box-shadow: 4px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        .sidebar { position: fixed; top: 0; left: 0; width: 300px; height: 100%; background: white; z-index: 2000; transform: translate3d(-110%, 0, 0); transition: transform 0.35s ease-in-out; will-change: transform; box-shadow: 4px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         
+        /* Tablet Sidebar Width Update */
         @media (min-width: 768px) {
             .sidebar { width: 350px; }
         }
@@ -115,7 +115,7 @@
         .search-match.active-match { background-color: #f97316 !important; color: white !important; box-shadow: none !important; }
         body.dark-mode .search-match.active-match { background-color: #ea580c !important; color: white !important; box-shadow: none !important; }
 
-        /* --- Container & Accordion --- */
+        /* --- Container & Accordion (Smooth simple transition restored) --- */
         .container { max-width: 1100px; margin: 1rem auto; padding: 0 1rem; }
         .topic-content { display: none; }
         .topic-content.active { display: block; }
@@ -135,17 +135,17 @@
         /* --- Markdown Styling in Theory Text --- */
         .theory-text { margin-bottom: 1rem; color: #4b5563; font-weight: 500; line-height: 1.7; }
         body.dark-mode .theory-text { color: #94a3b8; }
-        .theory-text p { margin-bottom: 0.8rem; }
+        .theory-text p { margin-bottom: 0.8rem; display: inline; } /* inline display ensures link sits at the end seamlessly */
         .theory-text strong { color: #1f2937; font-weight: 700; }
         body.dark-mode .theory-text strong { color: #e5e7eb; }
         .theory-text code { background: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em; color: #ef4444; }
         body.dark-mode .theory-text code { background: #374151; color: #fca5a5; }
-        .theory-text pre { background: #1f2937; color: #e5e7eb; padding: 10px; border-radius: 6px; overflow-x: auto; margin-bottom: 0.8rem; }
-        .theory-text ul, .theory-text ol { margin-left: 1.5rem; margin-bottom: 0.8rem; }
+        .theory-text pre { background: #1f2937; color: #e5e7eb; padding: 10px; border-radius: 6px; overflow-x: auto; margin-bottom: 0.8rem; display: block;}
+        .theory-text ul, .theory-text ol { margin-left: 1.5rem; margin-bottom: 0.8rem; display: block;}
         
-        /* Markdown CSS Truncation */
-        .theory-content.collapsed { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        .read-more-btn { color: #3b82f6; font-weight: 700; text-decoration: none; display: inline-block; margin-top: 5px; }
+        /* The native-looking Read More Button */
+        .read-more-btn { color: #3b82f6; font-weight: 700; text-decoration: none; white-space: nowrap; margin-left: 4px;}
+        body.dark-mode .read-more-btn { color: #60a5fa; }
 
         /* Grid & Editor */
         .grid-box { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 0.5rem; }
@@ -235,6 +235,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/display/autorefresh.min.js"></script>
 
     <script>
         // ==========================================
@@ -252,17 +253,18 @@
                 htmlContent += `<div class="topic-content ${topic.isActive ? 'active' : ''}" id="${topic.id}">`;
                 
                 topic.sections.forEach(sec => {
-                    const parsedTheoryHTML = marked.parse(sec.theory);
+                    // Pre-parse the raw Markdown to full HTML (we save it to Data attr)
+                    const fullParsedHTML = marked.parse(sec.theory);
 
                     htmlContent += `
                     <div class="accordion-item">
                         <button class="accordion-btn">
-                            <span class="acc-title">${sec.title}</span>
+                            <span class="acc-title" data-original-raw="${sec.title}">${sec.title}</span>
                             <span class="icon">▼</span>
                         </button>
                         <div class="accordion-content">
                             <div class="content-inner">
-                                <div class="theory-text" data-raw-markdown="${encodeURIComponent(parsedTheoryHTML)}">${parsedTheoryHTML}</div>
+                                <div class="theory-text" data-raw-md="${encodeURIComponent(sec.theory)}" data-original-raw="${encodeURIComponent(fullParsedHTML)}"></div>
                                 <div class="grid-box">
                                     <div class="grid-item">
                                         <div class="code-header"><h3>💻 Code:</h3><button class="run-btn">▶️ Run</button></div>
@@ -311,46 +313,39 @@
             triggerGlobalSearch();
         });
 
+        // Toggle Function explicitly defined to handle the clicks smoothly
+        window.toggleTheory = function(e, showFull) {
+            e.preventDefault();
+            const container = e.target.closest('.theory-text');
+            if(showFull) {
+                container.innerHTML = decodeURIComponent(container.getAttribute('data-full-html'));
+            } else {
+                container.innerHTML = decodeURIComponent(container.getAttribute('data-short-html'));
+            }
+        };
+
         function apply50WordTruncation(element) {
-            const rawHTML = decodeURIComponent(element.getAttribute('data-raw-markdown'));
-            element.setAttribute('data-original-raw', rawHTML); 
-            
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = rawHTML;
-            const textContent = tempDiv.innerText || tempDiv.textContent;
-            const words = textContent.trim().split(/\s+/);
+            const rawMD = decodeURIComponent(element.getAttribute('data-raw-md'));
+            const words = rawMD.trim().split(/\s+/);
 
             if(words.length > 50) {
-                element.innerHTML = `
-                    <div class="theory-content collapsed">
-                        ${rawHTML}
-                    </div>
-                    <a href="#" class="read-more-btn">...more</a>
-                `;
+                // Manually inject the link directly into the markdown BEFORE parsing.
+                const shortMD = words.slice(0, 50).join(' ') + ' <a href="#" class="read-more-btn" onclick="toggleTheory(event, true)">...more</a>';
+                const shortHTML = marked.parse(shortMD);
                 
-                element.querySelector('.read-more-btn').addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const contentDiv = element.querySelector('.theory-content');
-                    if (contentDiv.classList.contains('collapsed')) {
-                        contentDiv.classList.remove('collapsed');
-                        this.innerText = ' show less';
-                    } else {
-                        contentDiv.classList.add('collapsed');
-                        this.innerText = '...more';
-                    }
-                });
+                const fullMD = rawMD + ' <a href="#" class="read-more-btn" onclick="toggleTheory(event, false)"> show less</a>';
+                const fullHTML = marked.parse(fullMD);
+
+                element.innerHTML = shortHTML;
+                element.setAttribute('data-short-html', encodeURIComponent(shortHTML));
+                element.setAttribute('data-full-html', encodeURIComponent(fullHTML));
             } else {
-                element.innerHTML = rawHTML;
+                element.innerHTML = decodeURIComponent(element.getAttribute('data-original-raw'));
             }
         }
 
         function initTheoryAndTitles() {
-            document.querySelectorAll('.theory-text').forEach(el => {
-                apply50WordTruncation(el);
-            });
-            document.querySelectorAll('.acc-title').forEach(el => {
-                if(!el.getAttribute('data-original-raw')) el.setAttribute('data-original-raw', el.innerHTML);
-            });
+            document.querySelectorAll('.theory-text').forEach(el => apply50WordTruncation(el));
         }
 
         document.querySelectorAll('.editor-textarea').forEach(textarea => {
@@ -361,7 +356,12 @@
 
             if (typeof CodeMirror !== 'undefined') {
                 const editor = CodeMirror.fromTextArea(textarea, {
-                    mode: "xml", theme: "darcula", lineNumbers: false, lineWrapping: isWrapped, viewportMargin: Infinity
+                    mode: "xml", 
+                    theme: "darcula", 
+                    lineNumbers: false, 
+                    lineWrapping: isWrapped, 
+                    viewportMargin: Infinity,
+                    autoRefresh: true // <--- Yeh Jitter ko solve karta hai seamlessly
                 });
                 textarea.cmInstance = editor; 
                 
@@ -376,31 +376,14 @@
             }
         });
 
+        // Simple clean accordion logic (jitter-free)
         document.querySelectorAll('.accordion-btn').forEach(button => {
             button.addEventListener('click', (e) => {
-                const item = button.closest('.accordion-item');
-                item.classList.toggle('active');
-                
-                if(item.classList.contains('active')) {
-                    setTimeout(() => {
-                        item.querySelectorAll('.editor-textarea').forEach(ta => {
-                            if(ta.cmInstance) ta.cmInstance.refresh();
-                        });
-                    }, 300);
-                }
+                button.closest('.accordion-item').classList.toggle('active');
             });
         });
 
         initTheoryAndTitles();
-
-        setTimeout(() => {
-            const activeTopic = document.querySelector('.topic-content.active');
-            if(activeTopic) {
-                activeTopic.querySelectorAll('.editor-textarea').forEach(ta => {
-                    if(ta.cmInstance) ta.cmInstance.refresh();
-                });
-            }
-        }, 100);
 
         // ==========================================
         // LOCAL SEARCH & HIGHLIGHTING
@@ -421,9 +404,10 @@
             query = query.trim();
             const activeTopic = document.querySelector('.topic-content.active');
             
-            activeTopic.querySelectorAll('.acc-title, .theory-text').forEach(el => {
-                el.innerHTML = el.getAttribute('data-original-raw');
-            });
+            // Reset contents to FULL original parsed HTML before search
+            activeTopic.querySelectorAll('.acc-title').forEach(el => el.innerHTML = el.getAttribute('data-original-raw'));
+            activeTopic.querySelectorAll('.theory-text').forEach(el => el.innerHTML = decodeURIComponent(el.getAttribute('data-original-raw')));
+            
             activeTopic.querySelectorAll('.editor-textarea').forEach(ta => {
                 if(ta.cmInstance) ta.cmInstance.getAllMarks().forEach(m => m.clear());
             });
@@ -438,14 +422,16 @@
             activeTopic.querySelectorAll('.accordion-item').forEach(item => {
                 let hasMatch = false;
                 
-                item.querySelectorAll('.acc-title, .theory-text').forEach(el => {
+                item.querySelectorAll('.acc-title').forEach(el => {
                     const originalHTML = el.getAttribute('data-original-raw');
                     const highlightedHTML = highlightHTMLStr(originalHTML, query);
-                    
-                    if(originalHTML !== highlightedHTML) {
-                        el.innerHTML = highlightedHTML;
-                        hasMatch = true;
-                    }
+                    if(originalHTML !== highlightedHTML) { el.innerHTML = highlightedHTML; hasMatch = true; }
+                });
+
+                item.querySelectorAll('.theory-text').forEach(el => {
+                    const originalHTML = decodeURIComponent(el.getAttribute('data-original-raw'));
+                    const highlightedHTML = highlightHTMLStr(originalHTML, query);
+                    if(originalHTML !== highlightedHTML) { el.innerHTML = highlightedHTML; hasMatch = true; }
                 });
                 
                 const domMarks = Array.from(item.querySelectorAll('mark.search-match'));
@@ -467,11 +453,6 @@
 
                 if(hasMatch) {
                     item.classList.add('active'); 
-                    setTimeout(() => {
-                        item.querySelectorAll('.editor-textarea').forEach(ta => {
-                            if(ta.cmInstance) ta.cmInstance.refresh();
-                        });
-                    }, 300);
                 }
             });
 
@@ -528,12 +509,9 @@
             
             const activeTopic = document.querySelector('.topic-content.active');
             
-            activeTopic.querySelectorAll('.acc-title, .theory-text').forEach(el => {
-                el.innerHTML = el.getAttribute('data-original-raw');
-                if(el.classList.contains('theory-text')) {
-                    apply50WordTruncation(el); 
-                }
-            });
+            activeTopic.querySelectorAll('.acc-title').forEach(el => el.innerHTML = el.getAttribute('data-original-raw'));
+            activeTopic.querySelectorAll('.theory-text').forEach(el => apply50WordTruncation(el)); 
+            
             activeTopic.querySelectorAll('.editor-textarea').forEach(ta => {
                 if(ta.cmInstance) ta.cmInstance.getAllMarks().forEach(m => m.clear());
             });
@@ -571,12 +549,6 @@
             document.querySelectorAll('.topic-content').forEach(el => el.classList.remove('active'));
             const newActiveTopic = document.getElementById(topicId);
             newActiveTopic.classList.add('active');
-            
-            setTimeout(() => {
-                newActiveTopic.querySelectorAll('.editor-textarea').forEach(ta => {
-                    if(ta.cmInstance) ta.cmInstance.refresh();
-                });
-            }, 10);
             
             clearLocalSearch();
             closeSidebar();
@@ -618,7 +590,7 @@
                     let pureBodyText = '';
                     if(theoryElement && theoryElement.getAttribute('data-original-raw')) {
                         const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = theoryElement.getAttribute('data-original-raw');
+                        tempDiv.innerHTML = decodeURIComponent(theoryElement.getAttribute('data-original-raw'));
                         pureBodyText = tempDiv.innerText || tempDiv.textContent;
                     }
                     
