@@ -338,7 +338,8 @@
         // PERSISTENCE & MODE LOADING INITIALIZATION
         // ==========================================
         const urlParams = new URLSearchParams(window.location.search);
-        let currentMode = urlParams.get('mode');
+        let currentMode = localStorage.getItem('notebookMode') || 'html';
+
         
         if (!currentMode) {
             currentMode = localStorage.getItem('notebookMode') || 'html';
@@ -360,7 +361,7 @@
 
         modeSelector.addEventListener('change', (e) => {
             localStorage.setItem('notebookMode', e.target.value);
-            window.location.search = '?mode=' + e.target.value;
+            window.location.reload();
         });
 
         window.resetToHome = function() {
