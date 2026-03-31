@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Notebook</title>
+    <title>Coding Notebook</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
@@ -34,6 +34,7 @@
         body.dark-mode .menu-item:hover { background: #334155; }
         body.dark-mode .settings-inner { background: #0f172a; border: 1px solid #334155; }
         body.dark-mode .settings-inner label, body.dark-mode .settings-inner h4 { color: #cbd5e1; }
+        body.dark-mode .settings-inner select { background-color: #1f2937; color: #e5e7eb; border-color: #475569; } /* Dark Mode styling for new dropdown */
         body.dark-mode .search-result-item { background: #334155; border-color: #475569; }
         body.dark-mode .match-case-label { color: #cbd5e1; }
 
@@ -191,7 +192,7 @@
 
     <header class="header">
         <button class="icon-btn" id="menuBtn" title="Menu">&#9776;</button>
-        <h1>HTML Notebook</h1>
+        <h1>Coding Notebook <span id="modeDisplay" style="font-size: 0.45em; vertical-align: middle; opacity: 0.9; font-weight: 400; margin-left: 5px;"></span></h1>
         
         <div class="more-menu-container">
             <button class="icon-btn" id="moreMenuBtn" title="More Options">&#8942;</button>
@@ -205,6 +206,17 @@
                     <hr style="margin: 10px 0; border: 0; border-top: 1px solid #e5e7eb;">
                     <h4>Editor Settings</h4>
                     <label><input type="checkbox" id="wrapToggle"> ↩️ Wrap Code Lines</label>
+                    
+                    <hr style="margin: 10px 0; border: 0; border-top: 1px solid #e5e7eb;">
+                    <h4>🌐 Website Mode</h4>
+                    <label>
+                        <select id="modeSelector" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; color: #374151; outline: none; cursor:pointer;">
+                            <option value="html">HTML Notebook</option>
+                            <option value="css">CSS Notebook</option>
+                            <option value="tailwind">Tailwind CSS Notebook</option>
+                        </select>
+                    </label>
+
                 </div>
             </div>
         </div>
@@ -219,7 +231,7 @@
     
     <div class="search-nav-bar" id="searchNavWrap">
         <label class="match-case-label">
-            <input type="checkbox" id="matchCaseLocal">
+            <input type="checkbox" id="matchCaseLocal"> Match Case
         </label>
         <span id="searchNavInfo">1 of 5</span>
         <button id="searchPrevBtn" title="Previous Match">▲</button>
@@ -230,74 +242,160 @@
     <div class="container" id="mainContainer">
         </div>
 
-    <script src="notebookData.js"></script>
+    <script>
+        // ==========================================
+        // DYNAMIC MODE & DATA LOADING INITIALIZATION
+        // ==========================================
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentMode = urlParams.get('mode') || 'html';
+
+        // Update UI for the current mode
+        const modeDisplay = document.getElementById('modeDisplay');
+        const modeSelector = document.getElementById('modeSelector');
+        modeSelector.value = currentMode;
+
+        let modeText = "HTML";
+        if(currentMode === 'css') modeText = "CSS";
+        if(currentMode === 'tailwind') modeText = "Tailwind CSS";
+        modeDisplay.innerText = `(${modeText})`;
+
+        // Handle Dropdown Change
+        modeSelector.addEventListener('change', (e) => {
+            window.location.search = '?mode=' + e.target.value;
+        });
+
+        // Safely Inject Tailwind CSS ONLY for Tailwind Mode
+        if (currentMode === 'tailwind') {
+            const configScript = document.createElement('script');
+            configScript.innerHTML = "window.tailwind = { config: { corePlugins: { preflight: false } } };";
+            document.head.appendChild(configScript);
+
+            const twScript = document.createElement('script');
+            twScript.src = "https://cdn.tailwindcss.com";
+            document.head.appendChild(twScript);
+        }
+
+        // Load the appropriate Notebook Data File dynamically
+        const dataScript = document.createElement('script');
+        dataScript.src = currentMode + "notebookData.js";
+        dataScript.onload = () => {
+            initializeApp(); // Call main logic only after data is ready
+        };
+        dataScript.onerror = () => {
+            document.getElementById('mainContainer').innerHTML = `<div style="text-align:center; padding: 3rem; color: #ef4444;"><h3>Data File Not Found!</h3><p>Ensure <b>${currentMode}notebookData.js</b> exists in the same folder.</p></div>`;
+        };
+        document.body.appendChild(dataScript);
+    </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/display/autorefresh.min.js"></script>
 
     <script>
-        // ==========================================
-        // RENDER LOGIC (DOM GENERATION)
-        // ==========================================
-        function renderNotebook() {
-            const mainContainer = document.getElementById('mainContainer');
-            const topicList = document.getElementById('topicList');
-            
-            let htmlContent = '';
-            let sidebarContent = '';
-
-            notebookData.forEach(topic => {
-                sidebarContent += `<div class="sidebar-topic ${topic.isActive ? 'active' : ''}" onclick="switchTopic('${topic.id}')">${topic.name}</div>`;
-                htmlContent += `<div class="topic-content ${topic.isActive ? 'active' : ''}" id="${topic.id}">`;
-                
-                topic.sections.forEach(sec => {
-                    // Pre-parse the raw Markdown to full HTML (we save it to Data attr)
-                    const fullParsedHTML = marked.parse(sec.theory);
-
-                    htmlContent += `
-                    <div class="accordion-item">
-                        <button class="accordion-btn">
-                            <span class="acc-title" data-original-raw="${sec.title}">${sec.title}</span>
-                            <span class="icon">▼</span>
-                        </button>
-                        <div class="accordion-content">
-                            <div class="content-inner">
-                                <div class="theory-text" data-raw-md="${encodeURIComponent(sec.theory)}" data-original-raw="${encodeURIComponent(fullParsedHTML)}"></div>
-                                <div class="grid-box">
-                                    <div class="grid-item">
-                                        <div class="code-header"><h3>💻 Code:</h3><button class="run-btn">▶️ Run</button></div>
-                                        <textarea class="editor-textarea" spellcheck="false">${sec.code}</textarea>
-                                    </div>
-                                    <div class="grid-item">
-                                        <div class="output-header"><h3>👁️ Live Output:</h3></div>
-                                        <div class="output-box"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
-                });
-                htmlContent += `</div>`;
-            });
-
-            mainContainer.innerHTML = htmlContent;
-            topicList.innerHTML = sidebarContent;
-        }
-
-        renderNotebook();
-
-        const topicNames = {};
-        notebookData.forEach(t => topicNames[t.id] = t.name);
-
-        // ==========================================
-        // INITIALIZATION & STATE
-        // ==========================================
+        // Global State Variables
+        let topicNames = {};
         let isLiveUpdate = true;
         let isWrapped = false; 
         let isCaseSensitive = false;
 
+        // Wrap everything dependent on `notebookData` inside initializeApp
+        function initializeApp() {
+            // ==========================================
+            // RENDER LOGIC (DOM GENERATION)
+            // ==========================================
+            function renderNotebook() {
+                const mainContainer = document.getElementById('mainContainer');
+                const topicList = document.getElementById('topicList');
+                
+                let htmlContent = '';
+                let sidebarContent = '';
+
+                notebookData.forEach(topic => {
+                    sidebarContent += `<div class="sidebar-topic ${topic.isActive ? 'active' : ''}" onclick="switchTopic('${topic.id}')">${topic.name}</div>`;
+                    htmlContent += `<div class="topic-content ${topic.isActive ? 'active' : ''}" id="${topic.id}">`;
+                    
+                    topic.sections.forEach(sec => {
+                        const fullParsedHTML = marked.parse(sec.theory);
+
+                        htmlContent += `
+                        <div class="accordion-item">
+                            <button class="accordion-btn">
+                                <span class="acc-title" data-original-raw="${sec.title}">${sec.title}</span>
+                                <span class="icon">▼</span>
+                            </button>
+                            <div class="accordion-content">
+                                <div class="content-inner">
+                                    <div class="theory-text" data-raw-md="${encodeURIComponent(sec.theory)}" data-original-raw="${encodeURIComponent(fullParsedHTML)}"></div>
+                                    <div class="grid-box">
+                                        <div class="grid-item">
+                                            <div class="code-header"><h3>💻 Code:</h3><button class="run-btn">▶️ Run</button></div>
+                                            <textarea class="editor-textarea" spellcheck="false">${sec.code}</textarea>
+                                        </div>
+                                        <div class="grid-item">
+                                            <div class="output-header"><h3>👁️ Live Output:</h3></div>
+                                            <div class="output-box"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                    htmlContent += `</div>`;
+                });
+
+                mainContainer.innerHTML = htmlContent;
+                topicList.innerHTML = sidebarContent;
+            }
+
+            renderNotebook();
+
+            notebookData.forEach(t => topicNames[t.id] = t.name);
+
+            initTheoryAndTitles();
+
+            document.querySelectorAll('.editor-textarea').forEach(textarea => {
+                const gridItem = textarea.closest('.grid-box');
+                if(!gridItem) return;
+                const outputBox = gridItem.querySelector('.output-box');
+                const runBtn = gridItem.querySelector('.run-btn');
+
+                if (typeof CodeMirror !== 'undefined') {
+                    const editor = CodeMirror.fromTextArea(textarea, {
+                        mode: "htmlmixed", // Changed to htmlmixed for universal support
+                        theme: "darcula", 
+                        lineNumbers: false, 
+                        lineWrapping: isWrapped, 
+                        viewportMargin: Infinity,
+                        autoRefresh: true
+                    });
+                    textarea.cmInstance = editor; 
+                    
+                    outputBox.innerHTML = editor.getValue();
+                    editor.on("change", function() { if (isLiveUpdate) outputBox.innerHTML = editor.getValue(); });
+                    runBtn.addEventListener('click', function() { outputBox.innerHTML = editor.getValue(); });
+                } else {
+                    outputBox.innerHTML = textarea.value;
+                    if(!isWrapped) textarea.classList.add('no-wrap');
+                    textarea.addEventListener('input', function() { if (isLiveUpdate) outputBox.innerHTML = textarea.value; });
+                    runBtn.addEventListener('click', function() { outputBox.innerHTML = textarea.value; });
+                }
+            });
+
+            document.querySelectorAll('.accordion-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    button.closest('.accordion-item').classList.toggle('active');
+                });
+            });
+        } // End of initializeApp
+
+        // ==========================================
+        // OUTSIDE LOGIC (Search, Toggle, UI Handlers)
+        // ==========================================
         const matchCaseLocal = document.getElementById('matchCaseLocal');
         const matchCaseGlobal = document.getElementById('matchCaseGlobal');
 
@@ -313,7 +411,6 @@
             triggerGlobalSearch();
         });
 
-        // Toggle Function explicitly defined to handle the clicks smoothly
         window.toggleTheory = function(e, showFull) {
             e.preventDefault();
             const container = e.target.closest('.theory-text');
@@ -329,7 +426,6 @@
             const words = rawMD.trim().split(/\s+/);
 
             if(words.length > 50) {
-                // Manually inject the link directly into the markdown BEFORE parsing.
                 const shortMD = words.slice(0, 50).join(' ') + ' <a href="#" class="read-more-btn" onclick="toggleTheory(event, true)">...more</a>';
                 const shortHTML = marked.parse(shortMD);
                 
@@ -348,46 +444,6 @@
             document.querySelectorAll('.theory-text').forEach(el => apply50WordTruncation(el));
         }
 
-        document.querySelectorAll('.editor-textarea').forEach(textarea => {
-            const gridItem = textarea.closest('.grid-box');
-            if(!gridItem) return;
-            const outputBox = gridItem.querySelector('.output-box');
-            const runBtn = gridItem.querySelector('.run-btn');
-
-            if (typeof CodeMirror !== 'undefined') {
-                const editor = CodeMirror.fromTextArea(textarea, {
-                    mode: "xml", 
-                    theme: "darcula", 
-                    lineNumbers: false, 
-                    lineWrapping: isWrapped, 
-                    viewportMargin: Infinity,
-                    autoRefresh: true // <--- Yeh Jitter ko solve karta hai seamlessly
-                });
-                textarea.cmInstance = editor; 
-                
-                outputBox.innerHTML = editor.getValue();
-                editor.on("change", function() { if (isLiveUpdate) outputBox.innerHTML = editor.getValue(); });
-                runBtn.addEventListener('click', function() { outputBox.innerHTML = editor.getValue(); });
-            } else {
-                outputBox.innerHTML = textarea.value;
-                if(!isWrapped) textarea.classList.add('no-wrap');
-                textarea.addEventListener('input', function() { if (isLiveUpdate) outputBox.innerHTML = textarea.value; });
-                runBtn.addEventListener('click', function() { outputBox.innerHTML = textarea.value; });
-            }
-        });
-
-        // Simple clean accordion logic (jitter-free)
-        document.querySelectorAll('.accordion-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                button.closest('.accordion-item').classList.toggle('active');
-            });
-        });
-
-        initTheoryAndTitles();
-
-        // ==========================================
-        // LOCAL SEARCH & HIGHLIGHTING
-        // ==========================================
         let currentMatches = [];
         let currentMatchIdx = -1;
 
@@ -403,8 +459,8 @@
         function triggerLocalSearch(query) {
             query = query.trim();
             const activeTopic = document.querySelector('.topic-content.active');
+            if(!activeTopic) return;
             
-            // Reset contents to FULL original parsed HTML before search
             activeTopic.querySelectorAll('.acc-title').forEach(el => el.innerHTML = el.getAttribute('data-original-raw'));
             activeTopic.querySelectorAll('.theory-text').forEach(el => el.innerHTML = decodeURIComponent(el.getAttribute('data-original-raw')));
             
@@ -508,7 +564,8 @@
             document.getElementById('searchNavWrap').style.display = 'none';
             
             const activeTopic = document.querySelector('.topic-content.active');
-            
+            if(!activeTopic) return;
+
             activeTopic.querySelectorAll('.acc-title').forEach(el => el.innerHTML = el.getAttribute('data-original-raw'));
             activeTopic.querySelectorAll('.theory-text').forEach(el => apply50WordTruncation(el)); 
             
@@ -528,9 +585,6 @@
         document.getElementById('searchNextBtn').addEventListener('click', () => goToMatch(currentMatchIdx + 1));
         document.getElementById('searchClearBtn').addEventListener('click', clearLocalSearch);
 
-        // ==========================================
-        // SIDEBAR & GLOBAL SEARCH
-        // ==========================================
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
         
@@ -619,7 +673,7 @@
 
                     html += `
                     <div class="search-result-item" onclick="jumpToSearchResult('${topic.id}', '${safeQuery}')" style="cursor:pointer">
-                        <strong>📌 ${topicNames[topic.id]}</strong>
+                        <strong>📌 ${topicNames[topic.id] || topic.id}</strong>
                         <p>${totalMatchCount} ${matchWord} in ${sectionCount} ${sectionWord}:</p>
                         <ul>${locations.map(loc => `<li>${loc}</li>`).join('')}</ul>
                     </div>`;
@@ -631,9 +685,6 @@
 
         document.getElementById('globalSearch').addEventListener('input', triggerGlobalSearch);
 
-        // ==========================================
-        // HEADER MENU & SETTINGS
-        // ==========================================
         const moreMenuBtn = document.getElementById('moreMenuBtn');
         const moreMenuPanel = document.getElementById('moreMenuPanel');
         const settingsToggleBtn = document.getElementById('settingsToggleBtn');
