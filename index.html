@@ -22,11 +22,11 @@
         body.dark-mode { background-color: #121212; color: #e5e7eb; }
         body.dark-mode .header { background: linear-gradient(135deg, #334155 0%, #1e293b 100%); }
         body.dark-mode .accordion-item { background: #1e293b; border: 1px solid #334155; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        body.dark-mode .accordion-btn { color: #cbd5e1 !important; }
+        body.dark-mode .accordion-btn { color: #cbd5e1; }
         body.dark-mode .accordion-btn:hover { background-color: #334155; }
-        body.dark-mode .accordion-item.active .accordion-btn { background-color: #1e293b; color: #94a3b8 !important; border-bottom: 1px solid #334155; }
+        body.dark-mode .accordion-item.active .accordion-btn { background-color: #1e293b; color: #94a3b8; border-bottom: 1px solid #334155; }
         body.dark-mode .accordion-content { background-color: #0f172a; }
-        body.dark-mode iframe.output-box { border: 2px solid #475569; }
+        body.dark-mode .output-box { background: #1e293b; border: 2px solid #475569; color: #e5e7eb; }
         body.dark-mode h3 { color: #f3f4f6; }
         body.dark-mode .sidebar { background: #1e293b; border-right: 1px solid #334155; color: #e5e7eb; }
         body.dark-mode .sidebar-topic { color: #cbd5e1; }
@@ -39,12 +39,12 @@
         body.dark-mode .search-result-item { background: #334155; border-color: #475569; }
         body.dark-mode .match-case-label { color: #cbd5e1; }
 
-        /* Settings Menu Dropdown UI Update */
+        /* Dark Mode Select Dropdown Fix */
         .mode-selector-dropdown { width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; color: #374151; outline: none; cursor:pointer; background: #fff; }
         body.dark-mode .mode-selector-dropdown { background-color: #374151; color: #f9fafb; border-color: #4b5563; }
         body.dark-mode .mode-selector-dropdown option { background-color: #1f2937; color: #f9fafb; }
 
-        /* --- Header (Perfect Alignment) --- */
+        /* --- Header (Centered & Perfectly Aligned) --- */
         .header { 
             background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); 
             color: white; 
@@ -98,6 +98,7 @@
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
             line-height: 1;
         }
+
         .icon-btn { background: transparent; border: none; color: white; font-size: 1.8rem; cursor: pointer; transition: transform 0.2s; padding: 0 5px; }
         .icon-btn:hover { transform: scale(1.1); }
 
@@ -115,8 +116,14 @@
         /* --- Sidebar & Overlay --- */
         .overlay { visibility: hidden; opacity: 0; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1999; transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; will-change: opacity; }
         .overlay.active { visibility: visible; opacity: 1; }
+        
         .sidebar { position: fixed; top: 0; left: 0; width: 300px; height: 100%; background: white; z-index: 2000; transform: translate3d(-110%, 0, 0); transition: transform 0.25s ease-in-out; will-change: transform; box-shadow: 4px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
-        @media (min-width: 768px) { .sidebar { width: 350px; } }
+        
+        /* Tablet Sidebar Width Update */
+        @media (min-width: 768px) {
+            .sidebar { width: 350px; }
+        }
+
         .sidebar.active { transform: translate3d(0, 0, 0); }
         .sidebar-header { padding: 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;}
         .sidebar-header h2 { font-size: 1.4rem; color: #3b82f6; }
@@ -127,7 +134,7 @@
         
         .sidebar-search input[type="text"] { width: 100%; padding: 10px 35px 10px 10px; border: 1px solid #d1d5db; border-radius: 6px; outline: none; font-family: inherit; background: transparent; color: inherit;}
         body.dark-mode .sidebar-search input[type="text"] { border-color: #475569; }
-        
+
         #globalSearchClearBtn { display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1rem; cursor: pointer; color: #9ca3af; transition: 0.2s; }
         #globalSearchClearBtn:hover { color: #ef4444; }
 
@@ -178,51 +185,54 @@
         .topic-content.active { display: block; }
 
         .accordion-item { background: #fff; border-radius: 10px; margin-bottom: 1.2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
-        .accordion-btn { width: 100%; background: none; border: none; padding: 1.2rem 1.5rem; font-size: 1.15rem !important; font-weight: 600 !important; color: #1f2937 !important; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease; font-family: 'Poppins', sans-serif !important; }
+        .accordion-btn { width: 100%; background: none; border: none; padding: 1.2rem 1.5rem; font-size: 1.15rem; font-weight: 600; color: #1f2937; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease; font-family: inherit; }
         .accordion-btn:hover { background-color: #f3f4f6; }
-        .acc-title { flex-grow: 1; padding-right: 15px; font-weight: 600 !important; color: inherit !important;}
+        .acc-title { flex-grow: 1; padding-right: 15px;}
         .icon { font-size: 1.2rem; transition: transform 0.2s ease; color: #6b7280; }
         
         .accordion-item.active .accordion-content { max-height: 2500px; opacity: 1; }
         .accordion-item.active .icon { transform: rotate(180deg); color: #2563eb; }
-        .accordion-item.active .accordion-btn { border-bottom: 1px solid #e5e7eb; background-color: #eff6ff; color: #2563eb !important; }
+        .accordion-item.active .accordion-btn { border-bottom: 1px solid #e5e7eb; background-color: #eff6ff; color: #2563eb; }
         .accordion-content { max-height: 0; opacity: 0; transition: all 0.3s ease-in-out; background-color: #ffffff; }
         .content-inner { padding: 1.5rem; }
 
         /* --- Markdown Styling in Theory Text --- */
-        .theory-text { margin-bottom: 1rem; color: #4b5563 !important; font-weight: 500 !important; line-height: 1.7 !important; font-size: 1rem !important; font-family: 'Poppins', sans-serif !important;}
-        body.dark-mode .theory-text { color: #94a3b8 !important; }
+        .theory-text { margin-bottom: 1rem; color: #4b5563; font-weight: 500; line-height: 1.7; }
+        body.dark-mode .theory-text { color: #94a3b8; }
         .theory-text p { margin-bottom: 0.8rem; display: inline; } 
-        .theory-text strong { color: #1f2937 !important; font-weight: 700 !important; }
-        body.dark-mode .theory-text strong { color: #e5e7eb !important; }
+        .theory-text strong { color: #1f2937; font-weight: 700; }
+        body.dark-mode .theory-text strong { color: #e5e7eb; }
         .theory-text code { background: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em; color: #ef4444; }
         body.dark-mode .theory-text code { background: #374151; color: #fca5a5; }
         .theory-text pre { background: #1f2937; color: #e5e7eb; padding: 10px; border-radius: 6px; overflow-x: auto; margin-bottom: 0.8rem; display: block;}
         .theory-text ul, .theory-text ol { margin-left: 1.5rem; margin-bottom: 0.8rem; display: block;}
         
-        .read-more-btn { color: #3b82f6 !important; font-weight: 700 !important; text-decoration: none !important; white-space: nowrap;}
-        body.dark-mode .read-more-btn { color: #60a5fa !important; }
+        /* The native-looking Read More Button */
+        .read-more-btn { color: #3b82f6; font-weight: 700; text-decoration: none; white-space: nowrap;}
+        body.dark-mode .read-more-btn { color: #60a5fa; }
 
         /* Grid & Editor */
         .grid-box { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 0.5rem; }
         @media (min-width: 768px) { .grid-box { flex-direction: row; } .grid-item { flex: 1; width: 50%; } }
         .code-header, .output-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
-        h3 { font-size: 1.1rem !important; color: #111827 !important; font-weight: 600 !important; margin: 0; font-family: 'Poppins', sans-serif !important;}
-        body.dark-mode h3 { color: #f3f4f6 !important; }
+        h3 { font-size: 1.1rem; color: #111827; margin: 0; }
         
-        .run-btn { display: none; background: #10b981; color: white !important; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 0.95rem; font-weight: 600 !important; font-family: 'Poppins', sans-serif !important; }
+        .run-btn { display: none; background: #10b981; color: white; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 0.95rem; font-weight: 600; }
         body.manual-mode .run-btn { display: flex; align-items: center; gap: 5px; }
 
-        .CodeMirror { border-radius: 8px; border: 2px solid #374151; font-family: 'Fira Code', monospace !important; font-size: 1.2rem !important; height: auto; min-height: 150px; padding: 8px 5px; }
-        .editor-textarea { width: 100%; min-height: 150px; border: 2px solid #374151; border-radius: 8px; padding: 12px; font-family: 'Fira Code', monospace !important; font-size: 1.2rem !important; background: #2b2b2b; color: #a9b7c6; resize: vertical; outline: none; line-height: 1.5; }
+        .CodeMirror { border-radius: 8px; border: 2px solid #374151; font-family: 'Fira Code', monospace !important; font-size: 1.2rem !important; height: auto; min-height: 120px; padding: 8px 5px; }
+        .editor-textarea { width: 100%; min-height: 120px; border: 2px solid #374151; border-radius: 8px; padding: 12px; font-family: 'Fira Code', monospace !important; font-size: 1.2rem !important; background: #2b2b2b; color: #a9b7c6; resize: vertical; outline: none; line-height: 1.5; }
         .editor-textarea.no-wrap { white-space: pre; overflow-x: auto; }
+        .output-box { background: #fff; border: 2px solid #93c5fd; padding: 1.5rem; border-radius: 8px; min-height: 120px; height: 100%; }
         
-        /* Iframe styling for absolute isolation */
-        iframe.output-box { background: #fff; width: 100%; border: 2px solid #93c5fd; border-radius: 8px; padding: 0; min-height: 150px; height: 100%; display: block; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.95rem; margin-bottom: 0.3rem; font-weight: 500;}
+        .form-group input { width: 100%; padding: 0.6rem; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; }
+        .btn { background: #3b82f6; color: #fff; border: none; padding: 0.6rem 1.4rem; border-radius: 6px; cursor: pointer; font-family: inherit; font-weight: 600; }
     </style>
 </head>
 <body>
-    
+
     <script>
         function updateMetaThemeColor() {
             const metaTheme = document.getElementById('metaThemeColor');
@@ -256,7 +266,8 @@
         </div>
         <div class="sidebar-content">
             <div id="globalSearchResults"></div>
-            <div id="topicList"></div>
+            <div id="topicList">
+                </div>
         </div>
     </aside>
 
@@ -288,9 +299,9 @@
                                 <select id="modeSelector" class="mode-selector-dropdown">
                                     <option value="html">HTML Notebook</option>
                                     <option value="css">CSS Notebook</option>
-                                    <option value="tailwind">Tailwind CSS</option>
                                 </select>
                             </label>
+
                         </div>
                     </div>
                 </div>
@@ -337,12 +348,15 @@
 
         const modeDisplay = document.getElementById('modeDisplay');
         const modeSelector = document.getElementById('modeSelector');
+        
+        // Ensure only html or css is processed
+        if(currentMode !== 'html' && currentMode !== 'css') currentMode = 'html';
+        
         modeSelector.value = currentMode;
 
         let modeText = "HTML";
         if(currentMode === 'css') modeText = "CSS";
-        if(currentMode === 'tailwind') modeText = "Tailwind CSS";
-        modeDisplay.innerText = modeText; 
+        modeDisplay.innerText = modeText;
 
         modeSelector.addEventListener('change', (e) => {
             localStorage.setItem('notebookMode', e.target.value);
@@ -354,7 +368,7 @@
             window.location.reload();
         };
 
-        // Load correct data file
+        // Load the appropriate Notebook Data File dynamically
         const dataScript = document.createElement('script');
         dataScript.src = currentMode + "notebookData.js";
         dataScript.onload = () => {
@@ -375,12 +389,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/display/autorefresh.min.js"></script>
 
     <script>
+        // Global State Variables
         let topicNames = {};
         let isLiveUpdate = true;
         let isWrapped = false; 
         let isCaseSensitive = false;
 
         function initializeApp() {
+            // ==========================================
+            // RENDER LOGIC (DOM GENERATION)
+            // ==========================================
             function renderNotebook() {
                 const mainContainer = document.getElementById('mainContainer');
                 const topicList = document.getElementById('topicList');
@@ -411,7 +429,7 @@
                                         </div>
                                         <div class="grid-item">
                                             <div class="output-header"><h3>👁️ Live Output:</h3></div>
-                                            <iframe class="output-box" frameborder="0"></iframe>
+                                            <div class="output-box"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -431,38 +449,15 @@
 
             initTheoryAndTitles();
 
-            // Handle Output box isolation with iFrames
-            function updateIframeOutput(iframe, code) {
-                const doc = iframe.contentDocument || iframe.contentWindow.document;
-                const previewContainer = doc.getElementById('app-preview');
-                
-                if (previewContainer) {
-                    previewContainer.innerHTML = code;
-                } else {
-                    doc.open();
-                    let headHtml = `<style>body { margin: 0; padding: 15px; font-family: sans-serif; }</style>`;
-                    if (currentMode === 'tailwind') {
-                        headHtml += `<script src="https://cdn.tailwindcss.com"><\/script>`;
-                    }
-                    doc.write(`<!DOCTYPE html><html><head>${headHtml}</head><body><div id="app-preview">${code}</div></body></html>`);
-                    doc.close();
-                }
-            }
-
             document.querySelectorAll('.editor-textarea').forEach(textarea => {
                 const gridItem = textarea.closest('.grid-box');
                 if(!gridItem) return;
-                const outputIframe = gridItem.querySelector('iframe.output-box');
+                const outputBox = gridItem.querySelector('.output-box');
                 const runBtn = gridItem.querySelector('.run-btn');
-
-                const applyCode = () => {
-                    const code = textarea.cmInstance ? textarea.cmInstance.getValue() : textarea.value;
-                    updateIframeOutput(outputIframe, code);
-                };
 
                 if (typeof CodeMirror !== 'undefined') {
                     const editor = CodeMirror.fromTextArea(textarea, {
-                        mode: "htmlmixed",
+                        mode: "htmlmixed", 
                         theme: "darcula", 
                         lineNumbers: false, 
                         lineWrapping: isWrapped, 
@@ -471,13 +466,14 @@
                     });
                     textarea.cmInstance = editor; 
                     
-                    applyCode();
-                    editor.on("change", function() { if (isLiveUpdate) applyCode(); });
-                    runBtn.addEventListener('click', applyCode);
+                    outputBox.innerHTML = editor.getValue();
+                    editor.on("change", function() { if (isLiveUpdate) outputBox.innerHTML = editor.getValue(); });
+                    runBtn.addEventListener('click', function() { outputBox.innerHTML = editor.getValue(); });
                 } else {
-                    applyCode();
-                    textarea.addEventListener('input', function() { if (isLiveUpdate) applyCode(); });
-                    runBtn.addEventListener('click', applyCode);
+                    outputBox.innerHTML = textarea.value;
+                    if(!isWrapped) textarea.classList.add('no-wrap');
+                    textarea.addEventListener('input', function() { if (isLiveUpdate) outputBox.innerHTML = textarea.value; });
+                    runBtn.addEventListener('click', function() { outputBox.innerHTML = textarea.value; });
                 }
             });
 
@@ -487,13 +483,14 @@
                 });
             });
 
+            // Topic State Persistence Loading
             const lastTopic = localStorage.getItem('lastTopic_' + currentMode);
             if (lastTopic && document.getElementById(lastTopic)) {
                 switchTopic(lastTopic);
             } else if (notebookData.length > 0) {
                 switchTopic(notebookData[0].id);
             }
-        }
+        } 
 
         // ==========================================
         // OUTSIDE LOGIC (Search, Toggle, UI Handlers)
@@ -529,7 +526,7 @@
 
             if(words.length > 50) {
                 let shortText = words.slice(0, 50).join(' ');
-                shortText = shortText.replace(/[.,;!?]+$/, ''); // Removes extra punctuation at the end
+                shortText = shortText.replace(/[.,;!?]+$/, ''); 
                 
                 const shortMD = shortText + '... <a href="#" class="read-more-btn" onclick="toggleTheory(event, true)">Read more</a>';
                 const shortHTML = marked.parse(shortMD);
@@ -854,11 +851,11 @@
                     document.querySelectorAll('.editor-textarea').forEach(textarea => {
                         const gridItem = textarea.closest('.grid-box');
                         if(!gridItem) return;
-                        const outputIframe = gridItem.querySelector('iframe.output-box');
-                        if (textarea.cmInstance) {
-                            const doc = outputIframe.contentDocument || outputIframe.contentWindow.document;
-                            const prev = doc.getElementById('app-preview');
-                            if(prev) prev.innerHTML = textarea.cmInstance.getValue();
+                        const outputBox = gridItem.querySelector('.output-box');
+                        if (textarea.nextSibling && textarea.nextSibling.CodeMirror) {
+                            outputBox.innerHTML = textarea.nextSibling.CodeMirror.getValue();
+                        } else {
+                            outputBox.innerHTML = textarea.value;
                         }
                     });
                 } else {
