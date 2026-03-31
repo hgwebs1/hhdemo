@@ -34,19 +34,57 @@
         body.dark-mode .menu-item:hover { background: #334155; }
         body.dark-mode .settings-inner { background: #0f172a; border: 1px solid #334155; }
         body.dark-mode .settings-inner label, body.dark-mode .settings-inner h4 { color: #cbd5e1; }
-        body.dark-mode .settings-inner select { background-color: #1f2937; color: #e5e7eb; border-color: #475569; } /* Dark Mode styling for new dropdown */
+        body.dark-mode .settings-inner select { background-color: #1f2937; color: #e5e7eb; border-color: #475569; } 
         body.dark-mode .search-result-item { background: #334155; border-color: #475569; }
         body.dark-mode .match-case-label { color: #cbd5e1; }
 
-        /* --- Header --- */
-        .header { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; padding: 0.7rem 0.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; }
-        .header h1 { font-size: 2rem; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); flex-grow: 1; text-align: center; }
+        /* --- Header (Original Height & Perfectly Aligned) --- */
+        .header { 
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); 
+            color: white; 
+            padding: 1.5rem 1rem; /* Original Height */
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            position: relative; 
+        }
+        /* Fixed width for side sections to keep title perfectly centered */
+        .header-left, .header-right { width: 50px; display: flex; align-items: center; }
+        .header-right { justify-content: flex-end; }
+        
+        .header h1 { 
+            font-size: 2.2rem; /* Original size */
+            margin: 0; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2); 
+            flex-grow: 1; 
+            text-align: center; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 12px; /* Space between title and badge */
+        }
+        
+        /* Beautiful Bold Mode Badge */
+        #modeDisplay {
+            font-size: 0.4em; 
+            font-weight: 700; 
+            letter-spacing: 1px;
+            color: #fde047; /* Bright Yellow/Gold */
+            background-color: rgba(0, 0, 0, 0.25); /* Dark pill background */
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+            text-shadow: none; /* Removes main title shadow for clarity */
+        }
+
         .icon-btn { background: transparent; border: none; color: white; font-size: 1.8rem; cursor: pointer; transition: transform 0.2s; padding: 0 5px; }
         .icon-btn:hover { transform: scale(1.1); }
 
         /* --- Three Dot Menu --- */
         .more-menu-container { position: relative; }
-        .more-menu-panel { display: none; position: absolute; top: 40px; right: 0; background: white; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); z-index: 1500; min-width: 220px; overflow: hidden; border: 1px solid #e5e7eb; color: #1f2937; }
+        .more-menu-panel { display: none; position: absolute; top: 40px; right: 0; background: white; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); z-index: 1500; min-width: 220px; overflow: hidden; border: 1px solid #e5e7eb; color: #1f2937; text-align: left;}
         .more-menu-panel.active { display: block; }
         .menu-item { padding: 12px 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500; border-bottom: 1px solid #e5e7eb; transition: background 0.2s; }
         .menu-item:hover { background: #f3f4f6; }
@@ -61,7 +99,6 @@
         
         .sidebar { position: fixed; top: 0; left: 0; width: 300px; height: 100%; background: white; z-index: 2000; transform: translate3d(-110%, 0, 0); transition: transform 0.25s ease-in-out; will-change: transform; box-shadow: 4px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         
-        /* Tablet Sidebar Width Update */
         @media (min-width: 768px) {
             .sidebar { width: 350px; }
         }
@@ -73,8 +110,17 @@
         .close-sidebar { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280; }
         .sidebar-search { padding: 15px; border-bottom: 1px solid #e5e7eb; }
         body.dark-mode .sidebar-search { border-color: #475569; }
-        .sidebar-search input[type="text"] { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; outline: none; font-family: inherit; background: transparent; color: inherit;}
+        
+        /* Updated Input Box with Clear Icon Setup */
+        .sidebar-search input[type="text"] { width: 100%; padding: 10px 35px 10px 10px; border: 1px solid #d1d5db; border-radius: 6px; outline: none; font-family: inherit; background: transparent; color: inherit;}
         body.dark-mode .sidebar-search input[type="text"] { border-color: #475569; }
+        
+        #globalSearchClearBtn {
+            display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; font-size: 1rem; cursor: pointer; color: #9ca3af; transition: 0.2s;
+        }
+        #globalSearchClearBtn:hover { color: #ef4444; }
+
         .sidebar-content { padding: 10px 0; overflow-y: auto; flex-grow: 1; }
         .sidebar-topic { padding: 12px 20px; cursor: pointer; font-weight: 500; color: #4b5563; transition: all 0.2s; }
         .sidebar-topic:hover { background: #f3f4f6; color: #2563eb; }
@@ -116,7 +162,7 @@
         .search-match.active-match { background-color: #f97316 !important; color: white !important; box-shadow: none !important; }
         body.dark-mode .search-match.active-match { background-color: #ea580c !important; color: white !important; box-shadow: none !important; }
 
-        /* --- Container & Accordion (Smooth simple transition restored) --- */
+        /* --- Container & Accordion --- */
         .container { max-width: 1100px; margin: 1rem auto; padding: 0 1rem; }
         .topic-content { display: none; }
         .topic-content.active { display: block; }
@@ -136,7 +182,7 @@
         /* --- Markdown Styling in Theory Text --- */
         .theory-text { margin-bottom: 1rem; color: #4b5563; font-weight: 500; line-height: 1.7; }
         body.dark-mode .theory-text { color: #94a3b8; }
-        .theory-text p { margin-bottom: 0.8rem; display: inline; } /* inline display ensures link sits at the end seamlessly */
+        .theory-text p { margin-bottom: 0.8rem; display: inline; } 
         .theory-text strong { color: #1f2937; font-weight: 700; }
         body.dark-mode .theory-text strong { color: #e5e7eb; }
         .theory-text code { background: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em; color: #ef4444; }
@@ -144,7 +190,6 @@
         .theory-text pre { background: #1f2937; color: #e5e7eb; padding: 10px; border-radius: 6px; overflow-x: auto; margin-bottom: 0.8rem; display: block;}
         .theory-text ul, .theory-text ol { margin-left: 1.5rem; margin-bottom: 0.8rem; display: block;}
         
-        /* The native-looking Read More Button */
         .read-more-btn { color: #3b82f6; font-weight: 700; text-decoration: none; white-space: nowrap; margin-left: 4px;}
         body.dark-mode .read-more-btn { color: #60a5fa; }
 
@@ -161,11 +206,6 @@
         .editor-textarea { width: 100%; min-height: 120px; border: 2px solid #374151; border-radius: 8px; padding: 12px; font-family: 'Fira Code', monospace !important; font-size: 1.2rem !important; background: #2b2b2b; color: #a9b7c6; resize: vertical; outline: none; line-height: 1.5; }
         .editor-textarea.no-wrap { white-space: pre; overflow-x: auto; }
         .output-box { background: #fff; border: 2px solid #93c5fd; padding: 1.5rem; border-radius: 8px; min-height: 120px; height: 100%; }
-        
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; font-size: 0.95rem; margin-bottom: 0.3rem; font-weight: 500;}
-        .form-group input { width: 100%; padding: 0.6rem; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; }
-        .btn { background: #3b82f6; color: #fff; border: none; padding: 0.6rem 1.4rem; border-radius: 6px; cursor: pointer; font-family: inherit; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -178,45 +218,50 @@
             <button class="close-sidebar" id="closeSidebarBtn">&times;</button>
         </div>
         <div class="sidebar-search">
-            <input type="text" id="globalSearch" placeholder="Search everywhere...">
+            <div style="position: relative; width: 100%;">
+                <input type="text" id="globalSearch" placeholder="Search everywhere...">
+                <button id="globalSearchClearBtn" title="Clear Search">✖</button>
+            </div>
             <label class="match-case-label" style="position: relative; left: 0; margin-top: 8px; font-size: 0.85rem;">
                 <input type="checkbox" id="matchCaseGlobal"> Match Case (Aa)
             </label>
         </div>
         <div class="sidebar-content">
             <div id="globalSearchResults"></div>
-            <div id="topicList">
-                </div>
+            <div id="topicList"></div>
         </div>
     </aside>
 
     <header class="header">
-        <button class="icon-btn" id="menuBtn" title="Menu">&#9776;</button>
-        <h1>Coding Notebook <span id="modeDisplay" style="font-size: 0.45em; vertical-align: middle; opacity: 0.9; font-weight: 400; margin-left: 5px;"></span></h1>
+        <div class="header-left">
+            <button class="icon-btn" id="menuBtn" title="Menu">&#9776;</button>
+        </div>
         
-        <div class="more-menu-container">
-            <button class="icon-btn" id="moreMenuBtn" title="More Options">&#8942;</button>
-            <div class="more-menu-panel" id="moreMenuPanel">
-                <div class="menu-item" id="themeToggleBtn"><span>🌙</span> <span id="themeTitle">Dark Mode</span></div>
-                <div class="menu-item" id="settingsToggleBtn"><span>⚙️</span> <span>Settings</span></div>
-                <div class="settings-inner" id="settingsInner">
-                    <h4>Output Settings</h4>
-                    <label><input type="radio" name="previewMode" value="live" checked> ⚡ Live Update</label>
-                    <label><input type="radio" name="previewMode" value="manual"> ▶️ Update via Button</label>
-                    <hr style="margin: 10px 0; border: 0; border-top: 1px solid #e5e7eb;">
-                    <h4>Editor Settings</h4>
-                    <label><input type="checkbox" id="wrapToggle"> ↩️ Wrap Code Lines</label>
-                    
-                    <hr style="margin: 10px 0; border: 0; border-top: 1px solid #e5e7eb;">
-                    <h4>🌐 Website Mode</h4>
-                    <label>
-                        <select id="modeSelector" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; color: #374151; outline: none; cursor:pointer;">
-                            <option value="html">HTML Notebook</option>
-                            <option value="css">CSS Notebook</option>
-                            <option value="tailwind">Tailwind CSS Notebook</option>
-                        </select>
-                    </label>
-
+        <h1>Coding Notebook <span id="modeDisplay"></span></h1>
+        
+        <div class="header-right">
+            <div class="more-menu-container">
+                <button class="icon-btn" id="moreMenuBtn" title="More Options">&#8942;</button>
+                <div class="more-menu-panel" id="moreMenuPanel">
+                    <div class="menu-item" id="themeToggleBtn"><span>🌙</span> <span id="themeTitle">Dark Mode</span></div>
+                    <div class="menu-item" id="settingsToggleBtn"><span>⚙️</span> <span>Settings</span></div>
+                    <div class="settings-inner" id="settingsInner">
+                        <h4>Output Settings</h4>
+                        <label><input type="radio" name="previewMode" value="live" checked> ⚡ Live Update</label>
+                        <label><input type="radio" name="previewMode" value="manual"> ▶️ Update via Button</label>
+                        <hr style="margin: 10px 0; border: 0; border-top: 1px solid #e5e7eb;">
+                        <h4>Editor Settings</h4>
+                        <label><input type="checkbox" id="wrapToggle"> ↩️ Wrap Code Lines</label>
+                        <hr style="margin: 10px 0; border: 0; border-top: 1px solid #e5e7eb;">
+                        <h4>🌐 Website Mode</h4>
+                        <label>
+                            <select id="modeSelector" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; color: #374151; outline: none; cursor:pointer;">
+                                <option value="html">HTML Notebook</option>
+                                <option value="css">CSS Notebook</option>
+                                <option value="tailwind">Tailwind CSS</option>
+                            </select>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -249,7 +294,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         const currentMode = urlParams.get('mode') || 'html';
 
-        // Update UI for the current mode
         const modeDisplay = document.getElementById('modeDisplay');
         const modeSelector = document.getElementById('modeSelector');
         modeSelector.value = currentMode;
@@ -259,12 +303,11 @@
         if(currentMode === 'tailwind') modeText = "Tailwind CSS";
         modeDisplay.innerText = `(${modeText})`;
 
-        // Handle Dropdown Change
         modeSelector.addEventListener('change', (e) => {
             window.location.search = '?mode=' + e.target.value;
         });
 
-        // Safely Inject Tailwind CSS ONLY for Tailwind Mode
+        // Inject Tailwind securely
         if (currentMode === 'tailwind') {
             const configScript = document.createElement('script');
             configScript.innerHTML = "window.tailwind = { config: { corePlugins: { preflight: false } } };";
@@ -275,11 +318,11 @@
             document.head.appendChild(twScript);
         }
 
-        // Load the appropriate Notebook Data File dynamically
+        // Load correct data file
         const dataScript = document.createElement('script');
         dataScript.src = currentMode + "notebookData.js";
         dataScript.onload = () => {
-            initializeApp(); // Call main logic only after data is ready
+            initializeApp(); 
         };
         dataScript.onerror = () => {
             document.getElementById('mainContainer').innerHTML = `<div style="text-align:center; padding: 3rem; color: #ef4444;"><h3>Data File Not Found!</h3><p>Ensure <b>${currentMode}notebookData.js</b> exists in the same folder.</p></div>`;
@@ -292,22 +335,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/display/autorefresh.min.js"></script>
 
     <script>
-        // Global State Variables
         let topicNames = {};
         let isLiveUpdate = true;
         let isWrapped = false; 
         let isCaseSensitive = false;
 
-        // Wrap everything dependent on `notebookData` inside initializeApp
         function initializeApp() {
-            // ==========================================
-            // RENDER LOGIC (DOM GENERATION)
-            // ==========================================
             function renderNotebook() {
                 const mainContainer = document.getElementById('mainContainer');
                 const topicList = document.getElementById('topicList');
@@ -366,7 +403,7 @@
 
                 if (typeof CodeMirror !== 'undefined') {
                     const editor = CodeMirror.fromTextArea(textarea, {
-                        mode: "htmlmixed", // Changed to htmlmixed for universal support
+                        mode: "htmlmixed",
                         theme: "darcula", 
                         lineNumbers: false, 
                         lineWrapping: isWrapped, 
@@ -391,7 +428,7 @@
                     button.closest('.accordion-item').classList.toggle('active');
                 });
             });
-        } // End of initializeApp
+        }
 
         // ==========================================
         // OUTSIDE LOGIC (Search, Toggle, UI Handlers)
@@ -585,6 +622,21 @@
         document.getElementById('searchNextBtn').addEventListener('click', () => goToMatch(currentMatchIdx + 1));
         document.getElementById('searchClearBtn').addEventListener('click', clearLocalSearch);
 
+        // Sidebar Cross Clear Setup
+        const globalSearchInput = document.getElementById('globalSearch');
+        const globalSearchClearBtn = document.getElementById('globalSearchClearBtn');
+
+        globalSearchInput.addEventListener('input', function() {
+            globalSearchClearBtn.style.display = this.value.trim() ? 'block' : 'none';
+            triggerGlobalSearch();
+        });
+
+        globalSearchClearBtn.addEventListener('click', function() {
+            globalSearchInput.value = '';
+            this.style.display = 'none';
+            triggerGlobalSearch();
+        });
+
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
         
@@ -682,8 +734,6 @@
 
             resultsDiv.innerHTML = html || '<div class="search-result-item" style="color:#ef4444; border-color:#fca5a5;">No matches found</div>';
         }
-
-        document.getElementById('globalSearch').addEventListener('input', triggerGlobalSearch);
 
         const moreMenuBtn = document.getElementById('moreMenuBtn');
         const moreMenuPanel = document.getElementById('moreMenuPanel');
