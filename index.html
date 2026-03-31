@@ -20,9 +20,9 @@
         body.dark-mode { background-color: #121212; color: #e5e7eb; }
         body.dark-mode .header { background: linear-gradient(135deg, #334155 0%, #1e293b 100%); }
         body.dark-mode .accordion-item { background: #1e293b; border: 1px solid #334155; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        body.dark-mode .accordion-btn { color: #cbd5e1; }
+        body.dark-mode .accordion-btn { color: #cbd5e1 !important; }
         body.dark-mode .accordion-btn:hover { background-color: #334155; }
-        body.dark-mode .accordion-item.active .accordion-btn { background-color: #1e293b; color: #94a3b8; border-bottom: 1px solid #334155; }
+        body.dark-mode .accordion-item.active .accordion-btn { background-color: #1e293b; color: #94a3b8 !important; border-bottom: 1px solid #334155; }
         body.dark-mode .accordion-content { background-color: #0f172a; }
         body.dark-mode .output-box { background: #1e293b; border: 2px solid #475569; color: #e5e7eb; }
         body.dark-mode h3 { color: #f3f4f6; }
@@ -34,64 +34,62 @@
         body.dark-mode .menu-item:hover { background: #334155; }
         body.dark-mode .settings-inner { background: #0f172a; border: 1px solid #334155; }
         body.dark-mode .settings-inner label, body.dark-mode .settings-inner h4 { color: #cbd5e1; }
+        body.dark-mode .settings-inner select { background-color: #374151; color: #f9fafb; border-color: #4b5563; } 
+        body.dark-mode .settings-inner select option { background-color: #1f2937; color: #f9fafb; }
         body.dark-mode .search-result-item { background: #334155; border-color: #475569; }
         body.dark-mode .match-case-label { color: #cbd5e1; }
 
-        /* Dark Mode Select Dropdown Fix */
-        body.dark-mode .settings-inner select { background-color: #374151; color: #f9fafb; border-color: #4b5563; } 
-        body.dark-mode .settings-inner select option { background-color: #1f2937; color: #f9fafb; }
-
-        /* --- Header (Original Height & Vertical Alignment) --- */
+        /* --- Header (Perfectly Aligned) --- */
         .header { 
             background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); 
             color: white; 
-            padding: 1.5rem 1rem; 
+            padding: 0.8rem 1rem 0.6rem 1rem; 
             display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
+            flex-direction: column;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
             position: relative; 
         }
-        .header-left, .header-right { width: 50px; display: flex; align-items: center; }
-        .header-right { justify-content: flex-end; }
-        
-        .header h1 { 
-            font-size: 2.2rem; 
+        .header-main-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; /* Ekdum seedhi line me lane ke liye */
+            width: 100%;
+        }
+        .main-title { 
+            font-size: 1.6rem !important; /* Mobile me ek line me fit hone ke liye */
+            font-weight: 700 !important;
+            line-height: 1; 
             margin: 0; 
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2); 
-            flex-grow: 1; 
-            text-align: center; 
-            display: flex; 
-            flex-direction: column; /* Stack Title and Mode */
-            justify-content: center; 
-            align-items: center; 
-            gap: 4px; /* Space between title and badge */
+            white-space: nowrap;
             cursor: pointer;
-            transition: transform 0.2s;
+            text-align: center;
+            flex-grow: 1; 
         }
-        .header h1:hover { transform: scale(1.02); }
-        .header h1 .main-title { line-height: 1; }
-        
-        /* Subtitle Mode Display (Centered Below) */
+        .header-badge-line {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-top: 5px; /* Title ke theek neeche */
+            cursor: pointer;
+        }
         #modeDisplay {
-            font-size: 0.8rem; 
+            font-size: 0.65rem; 
             font-weight: 700; 
             letter-spacing: 1.5px;
-            color: #fde047; /* Bright Yellow/Gold */
-            background-color: rgba(0, 0, 0, 0.25); /* Dark pill background */
-            padding: 3px 12px;
+            color: #fde047; 
+            background-color: rgba(0, 0, 0, 0.25); 
+            padding: 3px 14px;
             border-radius: 15px;
             text-transform: uppercase;
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
-            text-shadow: none; 
             line-height: 1;
         }
-
         .icon-btn { background: transparent; border: none; color: white; font-size: 1.8rem; cursor: pointer; transition: transform 0.2s; padding: 0 5px; }
         .icon-btn:hover { transform: scale(1.1); }
 
         /* --- Three Dot Menu --- */
-        .more-menu-container { position: relative; }
+        .more-menu-container { position: relative; display: flex; align-items: center; justify-content: flex-end;}
         .more-menu-panel { display: none; position: absolute; top: 40px; right: 0; background: white; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); z-index: 1500; min-width: 220px; overflow: hidden; border: 1px solid #e5e7eb; color: #1f2937; text-align: left;}
         .more-menu-panel.active { display: block; }
         .menu-item { padding: 12px 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500; border-bottom: 1px solid #e5e7eb; transition: background 0.2s; }
@@ -104,11 +102,8 @@
         /* --- Sidebar & Overlay --- */
         .overlay { visibility: hidden; opacity: 0; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1999; transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; will-change: opacity; }
         .overlay.active { visibility: visible; opacity: 1; }
-        
         .sidebar { position: fixed; top: 0; left: 0; width: 300px; height: 100%; background: white; z-index: 2000; transform: translate3d(-110%, 0, 0); transition: transform 0.25s ease-in-out; will-change: transform; box-shadow: 4px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
-        
         @media (min-width: 768px) { .sidebar { width: 350px; } }
-
         .sidebar.active { transform: translate3d(0, 0, 0); }
         .sidebar-header { padding: 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;}
         .sidebar-header h2 { font-size: 1.4rem; color: #3b82f6; }
@@ -164,44 +159,52 @@
         .search-match.active-match { background-color: #f97316 !important; color: white !important; box-shadow: none !important; }
         body.dark-mode .search-match.active-match { background-color: #ea580c !important; color: white !important; box-shadow: none !important; }
 
-        /* --- Container & Accordion --- */
+        /* --- Container & Accordion (IMPORTANT! UI Protection from Tailwind) --- */
         .container { max-width: 1100px; margin: 1rem auto; padding: 0 1rem; }
         .topic-content { display: none; }
         .topic-content.active { display: block; }
 
         .accordion-item { background: #fff; border-radius: 10px; margin-bottom: 1.2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
-        .accordion-btn { width: 100%; background: none; border: none; padding: 1.2rem 1.5rem; font-size: 1.15rem; font-weight: 600; color: #1f2937; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease; font-family: inherit; }
+        
+        /* Protection classes for UI text/fonts */
+        .accordion-btn { 
+            width: 100%; background: none; border: none; padding: 1.2rem 1.5rem; 
+            font-size: 1.15rem !important; font-weight: 600 !important; color: #1f2937 !important; 
+            text-align: left; cursor: pointer; display: flex; justify-content: space-between; 
+            align-items: center; transition: all 0.2s ease; font-family: 'Poppins', sans-serif !important; 
+        }
         .accordion-btn:hover { background-color: #f3f4f6; }
-        .acc-title { flex-grow: 1; padding-right: 15px;}
+        .acc-title { flex-grow: 1; padding-right: 15px; font-weight: 600 !important; color: inherit !important;}
         .icon { font-size: 1.2rem; transition: transform 0.2s ease; color: #6b7280; }
         
         .accordion-item.active .accordion-content { max-height: 2500px; opacity: 1; }
         .accordion-item.active .icon { transform: rotate(180deg); color: #2563eb; }
-        .accordion-item.active .accordion-btn { border-bottom: 1px solid #e5e7eb; background-color: #eff6ff; color: #2563eb; }
+        .accordion-item.active .accordion-btn { border-bottom: 1px solid #e5e7eb; background-color: #eff6ff; color: #2563eb !important; }
         .accordion-content { max-height: 0; opacity: 0; transition: all 0.3s ease-in-out; background-color: #ffffff; }
         .content-inner { padding: 1.5rem; }
 
-        /* --- Markdown Styling in Theory Text --- */
-        .theory-text { margin-bottom: 1rem; color: #4b5563; font-weight: 500; line-height: 1.7; }
-        body.dark-mode .theory-text { color: #94a3b8; }
+        /* --- Markdown Styling in Theory Text (UI Protection) --- */
+        .theory-text { margin-bottom: 1rem; color: #4b5563 !important; font-weight: 500 !important; line-height: 1.7 !important; font-size: 1rem !important; font-family: 'Poppins', sans-serif !important;}
+        body.dark-mode .theory-text { color: #94a3b8 !important; }
         .theory-text p { margin-bottom: 0.8rem; display: inline; } 
-        .theory-text strong { color: #1f2937; font-weight: 700; }
-        body.dark-mode .theory-text strong { color: #e5e7eb; }
+        .theory-text strong { color: #1f2937 !important; font-weight: 700 !important; }
+        body.dark-mode .theory-text strong { color: #e5e7eb !important; }
         .theory-text code { background: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em; color: #ef4444; }
         body.dark-mode .theory-text code { background: #374151; color: #fca5a5; }
         .theory-text pre { background: #1f2937; color: #e5e7eb; padding: 10px; border-radius: 6px; overflow-x: auto; margin-bottom: 0.8rem; display: block;}
         .theory-text ul, .theory-text ol { margin-left: 1.5rem; margin-bottom: 0.8rem; display: block;}
         
-        .read-more-btn { color: #3b82f6; font-weight: 700; text-decoration: none; white-space: nowrap; margin-left: 4px;}
-        body.dark-mode .read-more-btn { color: #60a5fa; }
+        .read-more-btn { color: #3b82f6 !important; font-weight: 700 !important; text-decoration: none !important; white-space: nowrap;}
+        body.dark-mode .read-more-btn { color: #60a5fa !important; }
 
         /* Grid & Editor */
         .grid-box { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 0.5rem; }
         @media (min-width: 768px) { .grid-box { flex-direction: row; } .grid-item { flex: 1; width: 50%; } }
         .code-header, .output-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
-        h3 { font-size: 1.1rem; color: #111827; margin: 0; }
+        h3 { font-size: 1.1rem !important; color: #111827 !important; font-weight: 600 !important; margin: 0; font-family: 'Poppins', sans-serif !important;}
+        body.dark-mode h3 { color: #f3f4f6 !important; }
         
-        .run-btn { display: none; background: #10b981; color: white; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 0.95rem; font-weight: 600; }
+        .run-btn { display: none; background: #10b981; color: white !important; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 0.95rem; font-weight: 600 !important; font-family: 'Poppins', sans-serif !important; }
         body.manual-mode .run-btn { display: flex; align-items: center; gap: 5px; }
 
         .CodeMirror { border-radius: 8px; border: 2px solid #374151; font-family: 'Fira Code', monospace !important; font-size: 1.2rem !important; height: auto; min-height: 120px; padding: 8px 5px; }
@@ -241,16 +244,11 @@
     </aside>
 
     <header class="header">
-        <div class="header-left">
+        <div class="header-main-line">
             <button class="icon-btn" id="menuBtn" title="Menu">&#9776;</button>
-        </div>
-        
-        <h1 onclick="resetToHome()" title="Click to go to Home">
-            <div class="main-title">Coding Notebook</div>
-            <div id="modeDisplay">HTML</div>
-        </h1>
-        
-        <div class="header-right">
+            
+            <h1 class="main-title" onclick="resetToHome()" title="Click to go to Home">Coding Notebook</h1>
+            
             <div class="more-menu-container">
                 <button class="icon-btn" id="moreMenuBtn" title="More Options">&#8942;</button>
                 <div class="more-menu-panel" id="moreMenuPanel">
@@ -276,6 +274,9 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="header-badge-line" onclick="resetToHome()">
+            <span id="modeDisplay">HTML</span>
         </div>
     </header>
 
@@ -306,7 +307,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         let currentMode = urlParams.get('mode');
         
-        // Mode State Persistence 
         if (!currentMode) {
             currentMode = localStorage.getItem('notebookMode') || 'html';
         } else {
@@ -320,20 +320,19 @@
         let modeText = "HTML";
         if(currentMode === 'css') modeText = "CSS";
         if(currentMode === 'tailwind') modeText = "Tailwind CSS";
-        modeDisplay.innerText = modeText; // No brackets now
+        modeDisplay.innerText = modeText; 
 
         modeSelector.addEventListener('change', (e) => {
             localStorage.setItem('notebookMode', e.target.value);
             window.location.search = '?mode=' + e.target.value;
         });
 
-        // Reset to Home Function
         window.resetToHome = function() {
             localStorage.removeItem('lastTopic_' + currentMode);
             window.location.reload();
         };
 
-        // Inject Tailwind securely
+        // Inject Tailwind securely (Preflight False effectively isolates it)
         if (currentMode === 'tailwind') {
             const configScript = document.createElement('script');
             configScript.innerHTML = "window.tailwind = { config: { corePlugins: { preflight: false } } };";
@@ -497,7 +496,12 @@
             const words = rawMD.trim().split(/\s+/);
 
             if(words.length > 50) {
-                const shortMD = words.slice(0, 50).join(' ') + ' <a href="#" class="read-more-btn" onclick="toggleTheory(event, true)">...more</a>';
+                // Remove trailing punctuation from the 50th word to prevent "word. ...more"
+                let shortText = words.slice(0, 50).join(' ');
+                shortText = shortText.replace(/[.,;!?]+$/, ''); 
+                
+                // Add a single space before ...more
+                const shortMD = shortText + ' <a href="#" class="read-more-btn" onclick="toggleTheory(event, true)">...more</a>';
                 const shortHTML = marked.parse(shortMD);
                 
                 const fullMD = rawMD + ' <a href="#" class="read-more-btn" onclick="toggleTheory(event, false)"> show less</a>';
@@ -790,7 +794,6 @@
             }
         });
 
-        // Initialize Dark Mode Toggle Button correctly
         if (localStorage.getItem('theme') === 'dark') {
             document.getElementById('themeTitle').innerText = "Light Mode";
             themeToggleBtn.querySelector('span').innerText = "☀️";
