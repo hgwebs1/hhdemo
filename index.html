@@ -3,297 +3,285 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSS Notebook</title>
+    <title>HTML Notebook</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/darcula.min.css">
 
     <style>
-        /* Base Styles - Clean & Fresh */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* Base Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f0fdf4; /* Light fresh mint green */
+            background-color: #f0fdf4;
             color: #1f2937;
             line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Top Left Settings Button */
-        .settings-btn {
-            position: absolute;
-            top: 12px;
-            left: 15px;
-            background: #ffffff;
-            border: 2px solid #3b82f6;
-            color: #3b82f6;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-        .settings-btn:hover {
-            transform: scale(1.1) rotate(45deg);
-            background: #3b82f6;
-            color: white;
-        }
+        /* --- Dark Mode Styles (Dull Blue / Slate Colors) --- */
+        body.dark-mode { background-color: #121212; color: #e5e7eb; }
+        body.dark-mode .header { background: linear-gradient(135deg, #334155 0%, #1e293b 100%); }
+        body.dark-mode .accordion-item { background: #1e293b; border: 1px solid #334155; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        body.dark-mode .accordion-btn { color: #cbd5e1; }
+        body.dark-mode .accordion-btn:hover { background-color: #334155; }
+        body.dark-mode .accordion-item.active .accordion-btn { background-color: #1e293b; color: #94a3b8; border-bottom: 1px solid #334155; }
+        body.dark-mode .accordion-content { background-color: #0f172a; }
+        body.dark-mode .content-inner > p { color: #94a3b8; }
+        body.dark-mode .output-box { background: #1e293b; border: 2px solid #475569; color: #e5e7eb; }
+        body.dark-mode h3 { color: #f3f4f6; }
+        body.dark-mode .sidebar { background: #1e293b; border-right: 1px solid #334155; color: #e5e7eb; }
+        body.dark-mode .sidebar-topic { color: #cbd5e1; }
+        body.dark-mode .sidebar-topic:hover, body.dark-mode .sidebar-topic.active { background: #334155; color: #fff; }
+        body.dark-mode .more-menu-panel { background: #1e293b; border: 1px solid #334155; color: #e5e7eb; }
+        body.dark-mode .menu-item { color: #cbd5e1; }
+        body.dark-mode .menu-item:hover { background: #334155; }
+        body.dark-mode .settings-inner { background: #0f172a; border: 1px solid #334155; }
+        body.dark-mode .settings-inner label, body.dark-mode .settings-inner h4 { color: #cbd5e1; }
+        body.dark-mode .search-result-item { background: #334155; border-color: #475569; }
+        body.dark-mode .read-more-btn { color: #60a5fa; } 
+        body.dark-mode .match-case-label { color: #cbd5e1; }
 
-        /* Settings Menu */
-        .settings-menu {
-            display: none;
-            position: absolute;
-            top: 55px;
-            left: 15px;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            z-index: 1000;
-            border: 2px solid #e5e7eb;
-            min-width: 230px;
-        }
-        .settings-menu.active { display: block; }
-        .settings-menu h4 { margin-bottom: 12px; color: #1e40af; font-size: 1rem; border-bottom: 2px solid #bfdbfe; padding-bottom: 5px;}
-        .settings-menu label { display: block; margin-bottom: 10px; font-size: 0.95rem; cursor: pointer; color: #374151; font-weight: 500;}
-        .settings-divider { margin: 10px 0; border: 0; border-top: 1px solid #e5e7eb; }
-
-        /* Header - CSS Theme Gradient */
+        /* --- Header --- */
         .header {
-            background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%); /* Blue to Cyan for CSS feel */
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
             color: white;
-            padding: 1.5rem 1rem; 
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-        }
-
-        .header h1 {
-            font-size: 2.2rem;
-            margin-bottom: 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        /* Container */
-        .container {
-            max-width: 1100px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-
-        /* Accordion Styles */
-        .accordion-item {
-            background: #fff;
-            border-radius: 10px;
-            margin-bottom: 1.2rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            overflow: hidden; 
-        }
-
-        .accordion-btn {
-            width: 100%;
-            background: none;
-            border: none;
-            padding: 1.2rem 1.5rem;
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: #1f2937; 
-            text-align: left;
-            cursor: pointer;
+            padding: 0.8rem 0.5rem; 
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.3s ease;
-            font-family: inherit;
-        }
-
-        .accordion-btn:hover { background-color: #f3f4f6; }
-
-        .icon {
-            font-size: 1.2rem;
-            transition: transform 0.3s ease;
-            color: #6b7280;
-        }
-
-        /* Accordion Active State */
-        .accordion-item.active .accordion-content {
-            max-height: 2500px; 
-            opacity: 1;
-        }
-
-        .accordion-item.active .icon { 
-            transform: rotate(180deg); 
-            color: #2563eb; 
-        }
-        
-        /* Khulne par blue text */
-        .accordion-item.active .accordion-btn {
-            border-bottom: 1px solid #e5e7eb;
-            background-color: #eff6ff;
-            color: #2563eb; 
-        }
-
-        .accordion-content {
-            max-height: 0;
-            opacity: 0;
-            transition: all 0.4s ease-in-out;
-            background-color: #ffffff;
-        }
-
-        .content-inner { padding: 1.5rem; }
-        .content-inner > p { margin-bottom: 1rem; color: #4b5563; font-weight: 500; }
-
-        /* Layout for Code & Output */
-        .grid-box {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            margin-top: 0.5rem;
-        }
-
-        @media (min-width: 768px) {
-            .grid-box { flex-direction: row; }
-            .grid-item { flex: 1; width: 50%; }
-        }
-
-        .code-header, .output-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.8rem;
-        }
-
-        h3 { font-size: 1.1rem; color: #111827; margin: 0; }
-
-        /* Top Right Run Button */
-        .run-btn {
-            display: none; 
-            background: #10b981; 
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 6px 14px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 600;
-            transition: all 0.2s;
-            box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
-        }
-        .run-btn:hover { background: #059669; transform: translateY(-1px); }
-        body.manual-mode .run-btn { display: flex; align-items: center; gap: 5px; }
-
-        /* CodeMirror Styling */
-        .CodeMirror {
-            border-radius: 8px;
-            border: 2px solid #374151;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            font-family: 'Fira Code', 'Courier New', Courier, monospace !important; 
-            font-size: 1.2rem !important; 
-            height: auto; 
-            min-height: 150px;
-            padding: 8px 5px;
-        }
-        .CodeMirror-scroll {
-            min-height: 150px;
-        }
-
-        /* Fallback Textarea */
-        .editor-textarea {
-            width: 100%;
-            min-height: 150px;
-            border: 2px solid #374151;
-            border-radius: 8px;
-            padding: 12px;
-            font-family: 'Fira Code', 'Courier New', Courier, monospace !important;
-            font-size: 1.2rem !important; 
-            background: #2b2b2b; 
-            color: #a9b7c6;
-            resize: vertical; 
-            outline: none;
-            line-height: 1.5;
-        }
-        
-        .editor-textarea.no-wrap {
-            white-space: pre;
-            overflow-x: auto;
-        }
-
-        /* Clean Solid Output Box */
-        .output-box {
-            background: #fff;
-            border: 2px solid #93c5fd;
-            padding: 1.5rem;
-            border-radius: 8px;
-            min-height: 150px;
-            height: 100%; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             position: relative;
         }
+        .header h1 { font-size: 2rem; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); flex-grow: 1; text-align: center; }
+        .icon-btn { background: transparent; border: none; color: white; font-size: 1.8rem; cursor: pointer; transition: transform 0.2s; padding: 0 5px; }
+        .icon-btn:hover { transform: scale(1.1); }
+
+        /* --- Three Dot Menu (Right) --- */
+        .more-menu-container { position: relative; }
+        .more-menu-panel {
+            display: none; position: absolute; top: 40px; right: 0; background: white; border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2); z-index: 1500; min-width: 220px; overflow: hidden;
+            border: 1px solid #e5e7eb; color: #1f2937;
+        }
+        .more-menu-panel.active { display: block; }
+        .menu-item { padding: 12px 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500; border-bottom: 1px solid #e5e7eb; transition: background 0.2s; }
+        .menu-item:hover { background: #f3f4f6; }
+        
+        .settings-inner { display: none; padding: 15px; background: #f8fafc; border-top: 1px solid #e5e7eb; }
+        .settings-inner.active { display: block; }
+        .settings-inner h4 { margin-bottom: 10px; font-size: 0.95rem; border-bottom: 2px solid #bfdbfe; padding-bottom: 5px; color: #1e40af;}
+        .settings-inner label { display: block; margin-bottom: 8px; font-size: 0.9rem; cursor: pointer; font-weight: 500; }
+
+        /* --- Overlay for Sidebar --- */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1999; }
+        .overlay.active { display: block; }
+
+        /* --- Sidebar (Left) --- */
+        .sidebar { position: fixed; top: 0; left: -320px; width: 300px; height: 100%; background: white; z-index: 2000; transition: left 0.3s ease; box-shadow: 4px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        .sidebar.active { left: 0; }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;}
+        .sidebar-header h2 { font-size: 1.4rem; color: #3b82f6; }
+        body.dark-mode .sidebar-header h2 { color: #60a5fa; }
+        .close-sidebar { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280; }
+        
+        .sidebar-search { padding: 15px; border-bottom: 1px solid #e5e7eb; }
+        body.dark-mode .sidebar-search { border-color: #475569; }
+        .sidebar-search input[type="text"] { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; outline: none; font-family: inherit; background: transparent; color: inherit;}
+        body.dark-mode .sidebar-search input[type="text"] { border-color: #475569; }
+        
+        .sidebar-content { padding: 10px 0; overflow-y: auto; flex-grow: 1; }
+        .sidebar-topic { padding: 12px 20px; cursor: pointer; font-weight: 500; color: #4b5563; transition: all 0.2s; }
+        .sidebar-topic:hover { background: #f3f4f6; color: #2563eb; }
+        .sidebar-topic.active { background: #eff6ff; color: #2563eb; border-left: 4px solid #3b82f6; }
+
+        #globalSearchResults { padding: 0 15px; }
+        .search-result-item { background: #f9fafb; border: 1px solid #e5e7eb; padding: 12px; border-radius: 6px; margin-bottom: 10px; transition: 0.2s;}
+        .search-result-item:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .search-result-item strong { font-size: 1.15rem; color: #1d4ed8; display: block; margin-bottom: 6px; font-weight: 700;}
+        body.dark-mode .search-result-item strong { color: #60a5fa; }
+        .search-result-item p { font-size: 0.95rem; color: #10b981; margin-bottom: 4px; font-weight: 600;}
+        .search-result-item ul { margin-left: 15px; list-style-type: square;}
+        .search-result-item ul li { font-size: 1.05rem; color: #374151; font-weight: 500; margin-bottom: 4px;}
+        body.dark-mode .search-result-item ul li { color: #cbd5e1; }
+
+        /* --- Local Search Container & Navigation --- */
+        .local-search-container { 
+            max-width: 1100px; margin: 15px auto 0; padding: 0 1rem; 
+            display: flex; justify-content: flex-end; align-items: center; min-height: 40px;
+        }
+        
+        /* Normal Local Search Box */
+        .local-search-box { 
+            display: flex; align-items: center; background: white; border: 1px solid #d1d5db; 
+            border-radius: 20px; padding: 4px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            transition: 0.3s; width: 250px;
+        }
+        body.dark-mode .local-search-box { background: #1e293b; border-color: #475569; }
+        .local-search-box input { border: none; outline: none; padding: 6px 0; background: transparent; color: inherit; font-family: inherit; width: 100%;}
+        .local-search-box button { background: none; border: none; cursor: pointer; color: #6b7280; font-size: 1rem; padding-left: 5px;}
+        
+        /* Fixed Search Navigation Bar (Top Fix) */
+        .search-nav-bar { 
+            display: none; align-items: center; justify-content: center; /* Details center mein rahenge */
+            background: white; border-bottom: 2px solid #3b82f6; 
+            padding: 10px 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            gap: 15px; font-size: 1rem; font-weight: 600; color: #1f2937;
+            position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+        }
+        body.dark-mode .search-nav-bar { background: #1e293b; border-bottom-color: #60a5fa; color: #e5e7eb;}
+        .search-nav-bar button { background: #eff6ff; border: none; cursor: pointer; border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; color: #2563eb; transition: 0.2s; font-weight: bold;}
+        body.dark-mode .search-nav-bar button { background: #334155; color: #93c5fd; }
+        .search-nav-bar button:hover { background: #dbeafe; transform: scale(1.1);}
+        body.dark-mode .search-nav-bar button:hover { background: #475569; }
+        
+        /* Match Case Checkbox - Ekdum Left */
+        .match-case-label {
+            position: absolute; left: 15px;
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.95rem; cursor: pointer; font-weight: 600; color: #374151;
+        }
+        .match-case-label input[type="checkbox"] { cursor: pointer; accent-color: #3b82f6; width: 16px; height: 16px;}
+
+        /* Cross icon - Ekdum Right kone par */
+        .search-nav-bar #searchClearBtn { 
+            background: #fee2e2; color: #ef4444; 
+            position: absolute; right: 15px; 
+        }
+        body.dark-mode .search-nav-bar #searchClearBtn { background: #7f1d1d; color: #fca5a5; }
+
+        /* --- Search Highlight Styling --- */
+        .search-match { background-color: #fde047 !important; color: #1f2937 !important; padding: 0 2px; border-radius: 3px; font-weight: 600; transition: background-color 0.3s;}
+        body.dark-mode .search-match { background-color: #ca8a04 !important; color: #fef08a !important; }
+        
+        .search-match.active-match { background-color: #f97316 !important; color: white !important; box-shadow: none !important; }
+        body.dark-mode .search-match.active-match { background-color: #ea580c !important; color: white !important; box-shadow: none !important; }
+
+        /* --- Container & Accordion --- */
+        .container { max-width: 1100px; margin: 1rem auto; padding: 0 1rem; }
+        .topic-content { display: none; }
+        .topic-content.active { display: block; }
+
+        .accordion-item { background: #fff; border-radius: 10px; margin-bottom: 1.2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
+        .accordion-btn { width: 100%; background: none; border: none; padding: 1.2rem 1.5rem; font-size: 1.15rem; font-weight: 600; color: #1f2937; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease; font-family: inherit; }
+        .accordion-btn:hover { background-color: #f3f4f6; }
+        .acc-title { flex-grow: 1; padding-right: 15px;}
+        .icon { font-size: 1.2rem; transition: transform 0.3s ease; color: #6b7280; }
+        
+        .accordion-item.active .accordion-content { max-height: 2500px; opacity: 1; }
+        .accordion-item.active .icon { transform: rotate(180deg); color: #2563eb; }
+        .accordion-item.active .accordion-btn { border-bottom: 1px solid #e5e7eb; background-color: #eff6ff; color: #2563eb; }
+        .accordion-content { max-height: 0; opacity: 0; transition: all 0.4s ease-in-out; background-color: #ffffff; }
+        .content-inner { padding: 1.5rem; }
+        .content-inner > p.theory-text { margin-bottom: 1rem; color: #4b5563; font-weight: 500; line-height: 1.7;}
+        
+        .read-more-btn { color: #3b82f6; font-weight: 700; text-decoration: none; }
+
+        /* Grid & Editor */
+        .grid-box { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 0.5rem; }
+        @media (min-width: 768px) { .grid-box { flex-direction: row; } .grid-item { flex: 1; width: 50%; } }
+        .code-header, .output-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+        h3 { font-size: 1.1rem; color: #111827; margin: 0; }
+        
+        .run-btn { display: none; background: #10b981; color: white; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 0.95rem; font-weight: 600; }
+        body.manual-mode .run-btn { display: flex; align-items: center; gap: 5px; }
+
+        .CodeMirror { border-radius: 8px; border: 2px solid #374151; font-family: 'Fira Code', monospace !important; font-size: 1.2rem !important; height: auto; min-height: 120px; padding: 8px 5px; }
+        .editor-textarea { width: 100%; min-height: 120px; border: 2px solid #374151; border-radius: 8px; padding: 12px; font-family: 'Fira Code', monospace !important; font-size: 1.2rem !important; background: #2b2b2b; color: #a9b7c6; resize: vertical; outline: none; line-height: 1.5; }
+        .editor-textarea.no-wrap { white-space: pre; overflow-x: auto; }
+        .output-box { background: #fff; border: 2px solid #93c5fd; padding: 1.5rem; border-radius: 8px; min-height: 120px; height: 100%; }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.95rem; margin-bottom: 0.3rem; font-weight: 500;}
+        .form-group input { width: 100%; padding: 0.6rem; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; }
+        .btn { background: #3b82f6; color: #fff; border: none; padding: 0.6rem 1.4rem; border-radius: 6px; cursor: pointer; font-family: inherit; font-weight: 600; }
     </style>
 </head>
 <body>
 
-    <button class="settings-btn" id="settingsBtn" title="Preview Settings">⚙️</button>
-    <div class="settings-menu" id="settingsMenu">
-        <h4>🛠️ Output Settings</h4>
-        <label><input type="radio" name="previewMode" value="live" checked> ⚡ Live Update</label>
-        <label><input type="radio" name="previewMode" value="manual"> ▶️ Update via Button</label>
-        
-        <hr class="settings-divider">
-        
-        <h4>✏️ Editor Settings</h4>
-        <label><input type="checkbox" id="wrapToggle" checked> ↩️ Wrap Code Lines</label>
-    </div>
+    <div class="overlay" id="overlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Topics</h2>
+            <button class="close-sidebar" id="closeSidebarBtn">&times;</button>
+        </div>
+        <div class="sidebar-search">
+            <input type="text" id="globalSearch" placeholder="Search everywhere...">
+            <label class="match-case-label" style="position: relative; left: 0; margin-top: 8px; font-size: 0.85rem;">
+                <input type="checkbox" id="matchCaseGlobal"> Match Case (Aa)
+            </label>
+        </div>
+        <div class="sidebar-content">
+            <div id="globalSearchResults"></div>
+            <div id="topicList">
+                <div class="sidebar-topic active" onclick="switchTopic('topic-html-basics')">HTML Basics</div>
+                <div class="sidebar-topic" onclick="switchTopic('topic-metadata')">Metadata</div>
+                <div class="sidebar-topic" onclick="switchTopic('topic-all-html-names')">All HTML Names</div>
+                <div class="sidebar-topic" onclick="switchTopic('topic-input-type')">Input Type</div>
+                <div class="sidebar-topic" onclick="switchTopic('topic-html-js')">HTML Attributes in JS</div>
+            </div>
+        </div>
+    </aside>
 
     <header class="header">
-        <h1>CSS Notebook</h1>
+        <button class="icon-btn" id="menuBtn" title="Menu">&#9776;</button>
+        <h1>HTML Notebook</h1>
+        
+        <div class="more-menu-container">
+            <button class="icon-btn" id="moreMenuBtn" title="More Options">&#8942;</button>
+            <div class="more-menu-panel" id="moreMenuPanel">
+                <div class="menu-item" id="themeToggleBtn"><span>🌙</span> <span id="themeTitle">Dark Mode</span></div>
+                <div class="menu-item" id="settingsToggleBtn"><span>⚙️</span> <span>Settings</span></div>
+                <div class="settings-inner" id="settingsInner">
+                    <h4>Output Settings</h4>
+                    <label><input type="radio" name="previewMode" value="live" checked> ⚡ Live Update</label>
+                    <label><input type="radio" name="previewMode" value="manual"> ▶️ Update via Button</label>
+                    <hr style="margin: 10px 0; border: 0; border-top: 1px solid #e5e7eb;">
+                    <h4>Editor Settings</h4>
+                    <label><input type="checkbox" id="wrapToggle"> ↩️ Wrap Code Lines</label>
+                </div>
+            </div>
+        </div>
     </header>
 
-    <div class="container">
-        <div class="accordion-container">
+    <div class="local-search-container">
+        <div class="local-search-box" id="searchBoxWrap">
+            <input type="text" id="localSearchInput" placeholder="Search in topic...">
+            <button id="localSearchBtn">🔍</button>
+        </div>
+    </div>
+    
+    <div class="search-nav-bar" id="searchNavWrap">
+        <label class="match-case-label">
+            <input type="checkbox" id="matchCaseLocal">
+        </label>
+        <span id="searchNavInfo">1 of 5</span>
+        <button id="searchPrevBtn" title="Previous Match">▲</button>
+        <button id="searchNextBtn" title="Next Match">▼</button>
+        <button id="searchClearBtn" title="Clear Search">✖</button>
+    </div>
 
+    <div class="container" id="mainContainer">
+
+        <div class="topic-content active" id="topic-html-basics">
             <div class="accordion-item active">
                 <button class="accordion-btn">
-                    1. Colors & Backgrounds (Rangg aur Pishthbhoomi)
+                    <span class="acc-title">1. Basic Structure (Headings & Paragraphs)</span>
                     <span class="icon">▼</span>
                 </button>
                 <div class="accordion-content">
                     <div class="content-inner">
-                        <p>CSS ka use karke hum HTML elements ka background color aur text ka color badal sakte hain.</p>
+                        <p class="theory-text">Website par bada text likhne ke liye Heading aur normal text ke liye Paragraph tag lagate hain. Iske alawa, HTML seekhna bahut aasan hai. Aap isme vibhinn prakar ke tags ka upyog karke ek behtareen webpage bana sakte hain. Text ko format karna, images lagana, aur forms banana isme bahut hi saral prakriya hai. HTML web development ki pehli seedhi hai jise har programmer ko seekhna padta hai. Iske bina internet par websites ki kalpana karna mushkil hai aur HTML har website ka aadhar hota hai.</p>
                         <div class="grid-box">
                             <div class="grid-item">
-                                <div class="code-header">
-                                    <h3>💻 Code:</h3>
-                                    <button class="run-btn" title="Update Preview">▶️ Run</button>
-                                </div>
-                                <textarea class="editor-textarea" spellcheck="false">&lt;style&gt;
-  .color-box {
-    background-color: #3b82f6; /* Blue background */
-    color: white; /* Safed text */
-    padding: 20px;
-    text-align: center;
-  }
-&lt;/style&gt;
-
-&lt;div class="color-box"&gt;
-  Bhai, ye CSS se color kiya hua box hai!
-&lt;/div&gt;</textarea>
+                                <div class="code-header"><h3>💻 Code:</h3><button class="run-btn">▶️ Run</button></div>
+                                <textarea class="editor-textarea" spellcheck="false">&lt;h1&gt;Main Heading&lt;/h1&gt;
+&lt;h2&gt;Choti Heading&lt;/h2&gt;
+&lt;p&gt;Yeh ek paragraph hai. Isme hum jaankari likhte hain joki thodi lambi bhi ho sakti hai bina enter dabaye dekhte hain wrap hoti hai ya nahi.&lt;/p&gt;</textarea>
                             </div>
-                            <div class="grid-item">
-                                <div class="output-header"><h3>👁️ Live Output:</h3></div>
-                                <div class="output-box"></div>
-                            </div>
+                            <div class="grid-item"><div class="output-header"><h3>👁️ Live Output:</h3></div><div class="output-box"></div></div>
                         </div>
                     </div>
                 </div>
@@ -301,36 +289,20 @@
 
             <div class="accordion-item">
                 <button class="accordion-btn">
-                    2. Borders & Box Corners (Kinaare aur Golai)
+                    <span class="acc-title">2. Text Formatting (Bold, Italic)</span>
                     <span class="icon">▼</span>
                 </button>
                 <div class="accordion-content">
                     <div class="content-inner">
-                        <p>Kisi bhi cheez ke chaaro taraf border lagana aur uske kinaro ko gol (rounded) karna CSS me bahut aasan hai.</p>
+                        <p class="theory-text">Text ko alag tarike se highlight ya design karne ke tags.</p>
                         <div class="grid-box">
                             <div class="grid-item">
-                                <div class="code-header">
-                                    <h3>💻 Code:</h3>
-                                    <button class="run-btn" title="Update Preview">▶️ Run</button>
-                                </div>
-                                <textarea class="editor-textarea" spellcheck="false">&lt;style&gt;
-  .card-box {
-    border: 4px solid #f59e0b; /* Orange border */
-    border-radius: 15px; /* Gol kinaare */
-    padding: 20px;
-    background-color: #fef3c7;
-    text-align: center;
-  }
-&lt;/style&gt;
-
-&lt;div class="card-box"&gt;
-  Is box ke chaaro taraf border hai aur kinaare gol hain!
-&lt;/div&gt;</textarea>
+                                <div class="code-header"><h3>💻 Code:</h3><button class="run-btn">▶️ Run</button></div>
+                                <textarea class="editor-textarea" spellcheck="false">&lt;p&gt;&lt;b&gt;Bold Text&lt;/b&gt; - Mota text&lt;/p&gt;
+&lt;p&gt;&lt;i&gt;Italic Text&lt;/i&gt; - Tircha text&lt;/p&gt;
+&lt;p&gt;&lt;u&gt;Underlined Text&lt;/u&gt; - Line wala&lt;/p&gt;</textarea>
                             </div>
-                            <div class="grid-item">
-                                <div class="output-header"><h3>👁️ Live Output:</h3></div>
-                                <div class="output-box"></div>
-                            </div>
+                            <div class="grid-item"><div class="output-header"><h3>👁️ Live Output:</h3></div><div class="output-box"></div></div>
                         </div>
                     </div>
                 </div>
@@ -338,35 +310,22 @@
 
             <div class="accordion-item">
                 <button class="accordion-btn">
-                    3. Text Styling & Typography (Likhawat ka Style)
+                    <span class="acc-title">3. Links & Images (Photo aur Link)</span>
                     <span class="icon">▼</span>
                 </button>
                 <div class="accordion-content">
                     <div class="content-inner">
-                        <p>Text ka size, font, aur usko uppercase/lowercase karna seekhiye.</p>
+                        <p class="theory-text">Clickable link banane ke liye aur page par photo dikhane ke liye hum a tag aur img tag ka upyog karte hain.</p>
                         <div class="grid-box">
                             <div class="grid-item">
-                                <div class="code-header">
-                                    <h3>💻 Code:</h3>
-                                    <button class="run-btn" title="Update Preview">▶️ Run</button>
-                                </div>
-                                <textarea class="editor-textarea" spellcheck="false">&lt;style&gt;
-  .stylish-text {
-    font-size: 28px;
-    font-weight: bold;
-    color: #ef4444; /* Red color */
-    text-transform: uppercase; /* Sab capital letters */
-    letter-spacing: 3px; /* Aksharo ke beech jagah */
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-  }
-&lt;/style&gt;
-
-&lt;p class="stylish-text"&gt;HTML Notebook&lt;/p&gt;</textarea>
+                                <div class="code-header"><h3>💻 Code:</h3><button class="run-btn">▶️ Run</button></div>
+                                <textarea class="editor-textarea" spellcheck="false">&lt;!-- Link --&gt;
+&lt;a href="#" onclick="event.preventDefault(); alert('Link clicked!');"&gt;Click Here&lt;/a&gt;
+&lt;br&gt;&lt;br&gt;
+&lt;!-- Image --&gt;
+&lt;img src="https://picsum.photos/200/100" alt="Random Photo"&gt;</textarea>
                             </div>
-                            <div class="grid-item">
-                                <div class="output-header"><h3>👁️ Live Output:</h3></div>
-                                <div class="output-box"></div>
-                            </div>
+                            <div class="grid-item"><div class="output-header"><h3>👁️ Live Output:</h3></div><div class="output-box"></div></div>
                         </div>
                     </div>
                 </div>
@@ -374,127 +333,434 @@
 
             <div class="accordion-item">
                 <button class="accordion-btn">
-                    4. Hover Effects & Animations (Jaadu wale Effects)
+                    <span class="acc-title">4. Forms (Input Box & Buttons)</span>
                     <span class="icon">▼</span>
                 </button>
                 <div class="accordion-content">
                     <div class="content-inner">
-                        <p>Jab aap button par mouse laayenge, tab uska color aur size CSS se automatically badal jayega.</p>
+                        <p class="theory-text">User se details lene ke liye form ka use kiya jata hai.</p>
                         <div class="grid-box">
                             <div class="grid-item">
-                                <div class="code-header">
-                                    <h3>💻 Code:</h3>
-                                    <button class="run-btn" title="Update Preview">▶️ Run</button>
-                                </div>
-                                <textarea class="editor-textarea" spellcheck="false">&lt;style&gt;
-  .magic-btn {
-    background-color: #8b5cf6; /* Purple */
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    font-size: 18px;
-    cursor: pointer;
-    /* Transition se effect smooth ho jata hai */
-    transition: background-color 0.3s, transform 0.2s;
-  }
-  
-  /* :hover tab kaam karta hai jab mouse upar aata hai */
-  .magic-btn:hover {
-    background-color: #6d28d9; /* Dark Purple */
-    transform: scale(1.1); /* 10% bada kar dega */
-  }
-&lt;/style&gt;
-
-&lt;button class="magic-btn"&gt;Mujh par Mouse laao!&lt;/button&gt;</textarea>
+                                <div class="code-header"><h3>💻 Code:</h3><button class="run-btn">▶️ Run</button></div>
+                                <textarea class="editor-textarea" spellcheck="false">&lt;form onsubmit="event.preventDefault(); alert('Form Submitted!');"&gt;
+  &lt;div class="form-group"&gt;
+    &lt;label&gt;Naam:&lt;/label&gt;
+    &lt;input type="text" placeholder="Naam likhe"&gt;
+  &lt;/div&gt;
+  &lt;button type="submit" class="btn"&gt;Bhejein&lt;/button&gt;
+&lt;/form&gt;</textarea>
                             </div>
-                            <div class="grid-item">
-                                <div class="output-header"><h3>👁️ Live Output:</h3></div>
-                                <div class="output-box"></div>
-                            </div>
+                            <div class="grid-item"><div class="output-header"><h3>👁️ Live Output:</h3></div><div class="output-box"></div></div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
+
+        <div class="topic-content" id="topic-metadata">
+            <div class="accordion-item"><button class="accordion-btn"><span class="acc-title">Metadata Introduction</span> <span class="icon">▼</span></button>
+                <div class="accordion-content"><div class="content-inner"><p class="theory-text">Head tag ke andar metadata rakha jata hai.</p></div></div>
+            </div>
+        </div>
+        <div class="topic-content" id="topic-all-html-names">
+            <div class="accordion-item"><button class="accordion-btn"><span class="acc-title">HTML Tags List</span> <span class="icon">▼</span></button>
+                <div class="accordion-content"><div class="content-inner"><p class="theory-text">List of all HTML elements...</p></div></div>
+            </div>
+        </div>
+        <div class="topic-content" id="topic-input-type">
+            <div class="accordion-item"><button class="accordion-btn"><span class="acc-title">Various Input Types</span> <span class="icon">▼</span></button>
+                <div class="accordion-content"><div class="content-inner"><p class="theory-text">Text, password, email, number etc.</p></div></div>
+            </div>
+        </div>
+        <div class="topic-content" id="topic-html-js">
+            <div class="accordion-item"><button class="accordion-btn"><span class="acc-title">JS Event Attributes</span> <span class="icon">▼</span></button>
+                <div class="accordion-content"><div class="content-inner"><p class="theory-text">onclick, onmouseover, onchange events in HTML.</p></div></div>
+            </div>
+        </div>
+
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
 
     <script>
-        // State
+        // --- 1. Initialization & State ---
         let isLiveUpdate = true;
-        
-        // This runs instantly at the bottom of the page
-        const textareas = document.querySelectorAll('.editor-textarea');
-        
-        textareas.forEach(textarea => {
+        let isWrapped = false; 
+        let isCaseSensitive = false; // By default off
+
+        // Sync Checkboxes
+        const matchCaseLocal = document.getElementById('matchCaseLocal');
+        const matchCaseGlobal = document.getElementById('matchCaseGlobal');
+
+        matchCaseLocal.addEventListener('change', (e) => {
+            isCaseSensitive = e.target.checked;
+            matchCaseGlobal.checked = isCaseSensitive;
+            triggerLocalSearch(document.getElementById('localSearchInput').value); // Live update
+        });
+
+        matchCaseGlobal.addEventListener('change', (e) => {
+            isCaseSensitive = e.target.checked;
+            matchCaseLocal.checked = isCaseSensitive;
+            triggerGlobalSearch(); // Live update
+        });
+
+        function initTheoryAndTitles() {
+            document.querySelectorAll('.acc-title, .theory-text').forEach(el => {
+                if(!el.getAttribute('data-original-raw')) {
+                    el.setAttribute('data-original-raw', el.innerHTML);
+                }
+                if(el.classList.contains('theory-text')) {
+                    apply50WordTruncation(el);
+                }
+            });
+        }
+
+        function apply50WordTruncation(element) {
+            const rawHTML = element.getAttribute('data-original-raw');
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = rawHTML;
+            const textContent = tempDiv.innerText || tempDiv.textContent;
+            const words = textContent.trim().split(/\s+/);
+
+            if(words.length > 50) {
+                const visibleText = words.slice(0, 50).join(' ');
+                const hiddenText = words.slice(50).join(' ');
+                
+                element.innerHTML = `${visibleText}<span class="hidden-theory" style="display:none;"> ${hiddenText}</span> <a href="#" class="read-more-btn">...more</a>`;
+                
+                element.querySelector('.read-more-btn').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const hiddenSpan = element.querySelector('.hidden-theory');
+                    if (hiddenSpan.style.display === 'none') {
+                        hiddenSpan.style.display = 'inline';
+                        this.innerText = ' show less';
+                    } else {
+                        hiddenSpan.style.display = 'none';
+                        this.innerText = '...more';
+                    }
+                });
+            } else {
+                element.innerHTML = rawHTML;
+            }
+        }
+
+        document.querySelectorAll('.editor-textarea').forEach(textarea => {
             const gridItem = textarea.closest('.grid-box');
+            if(!gridItem) return;
             const outputBox = gridItem.querySelector('.output-box');
             const runBtn = gridItem.querySelector('.run-btn');
 
             if (typeof CodeMirror !== 'undefined') {
                 const editor = CodeMirror.fromTextArea(textarea, {
-                    mode: "htmlmixed", // Special mode that highlights HTML + CSS perfectly
-                    theme: "darcula", 
-                    lineNumbers: false,
-                    lineWrapping: true,
-                    viewportMargin: Infinity
+                    mode: "xml", theme: "darcula", lineNumbers: false, lineWrapping: isWrapped, viewportMargin: Infinity
                 });
-
+                textarea.cmInstance = editor; 
+                
                 outputBox.innerHTML = editor.getValue();
-
-                editor.on("change", function() {
-                    if (isLiveUpdate) {
-                        outputBox.innerHTML = editor.getValue();
-                    }
-                });
-
-                runBtn.addEventListener('click', function() {
-                    outputBox.innerHTML = editor.getValue();
-                });
+                editor.on("change", function() { if (isLiveUpdate) outputBox.innerHTML = editor.getValue(); });
+                runBtn.addEventListener('click', function() { outputBox.innerHTML = editor.getValue(); });
             } else {
                 outputBox.innerHTML = textarea.value;
-
-                textarea.addEventListener('input', function() {
-                    if (isLiveUpdate) {
-                        outputBox.innerHTML = textarea.value;
-                    }
-                });
-
-                runBtn.addEventListener('click', function() {
-                    outputBox.innerHTML = textarea.value;
-                });
+                if(!isWrapped) textarea.classList.add('no-wrap');
+                textarea.addEventListener('input', function() { if (isLiveUpdate) outputBox.innerHTML = textarea.value; });
+                runBtn.addEventListener('click', function() { outputBox.innerHTML = textarea.value; });
             }
         });
 
-        // --- Accordion Logic ---
-        const buttons = document.querySelectorAll('.accordion-btn');
-        buttons.forEach(button => {
-            button.addEventListener('click', () => {
-                const parentItem = button.parentElement;
-                parentItem.classList.toggle('active');
+        document.querySelectorAll('.accordion-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                button.closest('.accordion-item').classList.toggle('active');
             });
         });
 
-        // --- Settings Menu Logic ---
-        document.getElementById('settingsBtn').addEventListener('click', () => {
-            document.getElementById('settingsMenu').classList.toggle('active');
+        initTheoryAndTitles();
+
+        // --- 2. Local Search & Highlighting Logic ---
+        let currentMatches = [];
+        let currentMatchIdx = -1;
+
+        function highlightHTMLStr(htmlStr, query) {
+            const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const flags = isCaseSensitive ? 'g' : 'gi';
+            const regex = new RegExp(`(${escapedQuery})`, flags);
+            return htmlStr.replace(/(?![^<]*>)([^<]+)/g, function(match) {
+                return match.replace(regex, '<mark class="search-match">$1</mark>');
+            });
+        }
+
+        function triggerLocalSearch(query) {
+            query = query.trim();
+            const activeTopic = document.querySelector('.topic-content.active');
+            
+            // Restore Original HTML
+            activeTopic.querySelectorAll('.acc-title, .theory-text').forEach(el => {
+                el.innerHTML = el.getAttribute('data-original-raw');
+            });
+            activeTopic.querySelectorAll('.editor-textarea').forEach(ta => {
+                if(ta.cmInstance) ta.cmInstance.getAllMarks().forEach(m => m.clear());
+            });
+
+            if (!query) {
+                clearLocalSearch();
+                return;
+            }
+
+            currentMatches = [];
+            
+            activeTopic.querySelectorAll('.accordion-item').forEach(item => {
+                let hasMatch = false;
+                
+                item.querySelectorAll('.acc-title, .theory-text').forEach(el => {
+                    const originalHTML = el.getAttribute('data-original-raw');
+                    const highlightedHTML = highlightHTMLStr(originalHTML, query);
+                    
+                    if(originalHTML !== highlightedHTML) {
+                        el.innerHTML = highlightedHTML;
+                        hasMatch = true;
+                    }
+                });
+                
+                const domMarks = Array.from(item.querySelectorAll('mark.search-match'));
+                domMarks.forEach(el => currentMatches.push({ type: 'dom', el: el }));
+
+                item.querySelectorAll('.editor-textarea').forEach(ta => {
+                    if (ta.cmInstance && typeof ta.cmInstance.getSearchCursor === 'function') {
+                        const editor = ta.cmInstance;
+                        const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        const flags = isCaseSensitive ? 'g' : 'gi';
+                        const cursor = editor.getSearchCursor(new RegExp(escapedQuery, flags));
+                        while(cursor.findNext()) {
+                            const marker = editor.markText(cursor.from(), cursor.to(), {className: "search-match"});
+                            currentMatches.push({ type: 'cm', editor: editor, marker: marker, from: cursor.from(), to: cursor.to() });
+                            hasMatch = true;
+                        }
+                    }
+                });
+
+                if(hasMatch) item.classList.add('active'); 
+            });
+
+            if (currentMatches.length > 0) {
+                document.getElementById('searchBoxWrap').style.display = 'none';
+                document.getElementById('searchNavWrap').style.display = 'flex';
+                goToMatch(0);
+            } else {
+                document.getElementById('searchBoxWrap').style.display = 'none';
+                document.getElementById('searchNavWrap').style.display = 'flex';
+                document.getElementById('searchNavInfo').innerText = "0 of 0";
+            }
+        }
+
+        function goToMatch(idx) {
+            if(currentMatches.length === 0) return;
+            if(idx < 0) idx = currentMatches.length - 1;
+            if(idx >= currentMatches.length) idx = 0;
+            
+            if (currentMatchIdx >= 0 && currentMatchIdx < currentMatches.length) {
+                const prev = currentMatches[currentMatchIdx];
+                if (prev.type === 'dom') {
+                    prev.el.classList.remove('active-match');
+                } else if (prev.type === 'cm') {
+                    prev.marker.clear();
+                    prev.marker = prev.editor.markText(prev.from, prev.to, {className: "search-match"});
+                }
+            }
+
+            currentMatchIdx = idx;
+            const target = currentMatches[idx];
+            
+            if (target.type === 'dom') {
+                target.el.classList.add('active-match');
+                const y = target.el.getBoundingClientRect().top + window.scrollY - 100; 
+                window.scrollTo({top: y, behavior: 'smooth'});
+            } else if (target.type === 'cm') {
+                target.marker.clear();
+                target.marker = target.editor.markText(target.from, target.to, {className: "search-match active-match"});
+                
+                const wrapper = target.editor.getWrapperElement();
+                const y = wrapper.getBoundingClientRect().top + window.scrollY - 100;
+                window.scrollTo({top: y, behavior: 'smooth'});
+                target.editor.scrollIntoView(target.from, 100); 
+            }
+
+            document.getElementById('searchNavInfo').innerText = `${idx + 1} of ${currentMatches.length}`;
+        }
+
+        function clearLocalSearch() {
+            document.getElementById('localSearchInput').value = '';
+            document.getElementById('searchBoxWrap').style.display = 'flex';
+            document.getElementById('searchNavWrap').style.display = 'none';
+            
+            const activeTopic = document.querySelector('.topic-content.active');
+            
+            activeTopic.querySelectorAll('.acc-title, .theory-text').forEach(el => {
+                if(el.classList.contains('theory-text')) {
+                    apply50WordTruncation(el);
+                } else {
+                    el.innerHTML = el.getAttribute('data-original-raw');
+                }
+            });
+            activeTopic.querySelectorAll('.editor-textarea').forEach(ta => {
+                if(ta.cmInstance) ta.cmInstance.getAllMarks().forEach(m => m.clear());
+            });
+            
+            currentMatches = [];
+            currentMatchIdx = -1;
+        }
+
+        document.getElementById('localSearchBtn').addEventListener('click', () => triggerLocalSearch(document.getElementById('localSearchInput').value));
+        document.getElementById('localSearchInput').addEventListener('keyup', (e) => {
+            if(e.key === 'Enter') triggerLocalSearch(e.target.value);
+        });
+        document.getElementById('searchPrevBtn').addEventListener('click', () => goToMatch(currentMatchIdx - 1));
+        document.getElementById('searchNextBtn').addEventListener('click', () => goToMatch(currentMatchIdx + 1));
+        document.getElementById('searchClearBtn').addEventListener('click', clearLocalSearch);
+
+        // --- 3. Sidebar & Global Search ---
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        
+        function openSidebar() { sidebar.classList.add('active'); overlay.classList.add('active'); }
+        function closeSidebar() { sidebar.classList.remove('active'); overlay.classList.remove('active'); }
+
+        document.getElementById('menuBtn').addEventListener('click', openSidebar);
+        document.getElementById('closeSidebarBtn').addEventListener('click', closeSidebar);
+        overlay.addEventListener('click', closeSidebar);
+
+        function switchTopic(topicId) {
+            document.querySelectorAll('.sidebar-topic').forEach(el => el.classList.remove('active'));
+            const matchingLink = document.querySelector(`.sidebar-topic[onclick="switchTopic('${topicId}')"]`);
+            if(matchingLink) matchingLink.classList.add('active');
+            
+            document.querySelectorAll('.topic-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(topicId).classList.add('active');
+            
+            clearLocalSearch();
+            closeSidebar();
+        }
+
+        window.jumpToSearchResult = function(topicId, query) {
+            switchTopic(topicId); 
+            document.getElementById('localSearchInput').value = query;
+            triggerLocalSearch(query);
+        };
+
+        function triggerGlobalSearch() {
+            const query = document.getElementById('globalSearch').value.trim();
+            const resultsDiv = document.getElementById('globalSearchResults');
+            const topicList = document.getElementById('topicList');
+            
+            if(!query) {
+                resultsDiv.innerHTML = '';
+                topicList.style.display = 'block';
+                return;
+            }
+            
+            topicList.style.display = 'none';
+            let html = '';
+            const topicNames = {
+                'topic-html-basics': 'HTML Basics', 'topic-metadata': 'Metadata', 'topic-all-html-names': 'All HTML Names', 'topic-input-type': 'Input Type', 'topic-html-js': 'HTML Attributes in JS'
+            };
+
+            const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const flags = isCaseSensitive ? 'g' : 'gi';
+            const regex = new RegExp(escapedQuery, flags);
+
+            document.querySelectorAll('.topic-content').forEach(topic => {
+                let sectionCount = 0;
+                let totalMatchCount = 0;
+                let locations = [];
+
+                topic.querySelectorAll('.accordion-item').forEach(item => {
+                    const titleText = item.querySelector('.acc-title').innerText;
+                    
+                    const theoryElement = item.querySelector('.theory-text');
+                    let pureBodyText = '';
+                    if(theoryElement && theoryElement.getAttribute('data-original-raw')) {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = theoryElement.getAttribute('data-original-raw');
+                        pureBodyText = tempDiv.innerText || tempDiv.textContent;
+                    }
+                    
+                    let codeText = '';
+                    item.querySelectorAll('.editor-textarea').forEach(ta => {
+                        if (ta.cmInstance) codeText += ta.cmInstance.getValue() + ' ';
+                    });
+
+                    const titleMatches = (titleText.match(regex) || []).length;
+                    const bodyMatches = (pureBodyText.match(regex) || []).length;
+                    const codeMatches = (codeText.match(regex) || []).length;
+                    const itemMatchCount = titleMatches + bodyMatches + codeMatches;
+
+                    if(itemMatchCount > 0) {
+                        sectionCount++;
+                        totalMatchCount += itemMatchCount;
+                        let cleanTitle = item.querySelector('.acc-title').innerText.trim();
+                        locations.push(cleanTitle);
+                    }
+                });
+
+                if(sectionCount > 0) {
+                    const safeQuery = query.replace(/'/g, "\\'");
+                    const sectionWord = sectionCount === 1 ? 'section' : 'sections';
+                    const matchWord = totalMatchCount === 1 ? 'match' : 'matches';
+
+                    html += `
+                    <div class="search-result-item" onclick="jumpToSearchResult('${topic.id}', '${safeQuery}')" style="cursor:pointer">
+                        <strong>📌 ${topicNames[topic.id]}</strong>
+                        <p>${totalMatchCount} ${matchWord} in ${sectionCount} ${sectionWord}:</p>
+                        <ul>${locations.map(loc => `<li>${loc}</li>`).join('')}</ul>
+                    </div>`;
+                }
+            });
+
+            resultsDiv.innerHTML = html || '<div class="search-result-item" style="color:#ef4444; border-color:#fca5a5;">No matches found</div>';
+        }
+
+        document.getElementById('globalSearch').addEventListener('input', triggerGlobalSearch);
+
+        // --- 4. Header Menu & Settings ---
+        const moreMenuBtn = document.getElementById('moreMenuBtn');
+        const moreMenuPanel = document.getElementById('moreMenuPanel');
+        const settingsToggleBtn = document.getElementById('settingsToggleBtn');
+        const settingsInner = document.getElementById('settingsInner');
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        
+        moreMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); moreMenuPanel.classList.toggle('active'); });
+        settingsToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); settingsInner.classList.toggle('active'); });
+
+        document.addEventListener('click', (e) => {
+            if (!moreMenuPanel.contains(e.target) && e.target !== moreMenuBtn) {
+                moreMenuPanel.classList.remove('active');
+                settingsInner.classList.remove('active');
+            }
         });
 
-        // 1. Live/Manual Update Toggle
+        themeToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.body.classList.toggle('dark-mode');
+            const themeTitle = document.getElementById('themeTitle');
+            const iconSpan = themeToggleBtn.querySelector('span');
+            
+            if(document.body.classList.contains('dark-mode')) {
+                themeTitle.innerText = "Light Mode";
+                iconSpan.innerText = "☀️";
+            } else {
+                themeTitle.innerText = "Dark Mode";
+                iconSpan.innerText = "🌙";
+            }
+        });
+
         document.querySelectorAll('input[name="previewMode"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 isLiveUpdate = e.target.value === 'live';
                 if(isLiveUpdate) {
                     document.body.classList.remove('manual-mode');
-                    textareas.forEach(textarea => {
+                    document.querySelectorAll('.editor-textarea').forEach(textarea => {
                         const gridItem = textarea.closest('.grid-box');
+                        if(!gridItem) return;
                         const outputBox = gridItem.querySelector('.output-box');
                         if (textarea.nextSibling && textarea.nextSibling.CodeMirror) {
                             outputBox.innerHTML = textarea.nextSibling.CodeMirror.getValue();
@@ -508,30 +774,18 @@
             });
         });
 
-        // 2. Wrap Code Lines Toggle Logic
         document.getElementById('wrapToggle').addEventListener('change', (e) => {
-            const isWrapped = e.target.checked;
-            
-            textareas.forEach(textarea => {
-                if (textarea.nextSibling && textarea.nextSibling.CodeMirror) {
-                    textarea.nextSibling.CodeMirror.setOption("lineWrapping", isWrapped);
-                } 
-                else {
-                    if (isWrapped) {
-                        textarea.classList.remove('no-wrap');
-                    } else {
-                        textarea.classList.add('no-wrap');
-                    }
+            const isWrappedValue = e.target.checked;
+            document.querySelectorAll('.editor-textarea').forEach(textarea => {
+                if (textarea.cmInstance) {
+                    textarea.cmInstance.setOption("lineWrapping", isWrappedValue);
+                } else {
+                    if (isWrappedValue) textarea.classList.remove('no-wrap');
+                    else textarea.classList.add('no-wrap');
                 }
             });
         });
 
-        // Bahar click karne par settings menu band
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('#settingsBtn') && !e.target.closest('#settingsMenu')) {
-                document.getElementById('settingsMenu').classList.remove('active');
-            }
-        });
     </script>
 </body>
 </html>
