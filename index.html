@@ -34,49 +34,57 @@
         body.dark-mode .menu-item:hover { background: #334155; }
         body.dark-mode .settings-inner { background: #0f172a; border: 1px solid #334155; }
         body.dark-mode .settings-inner label, body.dark-mode .settings-inner h4 { color: #cbd5e1; }
-        body.dark-mode .settings-inner select { background-color: #1f2937; color: #e5e7eb; border-color: #475569; } 
         body.dark-mode .search-result-item { background: #334155; border-color: #475569; }
         body.dark-mode .match-case-label { color: #cbd5e1; }
 
-        /* --- Header (Original Height & Perfectly Aligned) --- */
+        /* Dark Mode Select Dropdown Fix */
+        body.dark-mode .settings-inner select { background-color: #374151; color: #f9fafb; border-color: #4b5563; } 
+        body.dark-mode .settings-inner select option { background-color: #1f2937; color: #f9fafb; }
+
+        /* --- Header (Original Height & Vertical Alignment) --- */
         .header { 
             background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); 
             color: white; 
-            padding: 1.5rem 1rem; /* Original Height */
+            padding: 1.5rem 1rem; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
             position: relative; 
         }
-        /* Fixed width for side sections to keep title perfectly centered */
         .header-left, .header-right { width: 50px; display: flex; align-items: center; }
         .header-right { justify-content: flex-end; }
         
         .header h1 { 
-            font-size: 2.2rem; /* Original size */
+            font-size: 2.2rem; 
             margin: 0; 
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2); 
             flex-grow: 1; 
             text-align: center; 
             display: flex; 
+            flex-direction: column; /* Stack Title and Mode */
             justify-content: center; 
             align-items: center; 
-            gap: 12px; /* Space between title and badge */
+            gap: 4px; /* Space between title and badge */
+            cursor: pointer;
+            transition: transform 0.2s;
         }
+        .header h1:hover { transform: scale(1.02); }
+        .header h1 .main-title { line-height: 1; }
         
-        /* Beautiful Bold Mode Badge */
+        /* Subtitle Mode Display (Centered Below) */
         #modeDisplay {
-            font-size: 0.4em; 
+            font-size: 0.8rem; 
             font-weight: 700; 
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             color: #fde047; /* Bright Yellow/Gold */
             background-color: rgba(0, 0, 0, 0.25); /* Dark pill background */
-            padding: 4px 12px;
-            border-radius: 20px;
+            padding: 3px 12px;
+            border-radius: 15px;
             text-transform: uppercase;
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
-            text-shadow: none; /* Removes main title shadow for clarity */
+            text-shadow: none; 
+            line-height: 1;
         }
 
         .icon-btn { background: transparent; border: none; color: white; font-size: 1.8rem; cursor: pointer; transition: transform 0.2s; padding: 0 5px; }
@@ -99,9 +107,7 @@
         
         .sidebar { position: fixed; top: 0; left: 0; width: 300px; height: 100%; background: white; z-index: 2000; transform: translate3d(-110%, 0, 0); transition: transform 0.25s ease-in-out; will-change: transform; box-shadow: 4px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         
-        @media (min-width: 768px) {
-            .sidebar { width: 350px; }
-        }
+        @media (min-width: 768px) { .sidebar { width: 350px; } }
 
         .sidebar.active { transform: translate3d(0, 0, 0); }
         .sidebar-header { padding: 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;}
@@ -111,14 +117,10 @@
         .sidebar-search { padding: 15px; border-bottom: 1px solid #e5e7eb; }
         body.dark-mode .sidebar-search { border-color: #475569; }
         
-        /* Updated Input Box with Clear Icon Setup */
         .sidebar-search input[type="text"] { width: 100%; padding: 10px 35px 10px 10px; border: 1px solid #d1d5db; border-radius: 6px; outline: none; font-family: inherit; background: transparent; color: inherit;}
         body.dark-mode .sidebar-search input[type="text"] { border-color: #475569; }
         
-        #globalSearchClearBtn {
-            display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; font-size: 1rem; cursor: pointer; color: #9ca3af; transition: 0.2s;
-        }
+        #globalSearchClearBtn { display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1rem; cursor: pointer; color: #9ca3af; transition: 0.2s; }
         #globalSearchClearBtn:hover { color: #ef4444; }
 
         .sidebar-content { padding: 10px 0; overflow-y: auto; flex-grow: 1; }
@@ -209,6 +211,12 @@
     </style>
 </head>
 <body>
+    
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
 
     <div class="overlay" id="overlay"></div>
 
@@ -237,7 +245,10 @@
             <button class="icon-btn" id="menuBtn" title="Menu">&#9776;</button>
         </div>
         
-        <h1>Coding Notebook <span id="modeDisplay"></span></h1>
+        <h1 onclick="resetToHome()" title="Click to go to Home">
+            <div class="main-title">Coding Notebook</div>
+            <div id="modeDisplay">HTML</div>
+        </h1>
         
         <div class="header-right">
             <div class="more-menu-container">
@@ -252,6 +263,7 @@
                         <hr style="margin: 10px 0; border: 0; border-top: 1px solid #e5e7eb;">
                         <h4>Editor Settings</h4>
                         <label><input type="checkbox" id="wrapToggle"> ↩️ Wrap Code Lines</label>
+                        
                         <hr style="margin: 10px 0; border: 0; border-top: 1px solid #e5e7eb;">
                         <h4>🌐 Website Mode</h4>
                         <label>
@@ -289,10 +301,17 @@
 
     <script>
         // ==========================================
-        // DYNAMIC MODE & DATA LOADING INITIALIZATION
+        // PERSISTENCE & MODE LOADING INITIALIZATION
         // ==========================================
         const urlParams = new URLSearchParams(window.location.search);
-        const currentMode = urlParams.get('mode') || 'html';
+        let currentMode = urlParams.get('mode');
+        
+        // Mode State Persistence 
+        if (!currentMode) {
+            currentMode = localStorage.getItem('notebookMode') || 'html';
+        } else {
+            localStorage.setItem('notebookMode', currentMode);
+        }
 
         const modeDisplay = document.getElementById('modeDisplay');
         const modeSelector = document.getElementById('modeSelector');
@@ -301,11 +320,18 @@
         let modeText = "HTML";
         if(currentMode === 'css') modeText = "CSS";
         if(currentMode === 'tailwind') modeText = "Tailwind CSS";
-        modeDisplay.innerText = `(${modeText})`;
+        modeDisplay.innerText = modeText; // No brackets now
 
         modeSelector.addEventListener('change', (e) => {
+            localStorage.setItem('notebookMode', e.target.value);
             window.location.search = '?mode=' + e.target.value;
         });
+
+        // Reset to Home Function
+        window.resetToHome = function() {
+            localStorage.removeItem('lastTopic_' + currentMode);
+            window.location.reload();
+        };
 
         // Inject Tailwind securely
         if (currentMode === 'tailwind') {
@@ -353,8 +379,8 @@
                 let sidebarContent = '';
 
                 notebookData.forEach(topic => {
-                    sidebarContent += `<div class="sidebar-topic ${topic.isActive ? 'active' : ''}" onclick="switchTopic('${topic.id}')">${topic.name}</div>`;
-                    htmlContent += `<div class="topic-content ${topic.isActive ? 'active' : ''}" id="${topic.id}">`;
+                    sidebarContent += `<div class="sidebar-topic" onclick="switchTopic('${topic.id}')" data-topic-id="${topic.id}">${topic.name}</div>`;
+                    htmlContent += `<div class="topic-content" id="${topic.id}">`;
                     
                     topic.sections.forEach(sec => {
                         const fullParsedHTML = marked.parse(sec.theory);
@@ -428,6 +454,14 @@
                     button.closest('.accordion-item').classList.toggle('active');
                 });
             });
+
+            // Topic State Persistence Loading
+            const lastTopic = localStorage.getItem('lastTopic_' + currentMode);
+            if (lastTopic && document.getElementById(lastTopic)) {
+                switchTopic(lastTopic);
+            } else if (notebookData.length > 0) {
+                switchTopic(notebookData[0].id);
+            }
         }
 
         // ==========================================
@@ -649,12 +683,15 @@
 
         function switchTopic(topicId) {
             document.querySelectorAll('.sidebar-topic').forEach(el => el.classList.remove('active'));
-            const matchingLink = document.querySelector(`.sidebar-topic[onclick="switchTopic('${topicId}')"]`);
+            const matchingLink = document.querySelector(`.sidebar-topic[data-topic-id='${topicId}']`);
             if(matchingLink) matchingLink.classList.add('active');
             
             document.querySelectorAll('.topic-content').forEach(el => el.classList.remove('active'));
             const newActiveTopic = document.getElementById(topicId);
-            newActiveTopic.classList.add('active');
+            if(newActiveTopic) newActiveTopic.classList.add('active');
+            
+            // Save state
+            localStorage.setItem('lastTopic_' + currentMode, topicId);
             
             clearLocalSearch();
             closeSidebar();
@@ -735,6 +772,8 @@
             resultsDiv.innerHTML = html || '<div class="search-result-item" style="color:#ef4444; border-color:#fca5a5;">No matches found</div>';
         }
 
+        document.getElementById('globalSearch').addEventListener('input', triggerGlobalSearch);
+
         const moreMenuBtn = document.getElementById('moreMenuBtn');
         const moreMenuPanel = document.getElementById('moreMenuPanel');
         const settingsToggleBtn = document.getElementById('settingsToggleBtn');
@@ -751,6 +790,12 @@
             }
         });
 
+        // Initialize Dark Mode Toggle Button correctly
+        if (localStorage.getItem('theme') === 'dark') {
+            document.getElementById('themeTitle').innerText = "Light Mode";
+            themeToggleBtn.querySelector('span').innerText = "☀️";
+        }
+
         themeToggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             document.body.classList.toggle('dark-mode');
@@ -758,9 +803,11 @@
             const iconSpan = themeToggleBtn.querySelector('span');
             
             if(document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
                 themeTitle.innerText = "Light Mode";
                 iconSpan.innerText = "☀️";
             } else {
+                localStorage.setItem('theme', 'light');
                 themeTitle.innerText = "Dark Mode";
                 iconSpan.innerText = "🌙";
             }
