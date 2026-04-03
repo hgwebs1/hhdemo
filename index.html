@@ -1,249 +1,689 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Quick AI</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
+        /* Material You (Material 3) Design Tokens */
         :root {
-            --bg-color: #f0f2f5;
-            --chat-bg: #ffffff;
-            --text-color: #1c1e21;
-            --user-msg-bg: #0084ff;
-            --user-msg-text: #fff;
-            --bot-msg-bg: #e4e6eb;
-            --bot-msg-text: #050505;
-            --border-color: #ddd;
-            --header-bg: #ffffff;
-            --accent-color: #0084ff;
-            --font-size: 16px;
+            --bg: #F8FDFF; 
+            --surface: #FFFFFF; 
+            --surface-container: #EBF4FA;
+            --on-surface: #191C1E; 
+            --on-surface-variant: #42474E;
+            --primary: #006493; 
+            --primary-container: #CAE6FF;
+            --on-primary: #FFFFFF;
+            --on-primary-container: #001E30;
+            --error: #BA1A1A;
+            --border: #DDE3EA;
+            --shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.05);
+            
+            --fs: 16px;
+            --font-main: 'Google Sans', 'Roboto', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
         }
 
         [data-theme="dark"] {
-            --bg-color: #18191a;
-            --chat-bg: #242526;
-            --text-color: #e4e6eb;
-            --user-msg-bg: #2f9d27;
-            --user-msg-text: #fff;
-            --bot-msg-bg: #3a3b3c;
-            --bot-msg-text: #e4e6eb;
-            --border-color: #3e4042;
-            --header-bg: #242526;
+            --bg: #191C1E; 
+            --surface: #1E2022; 
+            --surface-container: #282A2D;
+            --on-surface: #E1E2E4; 
+            --on-surface-variant: #C2C7CF;
+            --primary: #8DCDFF; 
+            --primary-container: #004B70;
+            --on-primary: #00344F;
+            --on-primary-container: #CAE6FF;
+            --error: #FFB4AB;
+            --border: #42474E;
+            --shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.2);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.2s; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-color); height: 100vh; display: flex; justify-content: center; overflow: hidden; }
+        [data-theme="amoled"] {
+            --bg: #000000; --surface: #000000; --surface-container: #121212;
+            --on-surface: #E1E2E4; --on-surface-variant: #A0A0A0;
+            --primary: #8DCDFF; --primary-container: #00334C;
+            --on-primary: #000000; --on-primary-container: #CAE6FF;
+            --error: #FF897D; --border: #1F1F1F;
+        }
 
-        .app-container { width: 100%; max-width: 900px; height: 100%; display: flex; flex-direction: column; background: var(--chat-bg); position: relative; border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); }
+        [data-theme="ocean"] {
+            --bg: #F2FBFB; --surface: #FFFFFF; --surface-container: #CCE8E8;
+            --on-surface: #161C1C; --on-surface-variant: #3F4949;
+            --primary: #006A6A; --primary-container: #6FF7F6;
+            --on-primary: #FFFFFF; --on-primary-container: #002020;
+            --error: #BA1A1A; --border: #BEC9C8;
+        }
 
-        /* Header Styles */
-        header { padding: 12px 20px; background: var(--header-bg); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .logo-section { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.2rem; color: var(--accent-color); }
-        .status-indicator { width: 10px; height: 10px; background: #ccc; border-radius: 50%; }
-        .status-indicator.online { background: #42b72a; box-shadow: 0 0 5px #42b72a; }
+        [data-theme="forest"] {
+            --bg: #F7FBF1; --surface: #FFFFFF; --surface-container: #E1EED8;
+            --on-surface: #1A1C18; --on-surface-variant: #43483E;
+            --primary: #386A20; --primary-container: #B7F397;
+            --on-primary: #FFFFFF; --on-primary-container: #042100;
+            --error: #BA1A1A; --border: #C3C8BB;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-main); -webkit-tap-highlight-color: transparent; }
         
-        .nav-controls { display: flex; gap: 12px; }
-        .btn-icon { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-color); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
-        .btn-icon:hover { background: rgba(0,0,0,0.05); }
-        [data-theme="dark"] .btn-icon:hover { background: rgba(255,255,255,0.1); }
+        body { 
+            background: var(--bg); color: var(--on-surface); 
+            height: 100vh; display: flex; 
+            transition: background 0.3s ease, color 0.3s ease;
+            overflow: hidden;
+            max-width: 100vw;
+        }
 
-        /* Settings Sidebar/Panel */
-        #settings-panel { position: absolute; top: 70px; left: 15px; width: 280px; background: var(--chat-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); display: none; z-index: 200; }
-        .setting-row { margin-bottom: 20px; }
-        .setting-row label { display: block; font-size: 0.9rem; margin-bottom: 8px; opacity: 0.8; }
-        .setting-row select, .setting-row input[type="range"] { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); }
-        .flex-label { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-
-        /* Chat Area */
-        #chat-window { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .msg-wrapper { display: flex; width: 100%; margin-bottom: 5px; }
-        .msg-wrapper.user { justify-content: flex-end; }
-        .msg-wrapper.bot { justify-content: flex-start; }
+        #sidebar {
+            width: 260px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column;
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: absolute; height: 100%; z-index: 100;
+            transform: translateX(-100%);
+            box-shadow: var(--shadow);
+        }
+        #sidebar.open { transform: translateX(0); }
         
-        .bubble { padding: 12px 18px; border-radius: 18px; max-width: 80%; font-size: var(--font-size); line-height: 1.5; word-wrap: break-word; position: relative; }
-        .user .bubble { background: var(--user-msg-bg); color: var(--user-msg-text); border-bottom-right-radius: 4px; }
-        .bot .bubble { background: var(--bot-msg-bg); color: var(--bot-msg-text); border-bottom-left-radius: 4px; }
+        .sidebar-header { padding: 24px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--surface); }
+        .sidebar-content { padding: 10px 20px 24px 20px; flex: 1; overflow-y: auto; }
+        
+        #overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.3); z-index: 90;
+            opacity: 0; pointer-events: none; transition: 0.3s;
+            backdrop-filter: blur(2px);
+        }
+        #overlay.active { opacity: 1; pointer-events: all; }
 
-        /* Input Bar */
-        .input-bar { padding: 15px 20px; display: flex; gap: 12px; align-items: center; background: var(--header-bg); border-top: 1px solid var(--border-color); }
-        #input-field { flex: 1; padding: 12px 20px; border-radius: 25px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); outline: none; font-size: 1rem; }
-        #send-btn { background: var(--accent-color); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; flex-shrink: 0; }
-        #send-btn:disabled { opacity: 0.5; }
+        .main-app { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; height: 100%; overflow: hidden;}
 
-        /* Persistent Debug Console */
-        #debug-log { position: absolute; bottom: 85px; left: 20px; right: 20px; height: 120px; background: rgba(0,0,0,0.85); color: #00ff00; font-family: 'Courier New', monospace; font-size: 11px; padding: 10px; border-radius: 8px; overflow-y: auto; display: none; z-index: 50; border: 1px solid #444; pointer-events: none; }
+        header { 
+            padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+            background: var(--surface); z-index: 10;
+        }
+        
+        .brand { font-weight: 500; font-size: 1.3rem; display: flex; align-items: center; gap: 12px; color: var(--on-surface); }
+        
+        .model-selector-wrapper {
+            position: relative; display: flex; align-items: center;
+            background: var(--surface-container); 
+            border-radius: 12px; padding: 6px 12px 6px 10px;
+            transition: 0.2s;
+        }
+        
+        .dot { width: 8px; height: 8px; background: var(--error); border-radius: 50%; margin-right: 8px; transition: 0.3s; flex-shrink: 0; }
+        .dot.online { background: #1EA446; }
 
-        /* Typing Dots */
-        .dots { display: flex; gap: 4px; padding: 10px; }
-        .dot { width: 8px; height: 8px; background: #888; border-radius: 50%; animation: pulse 1.5s infinite; }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        select#model-select {
+            appearance: none; background: transparent; border: none;
+            color: var(--on-surface); font-size: 0.85rem; font-weight: 500;
+            padding-right: 20px; outline: none; cursor: pointer;
+            width: 130px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
+        }
+        .model-selector-wrapper .material-symbols-rounded { position: absolute; right: 6px; font-size: 18px; color: var(--on-surface-variant); pointer-events: none; }
+
+        .icon-btn {
+            background: transparent; border: none; color: var(--on-surface-variant);
+            cursor: pointer; width: 44px; height: 44px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+        }
+        .icon-btn:hover { background: var(--surface-container); color: var(--on-surface); }
+
+        .s-group { margin-bottom: 24px; }
+        .s-group label { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 500; margin-bottom: 12px; color: var(--on-surface-variant); }
+        .s-group select, .s-group input[type="range"] { 
+            width: 100%; padding: 14px; border-radius: 12px; 
+            background: var(--surface-container); color: var(--on-surface); 
+            border: none; outline: none; font-size: 1rem; cursor: pointer;
+        }
+
+        /* Chat Window */
+        #chat { 
+            flex: 1; padding: 20px 15%; overflow-y: auto; overflow-x: hidden;
+            display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth;
+        }
+        @media (max-width: 768px) { #chat { padding: 16px; } }
+
+        .msg { display: flex; width: 100%; max-width: 100%; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; opacity: 0; transform: translateY(10px); }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+        
+        .msg.user { justify-content: flex-end; }
+        .msg.bot { justify-content: flex-start; }
+        
+        /* FIXED: Word wrapping for long text/formulas */
+        .bubble { 
+            padding: 14px 18px; 
+            font-size: var(--fs); line-height: 1.6; 
+            word-wrap: break-word; overflow-wrap: break-word; word-break: break-word;
+            max-width: 100%;
+        }
+        
+        .user .bubble { 
+            background: var(--primary); color: var(--on-primary); 
+            border-radius: 24px 24px 4px 24px;
+            max-width: 85%;
+        }
+        .bot .bubble { 
+            background: var(--surface-container); color: var(--on-surface); 
+            border-radius: 24px 24px 24px 4px; 
+        }
+
+        .action-btn { background: transparent; border: 1px solid var(--border); color: var(--on-surface-variant); cursor: pointer; display: flex; align-items: center; gap: 4px; font-size: 0.8rem; border-radius: 12px; padding: 6px 12px; transition: 0.2s; font-weight: 500;}
+        .action-btn:hover { background: var(--surface-container); color: var(--on-surface); border-color: var(--on-surface-variant);}
+        
+        .web-btn { background: transparent; border: none; color: var(--on-surface-variant); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+        .web-btn.active { color: var(--on-primary-container); background: var(--primary-container); }
+
+        /* FIXED: Pre-wrap for code blocks to prevent overflow */
+        pre { 
+            background: #1A1C1E; color: #E1E2E4; padding: 16px; 
+            border-radius: 16px; margin: 12px 0; 
+            font-family: var(--font-code); font-size: 0.9em; 
+            white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;
+            max-width: 100%; overflow-x: auto;
+        }
+        code { 
+            font-family: var(--font-code); background: rgba(0,0,0,0.1); 
+            padding: 3px 6px; border-radius: 6px; font-size: 0.9em; 
+            white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;
+        }
+        [data-theme="dark"] code, [data-theme="amoled"] code { background: rgba(255,255,255,0.1); }
+        pre code { background: transparent; padding: 0; }
+        p { margin-bottom: 10px; max-width: 100%;}
+        p:last-child { margin-bottom: 0; }
+
+        .input-wrapper { padding: 12px 15% 24px 15%; background: var(--bg); }
+        @media (max-width: 768px) { .input-wrapper { padding: 10px 12px 16px 12px; } }
+        
+        .input-box { 
+            display: flex; gap: 8px; background: var(--surface-container); 
+            padding: 8px 8px 8px 12px; border-radius: 32px;
+            align-items: flex-end; transition: 0.3s;
+        }
+        .input-box:focus-within { background: var(--surface); box-shadow: 0 0 0 1px var(--primary); }
+        
+        textarea#query { 
+            flex: 1; border: none; background: transparent; color: var(--on-surface); 
+            outline: none; font-size: 1rem; resize: none; max-height: 150px;
+            padding-top: 14px; padding-bottom: 14px; line-height: 1.4;
+        }
+        textarea#query::placeholder { color: var(--on-surface-variant); }
+        
+        button#send { 
+            background: var(--primary); color: var(--on-primary); border: none; 
+            width: 48px; height: 48px; border-radius: 50%; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.2s; flex-shrink: 0;
+        }
+        button#send:hover:not(:disabled) { background: var(--primary-container); color: var(--on-primary-container); }
+        button#send:disabled { background: var(--surface-container); color: var(--on-surface-variant); cursor: not-allowed; opacity: 0.6;}
+
+        .typing { display: flex; gap: 6px; padding: 10px 0; align-items: center; }
+        .typing span { width: 8px; height: 8px; background: var(--on-surface-variant); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+        .typing span:nth-child(1) { animation-delay: -0.32s; }
+        .typing span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        
+        #toast {
+            position: fixed; bottom: -80px; left: 50%; transform: translateX(-50%);
+            background: var(--on-surface); color: var(--surface); padding: 12px 24px;
+            border-radius: 24px; font-size: 0.95rem; font-weight: 500;
+            transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 1000;
+            display: flex; align-items: center; gap: 10px;
+        }
+        #toast.show { bottom: 32px; }
+
+        /* KaTeX Overflow Fix */
+        .katex-display { overflow-x: auto; overflow-y: hidden; padding: 10px 0; max-width: 100%; margin: 0; }
+        .katex { white-space: normal; } /* allows inline math to wrap */
+        
+        .code-box { background: #1A1C1E; border-radius: 16px; margin: 12px 0; border: 1px solid var(--border); overflow: hidden; max-width: 100%;}
+        .code-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.2); color: #E1E2E4; font-size: 0.85rem; font-family: var(--font-main); border-bottom: 1px solid var(--border); }
+        .code-header .run-btn { background: var(--primary); color: var(--on-primary); border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px; font-size: 0.85rem; font-weight: 500; transition: 0.2s; }
+        .code-header .run-btn:hover { background: var(--primary-container); color: var(--on-primary-container); }
+        .code-box pre { margin: 0; border-radius: 0; border: none; white-space: pre-wrap; word-wrap: break-word;}
+        
+        .html-output { border-top: 1px solid var(--border); background: #ffffff; position: relative; }
+        .output-header { display: flex; justify-content: space-between; padding: 8px 16px; background: #f0f0f0; color: #333; font-size: 0.85rem; font-weight: 600; border-bottom: 1px solid #ccc; }
+        .output-header button { background: transparent; border: none; cursor: pointer; color: #d32f2f; display: flex; align-items: center; padding: 4px; border-radius: 4px;}
+        .output-header button:hover { background: rgba(211, 47, 47, 0.1); }
+        .html-output iframe { width: 100%; height: 350px; border: none; display: block; background: #ffffff; }
     </style>
 </head>
-<body data-theme="light">
+<body data-theme="dark">
 
-<div class="app-container">
-    <header>
-        <div class="nav-controls">
-            <button class="btn-icon" onclick="toggleSettings()" title="Settings">⚙️</button>
-        </div>
-        <div class="logo-section">
-            <div id="status-dot" class="status-indicator"></div>
-            Quick AI
-        </div>
-        <div class="nav-controls">
-            <button id="theme-btn" class="btn-icon" onclick="toggleTheme()" title="Theme">☀️</button>
-        </div>
+<div id="overlay" onclick="toggleSidebar()"></div>
 
-        <div id="settings-panel">
-            <div style="font-weight:bold; margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:5px;">App Settings</div>
-            
-            <div class="setting-row">
-                <label>Font Family</label>
-                <select onchange="document.body.style.setProperty('--font-family', this.value); document.body.style.fontFamily = this.value;">
-                    <option value="'Segoe UI', sans-serif">Standard</option>
-                    <option value="'Courier New', monospace">Coding (Mono)</option>
-                    <option value="Georgia, serif">Classic (Serif)</option>
-                </select>
-            </div>
-
-            <div class="setting-row">
-                <label>Font Size: <span id="size-val">16px</span></label>
-                <input type="range" min="10" max="30" step="2" value="16" oninput="updateFontSize(this.value)">
-            </div>
-
-            <div class="setting-row">
-                <label class="flex-label">
-                    <span>Debug Console</span>
-                    <input type="checkbox" id="debug-toggle" onchange="toggleDebug(this.checked)">
-                </label>
-            </div>
-        </div>
-    </header>
-
-    <div id="chat-window">
-        <div class="msg-wrapper bot">
-            <div class="bubble bot">Welcome to Quick AI. Main Qwen2.5-Coder hoon, kaise madad karu?</div>
-        </div>
+<div id="sidebar">
+    <div class="sidebar-header">
+        <h2 style="font-size: 1.4rem; font-weight: 500; color: var(--on-surface);">Settings</h2>
     </div>
-
-    <div id="debug-log"></div>
-
-    <div class="input-bar">
-        <input type="text" id="input-field" placeholder="Ask me anything..." autocomplete="off" onkeypress="if(event.key==='Enter') sendMessage()">
-        <button id="send-btn" onclick="sendMessage()">➤</button>
+    <div class="sidebar-content">
+        <div class="s-group">
+            <label><span class="material-symbols-rounded">palette</span> App Theme</label>
+            <select id="theme-select" onchange="changeTheme(this.value)">
+                <option value="light">Material Light</option>
+                <option value="dark" selected>Material Dark</option>
+                <option value="amoled">AMOLED Black</option>
+                <option value="ocean">Ocean Blue</option>
+                <option value="forest">Nature Green</option>
+            </select>
+        </div>
+        <div class="s-group">
+            <label><span class="material-symbols-rounded">font_download</span> Font Style</label>
+            <select id="font-select" onchange="changeFont(this.value)">
+                <option value="'Google Sans', 'Roboto', sans-serif">Google Sans (Android)</option>
+                <option value="system-ui, sans-serif">System Native</option>
+                <option value="'JetBrains Mono', monospace">Monospace</option>
+            </select>
+        </div>
+        <div class="s-group">
+            <label><span class="material-symbols-rounded">translate</span> AI Language</label>
+            <select id="lang-select">
+                <option value="english">English</option>
+                <option value="hindi">Hindi</option>
+            </select>
+        </div>
+        <div class="s-group">
+            <label><span class="material-symbols-rounded">format_size</span> Font Size (<span id="sz-txt">16px</span>)</label>
+            <input type="range" min="10" max="30" step="2" value="16" oninput="updateFS(this.value)">
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <button onclick="fetchModels()" style="background:var(--primary-container); color:var(--on-primary-container); border:none; padding:16px; border-radius:16px; cursor:pointer; width:100%; display:flex; justify-content:center; align-items:center; gap:8px; font-weight:500; font-size:1rem;">
+                <span class="material-symbols-rounded">sync</span> Reconnect Server
+            </button>
+        </div>
     </div>
 </div>
 
-<script>
-    // Configuration
-    const API_URL = "https://hollama.serveousercontent.com/api/generate";
-    const STATUS_URL = "https://hollama.serveousercontent.com/api/tags";
-    const MODEL = "qwen2.5-coder:7b";
-
-    const chatWindow = document.getElementById('chat-window');
-    const inputField = document.getElementById('input-field');
-    const debugLog = document.getElementById('debug-log');
-    const statusDot = document.getElementById('status-dot');
-    let isDebug = false;
-
-    // 1. Connectivity Check
-    async function checkSystem() {
-        try {
-            const res = await fetch(STATUS_URL);
-            if(res.ok) statusDot.classList.add('online');
-            else statusDot.classList.remove('online');
-        } catch(e) { 
-            statusDot.classList.remove('online');
-            addLog("System Offline: Check Tunnel/CORS");
-        }
-    }
-    setInterval(checkSystem, 5000);
-    checkSystem();
-
-    // 2. Debugging Logic (Long-term thinking)
-    function addLog(msg) {
-        if(!isDebug) return;
-        const entry = document.createElement('div');
-        entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-        debugLog.appendChild(entry);
-        debugLog.scrollTop = debugLog.scrollHeight;
-    }
-
-    function toggleDebug(val) {
-        isDebug = val;
-        debugLog.style.display = val ? 'block' : 'none';
-        addLog("Debug Console Enabled.");
-    }
-
-    // 3. UI Logic
-    function toggleSettings() {
-        const p = document.getElementById('settings-panel');
-        p.style.display = p.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function toggleTheme() {
-        const b = document.body;
-        const btn = document.getElementById('theme-btn');
-        if(b.getAttribute('data-theme') === 'light') {
-            b.setAttribute('data-theme', 'dark');
-            btn.innerText = '🌙';
-        } else {
-            b.setAttribute('data-theme', 'light');
-            btn.innerText = '☀️';
-        }
-    }
-
-    function updateFontSize(val) {
-        document.documentElement.style.setProperty('--font-size', val + 'px');
-        document.getElementById('size-val').innerText = val + 'px';
-        addLog(`Font size set to ${val}px`);
-    }
-
-    // 4. Chat Core
-    function appendMsg(role, text) {
-        const wrapper = document.createElement('div');
-        wrapper.className = `msg-wrapper ${role}`;
-        wrapper.innerHTML = `<div class="bubble ${role}">${text}</div>`;
-        chatWindow.appendChild(wrapper);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-        return wrapper;
-    }
-
-    async function sendMessage() {
-        const prompt = inputField.value.trim();
-        if(!prompt) return;
-
-        appendMsg('user', prompt);
-        inputField.value = '';
+<div class="main-app">
+    <header>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="icon-btn" onclick="toggleSidebar()"><span class="material-symbols-rounded">menu</span></button>
+            <div class="brand">Quick AI</div>
+        </div>
         
-        const loader = document.createElement('div');
-        loader.className = 'msg-wrapper bot';
-        loader.innerHTML = `<div class="bubble bot"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
-        chatWindow.appendChild(loader);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
+        <div class="model-selector-wrapper">
+            <div id="status" class="dot"></div>
+            <select id="model-select" onchange="changeActiveModel(this.value)">
+                <option value="">Fetching...</option>
+            </select>
+            <span class="material-symbols-rounded">arrow_drop_down</span>
+        </div>
 
-        addLog(`Sending request for model: ${MODEL}`);
+        <div>
+            <button class="icon-btn" onclick="clearChat()"><span class="material-symbols-rounded">delete</span></button>
+        </div>
+    </header>
+
+    <div id="chat">
+        <div class="msg bot">
+            <div style="display:flex; flex-direction:column; max-width:100%;">
+                <div class="bubble">Namaste! Main Quick AI hoon. Native Android UI mein aapka swagat hai. Model connect ho raha hai...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="input-wrapper">
+        <div class="input-box">
+            <button id="web-search-btn" class="web-btn" onclick="toggleWebSearch()" title="Web Search: OFF">
+                <span class="material-symbols-rounded">public_off</span>
+            </button>
+
+            <textarea id="query" rows="1" placeholder="Type a message" oninput="autoResize(this)"></textarea>
+            
+            <button id="send" onclick="askAI()" disabled>
+                <span class="material-symbols-rounded">send</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="toast"><span class="material-symbols-rounded" id="toast-icon">info</span> <span id="toast-msg">Notification</span></div>
+
+<script>
+    const API_BASE = "https://larhonda-dermatographic-episodically.ngrok-free.dev/api";
+    let CURRENT_MODEL = ""; 
+    let isGenerating = false;
+    let lastUserMessage = ""; 
+
+    // Web Search Demo Function
+    function toggleWebSearch() {
+        showToast("This is a demo button.", "info");
+    }
+
+    // Fast Fetch Models
+    async function fetchModels() {
+        const select = document.getElementById('model-select');
+        const statusDot = document.getElementById('status');
+        const sendBtn = document.getElementById('send');
+        
+        statusDot.className = 'dot';
+        select.innerHTML = '<option value="">Connecting...</option>';
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
 
         try {
-            const response = await fetch(API_URL, {
+            const res = await fetch(`${API_BASE}/tags`, { signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            if (!res.ok) throw new Error("Offline");
+            
+            const data = await res.json();
+            
+            if (data.models && data.models.length > 0) {
+                select.innerHTML = ''; 
+                data.models.forEach(model => {
+                    const opt = document.createElement('option');
+                    opt.value = model.name;
+                    opt.textContent = model.name;
+                    select.appendChild(opt);
+                });
+
+                CURRENT_MODEL = data.models[0].name; 
+                statusDot.className = 'dot online';
+                if(document.getElementById('query').value.trim() !== "") sendBtn.disabled = false;
+                
+                showToast("Connected", 'cloud_done');
+                
+                if(document.querySelectorAll('.msg').length === 1) {
+                    document.querySelector('.bot .bubble').innerHTML = `Server connected to <b>${CURRENT_MODEL}</b>. Try asking me a Math formula!`;
+                }
+            }
+        } catch (err) {
+            clearTimeout(timeoutId);
+            select.innerHTML = `<option value="">Offline</option>`;
+            statusDot.className = 'dot';
+            showToast("Server Offline", 'cloud_off');
+        }
+    }
+
+    fetchModels();
+
+    function changeActiveModel(modelName) {
+        if(!modelName) return;
+        CURRENT_MODEL = modelName;
+        showToast(`Model changed`, 'swap_horiz');
+    }
+
+    function autoResize(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = (textarea.scrollHeight > 150 ? 150 : textarea.scrollHeight) + 'px';
+        document.getElementById('send').disabled = (textarea.value.trim() === "" || CURRENT_MODEL === "" || isGenerating);
+    }
+
+    // HTML live run logic with Marked
+    const renderer = new marked.Renderer();
+    renderer.code = function(tokenOrCode, langObj) {
+        let code = typeof tokenOrCode === 'string' ? tokenOrCode : tokenOrCode.text;
+        let language = typeof tokenOrCode === 'string' ? langObj : tokenOrCode.lang;
+        code = code || '';
+        const escapedCode = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        
+        if (language === 'html' || language === 'html5') {
+            return `
+            <div class="code-box">
+                <div class="code-header">
+                    <span>HTML</span>
+                    <button class="run-btn" onclick="playHTML(this)">
+                        <span class="material-symbols-rounded" style="font-size:16px;">play_arrow</span> Run
+                    </button>
+                </div>
+                <pre><code class="html-code">${escapedCode}</code></pre>
+                <div class="html-output" style="display:none;">
+                    <div class="output-header">Live Preview <button onclick="closeHTML(this)"><span class="material-symbols-rounded" style="font-size:16px;">close</span></button></div>
+                    <iframe sandbox="allow-scripts allow-modals allow-forms"></iframe>
+                </div>
+            </div>`;
+        }
+        return `
+        <div class="code-box">
+            <div class="code-header"><span>${language || 'Code'}</span></div>
+            <pre><code>${escapedCode}</code></pre>
+        </div>`;
+    };
+    marked.setOptions({ renderer: renderer, breaks: true });
+
+    function playHTML(btn) {
+        const box = btn.closest('.code-box');
+        const codeText = box.querySelector('.html-code').innerText;
+        const outputWrap = box.querySelector('.html-output');
+        const iframe = outputWrap.querySelector('iframe');
+        outputWrap.style.display = 'block';
+        iframe.srcdoc = codeText;
+    }
+
+    function closeHTML(btn) {
+        const outputWrap = btn.closest('.html-output');
+        outputWrap.style.display = 'none';
+        outputWrap.querySelector('iframe').srcdoc = ''; 
+    }
+
+    // NEW FIXED: Bulletproof Math Protector for Streaming Text
+    function renderText(element, rawText) {
+        let mathBlocks = [];
+        let text = rawText || "";
+
+        function stash(match) {
+            mathBlocks.push(match);
+            return `%%%MATH_${mathBlocks.length - 1}%%%`;
+        }
+
+        // 1. Protect $$ ... $$ OR partial $$ to end of string
+        text = text.replace(/\$\$[\s\S]*?(?:\$\$|$)/g, stash);
+        
+        // 2. Protect \[ ... \] OR partial \[ to end of string
+        text = text.replace(/\\\[[\s\S]*?(?:\\\]|$)/g, stash);
+
+        // 3. Protect \( ... \) OR partial \( to end of string
+        text = text.replace(/\\\([\s\S]*?(?:\\\)|$)/g, stash);
+
+        // Parse markdown safely
+        let html = marked.parse(text);
+
+        // Restore math blocks exactly as they were
+        html = html.replace(/%%%MATH_(\d+)%%%/g, (match, i) => {
+            return mathBlocks[i];
+        });
+
+        element.innerHTML = html;
+
+        // Apply KaTeX
+        if (typeof renderMathInElement === 'function') {
+            try {
+                renderMathInElement(element, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '\\[', right: '\\]', display: true},
+                        {left: '\\(', right: '\\)', display: false}
+                    ],
+                    throwOnError: false,
+                    errorColor: "var(--error)"
+                });
+            } catch(e) { console.warn("KaTeX render issue:", e); }
+        }
+    }
+
+    // ROBUST STREAMING ENGINE
+    async function askAI(retryMessage = null) {
+        if (!CURRENT_MODEL || isGenerating) return;
+
+        const input = document.getElementById('query');
+        const btn = document.getElementById('send');
+        
+        const text = retryMessage || input.value.trim();
+        if(!text) return;
+        
+        lastUserMessage = text; 
+
+        isGenerating = true;
+        const langCode = document.getElementById('lang-select').value;
+        let sysPrompt = "You are an intelligent, highly capable AI assistant.";
+        if (langCode === 'hindi') {
+            sysPrompt = "You are a helpful assistant. Please reply strictly in Hindi or Hinglish.";
+        }
+
+        if (!retryMessage) {
+            append('user', text);
+            input.value = '';
+            input.style.height = 'auto';
+        }
+        btn.disabled = true;
+
+        const botMsgDiv = append('bot', '<div class="typing"><span></span><span></span><span></span></div>');
+        const bubble = botMsgDiv.querySelector('.bubble');
+        let fullText = ""; 
+
+        const finalPrompt = text;
+        bubble.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+
+        try {
+            const response = await fetch(`${API_BASE}/generate`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ model: MODEL, prompt: prompt, stream: false })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ model: CURRENT_MODEL, prompt: finalPrompt, system: sysPrompt, stream: true })
             });
 
-            const data = await response.json();
-            loader.remove();
-            appendMsg('bot', data.response);
-            addLog(`Response received. Tokens: ${data.eval_count || 'N/A'}`);
+            if (!response.ok) throw new Error("Bad Server Response");
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let chunkBuffer = "";
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                chunkBuffer += decoder.decode(value, { stream: true });
+                const lines = chunkBuffer.split('\n');
+                chunkBuffer = lines.pop(); 
+
+                for (const line of lines) {
+                    if (!line.trim()) continue;
+                    try {
+                        const json = JSON.parse(line);
+                        if (json.response) {
+                            fullText += json.response;
+                            renderText(bubble, fullText);
+                            scrollToBottom();
+                        }
+                    } catch (e) { console.warn("Skipped fragmented chunk"); }
+                }
+            }
         } catch (err) {
-            loader.remove();
-            appendMsg('bot', "Connection Error. Check if 'export OLLAMA_ORIGINS=\"*\"' is set in Codespace.");
-            addLog(`Error: ${err.message}`);
+            if (fullText.length > 0) {
+                renderText(bubble, fullText);
+                bubble.innerHTML += `<br><br><small style="color:var(--error);">[Stream disconnected]</small>`;
+            } else {
+                bubble.innerHTML = `<span style="color:var(--error);"><span class="material-symbols-rounded" style="vertical-align:middle; font-size:18px;">error</span> Connection Error.</span>`;
+            }
+        } finally {
+            isGenerating = false;
+            if(input.value.trim() !== "") btn.disabled = false;
+            
+            if (botMsgDiv) {
+                const actionsBox = botMsgDiv.querySelector('.msg-actions');
+                if(actionsBox) actionsBox.style.display = 'flex';
+                bubble.setAttribute('data-raw', fullText); 
+            }
+            input.focus();
         }
     }
-</script>
 
+    function append(role, txt) {
+        const chat = document.getElementById('chat');
+        const d = document.createElement('div');
+        d.className = `msg ${role}`;
+        
+        if (role === 'bot') {
+            d.style.flexDirection = 'column';
+            d.style.alignItems = 'flex-start';
+            d.innerHTML = `
+                <div class="bubble">${txt}</div>
+                <div class="msg-actions" style="display:none; gap:8px; margin-top:6px; margin-left:12px;">
+                    <button class="action-btn" onclick="copyText(this)"><span class="material-symbols-rounded" style="font-size:16px;">content_copy</span> Copy</button>
+                    <button class="action-btn" onclick="retryLast()"><span class="material-symbols-rounded" style="font-size:16px;">refresh</span> Retry</button>
+                </div>
+            `;
+        } else {
+            d.innerHTML = `<div class="bubble">${txt}</div>`;
+        }
+        
+        chat.appendChild(d);
+        scrollToBottom();
+        return d;
+    }
+
+    function copyText(btn) {
+        const bubble = btn.closest('div').parentElement.querySelector('.bubble');
+        const textToCopy = bubble.getAttribute('data-raw') || bubble.innerText;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            showToast("Copied to clipboard", "content_copy");
+        });
+    }
+
+    function retryLast() {
+        if(!lastUserMessage || isGenerating) return;
+        askAI(lastUserMessage); 
+    }
+
+    function scrollToBottom() {
+        const chat = document.getElementById('chat');
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function clearChat() {
+        if(isGenerating) return;
+        document.getElementById('chat').innerHTML = `<div class="msg bot"><div class="bubble">Chat cleared. Ready for a new topic.</div></div>`;
+        showToast("Chat cleared", "delete");
+    }
+
+    function toggleSidebar() { 
+        document.getElementById('sidebar').classList.toggle('open'); 
+        document.getElementById('overlay').classList.toggle('active'); 
+    }
+
+    function changeTheme(v) { document.body.setAttribute('data-theme', v); }
+    function changeFont(v) { document.documentElement.style.setProperty('--font-main', v); }
+    function updateFS(v) {
+        document.documentElement.style.setProperty('--fs', v + 'px');
+        document.getElementById('sz-txt').innerText = v + 'px';
+    }
+
+    let toastTimer;
+    function showToast(msg, icon = "info") {
+        const toast = document.getElementById('toast');
+        document.getElementById('toast-msg').innerText = msg;
+        document.getElementById('toast-icon').innerText = icon;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    document.getElementById('query').addEventListener('keydown', (e) => { 
+        if(e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if(!document.getElementById('send').disabled) askAI(); 
+        }
+    });
+</script>
 </body>
 </html>
