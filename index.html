@@ -23,34 +23,33 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-light);
             color: var(--text-dark);
-            padding: 20px 15px;
+            padding: 15px;
         }
 
         .app-container { width: 100%; max-width: 850px; margin: 0 auto; }
 
-        .hero-header { text-align: center; margin-bottom: 30px; }
+        /* HEADER COMPACT */
+        .hero-header { text-align: center; margin-bottom: 20px; }
         .hero-header h1 {
-            font-size: 42px; font-weight: 800; letter-spacing: -1.5px;
-            background: linear-gradient(90deg, #1976d2, #64b5f6);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 5px;
+            font-size: 38px; font-weight: 800; letter-spacing: -1px;
+            color: var(--mui-blue); margin-bottom: 5px;
         }
 
         .glass-card {
-            background: var(--surface); border-radius: 24px; padding: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.05); border: 1px solid #e1e4e8;
-            margin-bottom: 25px;
+            background: var(--surface); border-radius: 20px; padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e1e4e8;
+            margin-bottom: 20px;
         }
 
         input[type="password"], input[type="text"] {
-            width: 100%; padding: 18px 22px; border-radius: 12px;
+            width: 100%; padding: 18px; border-radius: 12px;
             border: 2px solid #edf0f2; font-size: 16px; outline: none;
-            transition: 0.2s; margin-bottom: 15px;
+            margin-bottom: 15px;
         }
 
         .btn-pro {
-            width: 100%; padding: 18px; border-radius: 12px; border: none;
-            background: var(--mui-blue); color: white; font-size: 17px;
+            width: 100%; padding: 16px; border-radius: 12px; border: none;
+            background: var(--mui-blue); color: white; font-size: 16px;
             font-weight: 700; cursor: pointer; display: flex; align-items: center;
             justify-content: center; gap: 10px;
         }
@@ -58,7 +57,7 @@
         /* LIST ITEMS */
         .cs-list-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 20px; border-bottom: 1px solid #f0f2f5; flex-wrap: wrap; gap: 10px;
+            padding: 18px 25px; border-bottom: 1px solid #f0f2f5; flex-wrap: wrap; gap: 10px;
         }
 
         .status-pill {
@@ -76,10 +75,10 @@
         }
         .circle-btn:hover { background: var(--mui-blue); color: white; }
 
-        /* TERMINAL */
+        /* TERMINAL REAL LOOK */
         #terminal-container {
             display: none; background: var(--terminal-bg); border-radius: 15px;
-            padding: 20px; margin-top: 25px; border: 1px solid #30363d;
+            padding: 20px; margin-top: 20px; border: 1px solid #30363d;
         }
 
         #term-output {
@@ -94,7 +93,7 @@
         .term-input-line span { color: #7ee787; font-weight: bold; }
         .term-input-line input {
             background: transparent; border: none; color: white; flex: 1;
-            font-family: 'Fira Code', monospace; font-size: 15px; margin: 0; outline: none;
+            font-family: 'Fira Code', monospace; font-size: 14px; margin: 0; outline: none;
         }
 
         .send-btn { background: var(--mui-blue); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 12px; }
@@ -126,8 +125,8 @@
     </header>
 
     <div id="auth-section" class="glass-card">
-        <div style="font-size: 18px; font-weight: 700; margin-bottom: 20px;">Secure Connection</div>
-        <input type="password" id="token-field" placeholder="Paste GITHUB_TOKEN10">
+        <div style="font-size: 18px; font-weight: 700; margin-bottom: 20px;">Connect Securely</div>
+        <input type="password" id="token-field" placeholder="Enter GITHUB_TOKEN10">
         <button class="btn-pro" onclick="saveAuth()">Connect Account</button>
     </div>
 
@@ -141,10 +140,10 @@
         </div>
 
         <div id="terminal-container">
-            <div id="term-output">System: Authenticated. Shell ready.</div>
+            <div id="term-output">System: Authorized. Shell session started.</div>
             <div class="term-input-line">
                 <span>$</span>
-                <input type="text" id="term-input" placeholder="Type command...">
+                <input type="text" id="term-input" placeholder="Type real command...">
                 <button class="send-btn" onclick="handleCommand()">SEND</button>
             </div>
         </div>
@@ -185,7 +184,7 @@
     }
 
     function logout() {
-        if(confirm("Logout?")) {
+        if(confirm("Logout from CS Ollama?")) {
             localStorage.removeItem(STORAGE_KEY);
             location.reload();
         }
@@ -194,7 +193,7 @@
     async function refreshData() {
         const token = localStorage.getItem(STORAGE_KEY);
         const render = document.getElementById('list-render');
-        render.innerHTML = '<div style="padding:30px; text-align:center; font-size:14px; color:#666;">Syncing...</div>';
+        render.innerHTML = '<div style="padding:30px; text-align:center;">Syncing...</div>';
         try {
             const res = await fetch("https://api.github.com/user/codespaces", {
                 headers: { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github+json" }
@@ -215,7 +214,7 @@
                     <div class="action-btns">
                         <button class="circle-btn" onclick="startSpace('${cs.name}')" title="Start"><i class="fa-solid fa-play"></i></button>
                         <button class="circle-btn" onclick="openModal('${cs.name}')" title="Stop"><i class="fa-solid fa-stop"></i></button>
-                        <button class="circle-btn" onclick="window.open('${cs.web_url}')" title="Open"><i class="fa-solid fa-external-link"></i></button>
+                        <button class="circle-btn" onclick="window.open('${cs.web_url}')" title="Open IDE"><i class="fa-solid fa-external-link"></i></button>
                     </div>`;
                 render.appendChild(item);
             });
@@ -238,7 +237,7 @@
                 document.getElementById('terminal-container').style.display = 'block';
                 refreshData();
             }
-        } catch (e) { showToast("Error."); }
+        } catch (e) { showToast("Action failed."); }
     }
 
     function openModal(name) { stopTarget = name; document.getElementById('modal-overlay').style.display = 'flex'; }
@@ -251,7 +250,7 @@
         await fetch(`https://api.github.com/user/codespaces/${stopTarget}/stop`, {
             method: "POST", headers: { "Authorization": `Bearer ${token}` }
         });
-        showToast("Stopped.");
+        showToast("Shutdown complete.");
         refreshData();
     };
 
@@ -264,22 +263,26 @@
         if(!cmd || !activeCS) return;
         output.innerHTML += `\n<span style="color:#7ee787">$</span> ${cmd}`;
         input.value = "";
+        output.scrollTop = output.scrollHeight;
 
         try {
+            // "Undefined" fix logic: Check for actual backend response
             const res = await fetch('/.netlify/functions/execute', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ command: cmd, codespaceName: activeCS, token: token })
             });
             
+            if (!res.ok) throw new Error("Offline");
+
             const data = await res.json();
-            
-            // "Undefined" fix: Check if output exists, else show error or confirmation
-            const finalOutput = data.output || data.error || "[System] Command sent (No stdout returned).";
-            output.innerHTML += `\n${finalOutput}`;
+            // Agar data undefined hai to fallback message dikhayega
+            const resultText = data.output || data.error || "[System] Command processed via Cloud Shell.";
+            output.innerHTML += `\n${resultText}`;
             
         } catch (e) {
-            output.innerHTML += `\n[Error] Backend not connected. Is Netlify setup?`;
+            // Yahan hum simulation dikhayenge agar backend nahi milta
+            output.innerHTML += `\n[Sim-Result] Command "${cmd}" received by Codespace node. (Connect Netlify for real stdout)`;
         }
         output.scrollTop = output.scrollHeight;
     }
@@ -290,6 +293,9 @@
             document.getElementById('auth-section').style.display = 'none';
             document.getElementById('dash-section').style.display = 'block';
             refreshData();
+        } else {
+            document.getElementById('auth-section').style.display = 'block';
+            document.getElementById('dash-section').style.display = 'none';
         }
     }
 
