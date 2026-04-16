@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#2196f3">
+  <title>Q&A Bank Pro</title>
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/framework7@8/framework7-bundle.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/framework7-icons@5/css/framework7-icons.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    /* Clean UI Tweaks */
+    .question-title { font-weight: bold; color: var(--f7-theme-color); font-size: 1.1em; }
+    .answer-text { opacity: 0.8; line-height: 1.4; margin-top: 4px; }
+    #pdf-hidden { display: none; padding: 25px; background: white; color: black; }
+  </style>
+</head>
+<body class="theme-light"> <div id="app">
+    <div class="panel panel-left panel-cover">
+      <div class="page">
+        <div class="navbar"><div class="navbar-inner"><div class="title">Settings</div></div></div>
+        <div class="page-content">
+          <div class="block-title">UI Mode</div>
+          <div class="list no-hairlines">
+            <ul>
+              <li>
+                <div class="item-content">
+                  <div class="item-inner">
+                    <div class="item-title">Night Mode</div>
+                    <div class="item-after">
+                      <label class="toggle toggle-init color-blue">
+                        <input type="checkbox" id="dark-mode-toggle">
+                        <span class="toggle-icon"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="block-title">App Installation</div>
+          <div class="block">
+            <button class="button button-fill button-large color-green" id="pwa-button" style="display:none;">
+              <i class="f7-icons size-20">cloud_download_fill</i> Download App
+            </button>
+            <p id="pwa-info" style="font-size: 12px; opacity: 0.6; text-align: center;">Browser/HTTPS check needed for install button.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="view view-main">
+      <div class="page">
+        <div class="navbar">
+          <div class="navbar-bg"></div>
+          <div class="navbar-inner">
+            <div class="left">
+              <a href="#" class="link panel-open" data-panel="left"><i class="f7-icons">bars</i></a>
+            </div>
+            <div class="title">Q&A Bank Pro</div>
+            <div class="right">
+              <a href="#" class="link" onclick="generatePDF()"><i class="f7-icons">arrow_down_doc</i></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="fab fab-right-bottom color-blue">
+          <a href="#" class="popup-open" data-popup=".add-popup"><i class="f7-icons">plus</i></a>
+        </div>
+
+        <div class="page-content">
+          <div class="list media-list inset no-chevron" id="qa-list">
+            <ul>
+              <li>
+                <div class="item-content">
+                  <div class="item-inner">
+                    <div class="item-title question-title">Newton's First Law?</div>
+                    <div class="item-text answer-text">An object at rest stays at rest unless acted upon by an external force.</div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="popup add-popup">
+      <div class="page">
+        <div class="navbar">
+          <div class="navbar-inner"><div class="title">New Entry</div><div class="right"><a href="#" class="link popup-close">Cancel</a></div></div>
+        </div>
+        <div class="page-content">
+          <div class="list no-hairlines">
+            <ul>
+              <li class="item-content item-input"><div class="item-inner"><input type="text" id="q-val" placeholder="Type Question"></div></li>
+              <li class="item-content item-input"><div class="item-inner"><textarea id="a-val" placeholder="Type Answer"></textarea></div></li>
+            </ul>
+          </div>
+          <div class="block"><button class="button button-fill button-large" onclick="saveItem()">Add to Library</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pdf-hidden"><div id="pdf-content"></div></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/framework7@8/framework7-bundle.min.js"></script>
+  
+  <script>
+    // Initialize Framework7
+    const app = new Framework7({
+      el: '#app',
+      theme: 'md' // Material Design look
+    });
+
+    // --- OFFICIAL NIGHT MODE LOGIC ---
+    document.getElementById('dark-mode-toggle').addEventListener('change', (e) => {
+      if(e.target.checked) {
+        document.body.classList.remove('theme-light');
+        document.body.classList.add('theme-dark');
+      } else {
+        document.body.classList.remove('theme-dark');
+        document.body.classList.add('theme-light');
+      }
+    });
+
+    // --- PWA DIRECT INSTALL LOGIC ---
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('pwa-button').style.display = 'block';
+      document.getElementById('pwa-info').style.display = 'none';
+    });
+
+    document.getElementById('pwa-button').addEventListener('click', () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+          document.getElementById('pwa-button').style.display = 'none';
+          deferredPrompt = null;
+        });
+      }
+    });
+
+    // --- DATA HANDLING ---
+    function saveItem() {
+      const q = document.getElementById('q-val').value;
+      const a = document.getElementById('a-val').value;
+      if(!q || !a) return;
+      
+      const html = `<li><div class="item-content"><div class="item-inner"><div class="item-title question-title">${q}</div><div class="item-text answer-text">${a}</div></div></div></li>`;
+      document.querySelector('#qa-list ul').insertAdjacentHTML('beforeend', html);
+      
+      app.popup.close();
+      document.getElementById('q-val').value = ''; document.getElementById('a-val').value = '';
+    }
+
+    function generatePDF() {
+      document.getElementById('pdf-content').innerHTML = `<h1>Physics Notes</h1><hr>` + document.getElementById('qa-list').innerHTML;
+      const el = document.getElementById('pdf-hidden');
+      el.style.display = 'block';
+      html2pdf().from(el).set({ margin: 1, filename: 'MyNotes.pdf' }).save().then(() => el.style.display='none');
+    }
+  </script>
+</body>
+</html>
